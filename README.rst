@@ -4,13 +4,9 @@ sphinxcontrib-versioning
 
 Sphinx extension that allows building versioned docs for self-hosting.
 
-* Python 2.6, 2.7, PyPy, PyPy3, 3.3, 3.4, and 3.5 supported on Linux and OS X.
+* Python 2.7, PyPy, PyPy3, 3.3, 3.4, and 3.5 supported on Linux and OS X.
 
 📖 Full documentation: https://robpol86.github.io/sphinxcontrib-versioning
-
-.. image:: https://img.shields.io/appveyor/ci/Robpol86/sphinxcontrib-versioning/master.svg?style=flat-square&label=AppVeyor%20CI
-    :target: https://ci.appveyor.com/project/Robpol86/sphinxcontrib-versioning
-    :alt: Build Status Windows
 
 .. image:: https://img.shields.io/travis/Robpol86/sphinxcontrib-versioning/master.svg?style=flat-square&label=Travis%20CI
     :target: https://travis-ci.org/Robpol86/sphinxcontrib-versioning
