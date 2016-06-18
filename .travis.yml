@@ -5,6 +5,9 @@ sudo: false
 
 # Run.
 install: pip install appveyor-artifacts coveralls tox
+before_script:
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "Travis CI"
 script: tox -e lint,py35,py34,py33,pypy3,pypy,py27
 after_success:
   - coveralls
