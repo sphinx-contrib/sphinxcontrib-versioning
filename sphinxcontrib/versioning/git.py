@@ -4,7 +4,7 @@ import re
 
 from subprocess import CalledProcessError, check_output, STDOUT
 
-RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+)$', re.MULTILINE)
+RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+(?:\^\{})?)$', re.MULTILINE)
 
 
 class GitError(Exception):
@@ -45,15 +45,22 @@ def list_remote(local_root):
     :return: List of tuples containing strings. Each tuple is sha, name, kind.
     :rtype: list
     """
-    command = ['git', 'ls-remote', '-h', '-t']
+    command = ['git', 'ls-remote', '--heads', '--tags']
     try:
         output = check_output(command, cwd=local_root, stderr=STDOUT).decode('ascii')
     except CalledProcessError as exc:
         raise GitError('Git failed to list remote refs.', exc.output.decode('ascii'))
 
-    # Parse output.
-    parsed = [m.groupdict() for m in RE_REMOTE.finditer(output)]
-    if not parsed:
-        return parsed
+    # Dereference annotated tags if any. No need to fetch annotations.
+    if '^{}' in output:
+        parsed = list()
+        for group in (m.groupdict() for m in RE_REMOTE.finditer(output)):
+            dereferenced, name, kind = group['name'].endswith('^{}'), group['name'][:-3], group['kind']
+            if dereferenced and parsed and kind == parsed[-1]['kind'] == 'tags' and name == parsed[-1]['name']:
+                parsed[-1]['sha'] = group['sha']
+            else:
+                parsed.append(group)
+    else:
+        parsed = [m.groupdict() for m in RE_REMOTE.finditer(output)]
 
     return [[i['sha'], i['name'], i['kind']] for i in parsed]
