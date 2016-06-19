@@ -5,6 +5,7 @@ import re
 from subprocess import CalledProcessError, check_output, STDOUT
 
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+(?:\^\{})?)$', re.MULTILINE)
+RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
 
 
 class GitError(Exception):
@@ -15,6 +16,27 @@ class GitError(Exception):
         self.message = message
         self.output = output
         super(GitError, self).__init__(message, output)
+
+
+def chunk(iterator, max_size):
+    """Chunk a list/set/etc.
+
+    :param iter iterator: The iterable object to chunk.
+    :param int max_size: Max size of each chunk. Remainder chunk may be smaller.
+
+    :return: Yield list of items.
+    :rtype: iter
+    """
+    gen = iter(iterator)
+    while True:
+        chunked = list()
+        for i, item in enumerate(gen):
+            chunked.append(item)
+            if i >= max_size - 1:
+                break
+        if not chunked:
+            return
+        yield chunked
 
 
 def get_root(directory):
@@ -29,9 +51,9 @@ def get_root(directory):
     """
     command = ['git', 'rev-parse', '--show-toplevel']
     try:
-        output = check_output(command, cwd=directory, stderr=STDOUT).decode('ascii')
+        output = check_output(command, cwd=directory, stderr=STDOUT).decode('utf-8')
     except CalledProcessError as exc:
-        raise GitError('Git failed to list remote refs.', exc.output.decode('ascii'))
+        raise GitError('Git failed to list remote refs.', exc.output.decode('utf-8'))
     return output.strip()
 
 
@@ -47,9 +69,9 @@ def list_remote(local_root):
     """
     command = ['git', 'ls-remote', '--heads', '--tags']
     try:
-        output = check_output(command, cwd=local_root, stderr=STDOUT).decode('ascii')
+        output = check_output(command, cwd=local_root, stderr=STDOUT).decode('utf-8')
     except CalledProcessError as exc:
-        raise GitError('Git failed to list remote refs.', exc.output.decode('ascii'))
+        raise GitError('Git failed to list remote refs.', exc.output.decode('utf-8'))
 
     # Dereference annotated tags if any. No need to fetch annotations.
     if '^{}' in output:
@@ -64,3 +86,44 @@ def list_remote(local_root):
         parsed = [m.groupdict() for m in RE_REMOTE.finditer(output)]
 
     return [[i['sha'], i['name'], i['kind']] for i in parsed]
+
+
+def filter_and_date(local_root, conf_rel_path, commits):
+    """Get commit Unix timestamps. Exclude commits with no conf.py file.
+
+    :raise CalledProcessError: Unhandled git command failure.
+    :raise GitError: A commit SHA has not been fetched.
+    :raise ValueError: Unexpected output from git.
+
+    :param str local_root: Local path to git root directory.
+    :param str conf_rel_path: Relative path (to git root) of Sphinx conf.py (e.g. docs/conf.py).
+    :param iter commits: List of commit SHAs.
+
+    :return: Commit time (seconds since Unix epoch) for each commit. SHA keys and int values.
+    :rtype: dict
+    """
+    dates = dict()
+
+    # Filter without docs.
+    for commit in commits:
+        if commit in dates:
+            continue
+        command = ['git', 'ls-tree', '--name-only', '-r', commit, conf_rel_path]
+        try:
+            output = check_output(command, cwd=local_root, stderr=STDOUT).decode('utf-8')
+        except CalledProcessError as exc:
+            raise GitError('Git ls-tree failed on {0}'.format(commit), exc.output.decode('utf-8'))
+        if output:
+            dates[commit] = None
+
+    # Get timestamps by groups of 50.
+    command_prefix = ['git', 'show', '--no-patch', '--pretty=format:%ct']
+    for commits_group in chunk(dates, 50):
+        command = command_prefix + commits_group
+        output = check_output(command, cwd=local_root, stderr=STDOUT).decode('utf-8')
+        timestamps = [int(i) for i in RE_UNIX_TIME.findall(output)]
+        for i, commit in enumerate(commits_group):
+            dates[commit] = timestamps[i]
+
+    # Done.
+    return dates
