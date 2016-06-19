@@ -90,7 +90,7 @@ def test_outdated_local(tmpdir, local, remote, run):
     :param remote: conftest fixture.
     :param run: conftest fixture.
     """
-    # Setup second local repo now before pushing changes to it from the primary local repo.
+    # Setup separate local repo now before pushing changes to it from the primary local repo.
     local_outdated = tmpdir.ensure_dir('local_outdated')
     run(local_outdated, ['git', 'clone', '--branch', 'master', remote, '.'])
     sha = run(local_outdated, ['git', 'rev-parse', 'HEAD']).strip()

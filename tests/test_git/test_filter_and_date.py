@@ -61,7 +61,7 @@ def test_outdated_local(tmpdir, local, remote, run):
     :param remote: conftest fixture.
     :param run: conftest fixture.
     """
-    # Commit to second local repo and push to common remote.
+    # Commit to separate local repo and push to common remote.
     local_ahead = tmpdir.ensure_dir('local_ahead')
     run(local_ahead, ['git', 'clone', remote, '.'])
     local_ahead.join('README').write('changed')

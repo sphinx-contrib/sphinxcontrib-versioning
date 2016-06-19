@@ -2,7 +2,7 @@
 
 import re
 
-from subprocess import CalledProcessError, check_output, STDOUT
+from subprocess import CalledProcessError, check_call, check_output, STDOUT
 
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+(?:\^\{})?)$', re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -127,3 +127,24 @@ def filter_and_date(local_root, conf_rel_path, commits):
 
     # Done.
     return dates
+
+
+def fetch_commits(local_root, remotes):
+    """Fetch from origin.
+
+    :raise CalledProcessError: Unhandled git command failure.
+
+    :param str local_root: Local path to git root directory.
+    :param iter remotes: Output of list_remote().
+    """
+    # Fetch all known branches.
+    command = ['git', 'fetch', 'origin']
+    check_output(command, cwd=local_root, stderr=STDOUT)
+
+    # Fetch new branches/tags.
+    for sha, name, kind in remotes:
+        try:
+            check_call(['git', 'reflog', sha], cwd=local_root)
+        except CalledProcessError:
+            check_output(command + ['refs/{0}/{1}'.format(kind, name)], cwd=local_root, stderr=STDOUT)
+            check_output(['git', 'reflog', sha], cwd=local_root, stderr=STDOUT)
