@@ -1,26 +1,14 @@
 """pytest fixtures for this directory."""
 
-from subprocess import check_output, STDOUT
-
 import pytest
+
+from sphinxcontrib.versioning.git import run_command
 
 
 @pytest.fixture
 def run():
-    """check_output() wrapper returned from a pytest fixture."""
-    def run_command(cwd, command):
-        """check_output() wrapper.
-
-        :param cwd: Working directory of command (str or py.path).
-        :param iter command: Command to run.
-
-        :return: Command output.
-        :rtype: str
-        """
-        processed_cwd = str(cwd)
-        processed_command = [str(i) for i in command]
-        return check_output(processed_command, cwd=processed_cwd, stderr=STDOUT).decode('utf-8')
-    return run_command
+    """run_command() wrapper returned from a pytest fixture."""
+    return lambda d, c: run_command(str(d), [str(i) for i in c])
 
 
 @pytest.fixture

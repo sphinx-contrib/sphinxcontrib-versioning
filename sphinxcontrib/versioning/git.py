@@ -1,8 +1,9 @@
 """Interface with git locally and remotely."""
 
+import os
 import re
 
-from subprocess import CalledProcessError, check_call, check_output, STDOUT
+from subprocess import CalledProcessError, check_output, STDOUT
 
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+(?:\^\{})?)$', re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -39,6 +40,20 @@ def chunk(iterator, max_size):
         yield chunked
 
 
+def run_command(local_root, command):
+    """check_output() wrapper.
+
+    :param str local_root: Local path to git root directory.
+    :param iter command: Command to run.
+
+    :return: Command output.
+    :rtype: str
+    """
+    git_root = os.path.join(local_root, '.git')
+    env = dict(os.environ, GIT_DIR=git_root)
+    return check_output(command, cwd=local_root, env=env, stderr=STDOUT).decode('utf-8')
+
+
 def get_root(directory):
     """Get root directory of the local git repo from any subdirectory within it.
 
@@ -49,9 +64,10 @@ def get_root(directory):
     :return: Root directory of repository.
     :rtype: str
     """
+    env = {k: v for k, v in os.environ.items() if k != 'GIT_DIR'}
     command = ['git', 'rev-parse', '--show-toplevel']
     try:
-        output = check_output(command, cwd=directory, stderr=STDOUT).decode('utf-8')
+        output = check_output(command, cwd=directory, env=env, stderr=STDOUT).decode('utf-8')
     except CalledProcessError as exc:
         raise GitError('Git failed to list remote refs.', exc.output.decode('utf-8'))
     return output.strip()
@@ -69,7 +85,7 @@ def list_remote(local_root):
     """
     command = ['git', 'ls-remote', '--heads', '--tags']
     try:
-        output = check_output(command, cwd=local_root, stderr=STDOUT).decode('utf-8')
+        output = run_command(local_root, command)
     except CalledProcessError as exc:
         raise GitError('Git failed to list remote refs.', exc.output.decode('utf-8'))
 
@@ -110,7 +126,7 @@ def filter_and_date(local_root, conf_rel_path, commits):
             continue
         command = ['git', 'ls-tree', '--name-only', '-r', commit, conf_rel_path]
         try:
-            output = check_output(command, cwd=local_root, stderr=STDOUT).decode('utf-8')
+            output = run_command(local_root, command)
         except CalledProcessError as exc:
             raise GitError('Git ls-tree failed on {0}'.format(commit), exc.output.decode('utf-8'))
         if output:
@@ -120,7 +136,7 @@ def filter_and_date(local_root, conf_rel_path, commits):
     command_prefix = ['git', 'show', '--no-patch', '--pretty=format:%ct']
     for commits_group in chunk(dates, 50):
         command = command_prefix + commits_group
-        output = check_output(command, cwd=local_root, stderr=STDOUT).decode('utf-8')
+        output = run_command(local_root, command)
         timestamps = [int(i) for i in RE_UNIX_TIME.findall(output)]
         for i, commit in enumerate(commits_group):
             dates[commit] = timestamps[i]
@@ -139,12 +155,12 @@ def fetch_commits(local_root, remotes):
     """
     # Fetch all known branches.
     command = ['git', 'fetch', 'origin']
-    check_output(command, cwd=local_root, stderr=STDOUT)
+    run_command(local_root, command)
 
     # Fetch new branches/tags.
     for sha, name, kind in remotes:
         try:
-            check_call(['git', 'reflog', sha], cwd=local_root)
+            run_command(local_root, ['git', 'reflog', sha])
         except CalledProcessError:
-            check_output(command + ['refs/{0}/{1}'.format(kind, name)], cwd=local_root, stderr=STDOUT)
-            check_output(['git', 'reflog', sha], cwd=local_root, stderr=STDOUT)
+            run_command(local_root, command + ['refs/{0}/{1}'.format(kind, name)])
+            run_command(local_root, ['git', 'reflog', sha])
