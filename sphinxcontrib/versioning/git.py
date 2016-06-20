@@ -3,7 +3,7 @@
 import os
 import re
 
-from subprocess import CalledProcessError, check_output, STDOUT
+from subprocess import CalledProcessError, check_output, PIPE, Popen, STDOUT
 
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+(?:\^\{})?)$', re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -164,3 +164,20 @@ def fetch_commits(local_root, remotes):
         except CalledProcessError:
             run_command(local_root, command + ['refs/{0}/{1}'.format(kind, name)])
             run_command(local_root, ['git', 'reflog', sha])
+
+
+def export(local_root, docs_rel_path, commit, target):
+    """Export git commit to directory. "Extracts" all files at the commit to the target directory.
+
+    :param str local_root: Local path to git root directory.
+    :param str docs_rel_path: Relative path (to git root) of directory with Sphinx docs.
+    :param str commit: Git commit SHA to export.
+    :param str target: Directory to export to.
+    """
+    git_command = ['git', 'archive', '--format=tar', commit, docs_rel_path]
+    tar_command = ['tar', '-x', '-C', target]
+    env = dict(os.environ, GIT_DIR=os.path.join(local_root, '.git'))
+
+    git = Popen(git_command, cwd=local_root, env=env, stdout=PIPE, stderr=PIPE)
+    check_output(tar_command, stdin=git.stdout)
+    git.wait()
