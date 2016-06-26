@@ -49,11 +49,11 @@ def test_fetch_new(tmpdir, local, remote, run, clone_branch):
     shas = {r[0] for r in remotes}
     assert len(shas) == 3
     with pytest.raises(GitError):
-        filter_and_date(str(local), 'README', shas)
+        filter_and_date(str(local), ['README'], shas)
 
     # Fetch and verify.
     fetch_commits(str(local), remotes)
-    dates = filter_and_date(str(local), 'README', shas)
+    dates = filter_and_date(str(local), ['README'], shas)
     assert len(dates) == 3
     run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])
 
@@ -95,10 +95,10 @@ def test_new_branch_tags(tmpdir, local, remote, run, clone_branch):
     shas = {r[0] for r in remotes}
     assert len(shas) == 3
     with pytest.raises(GitError):
-        filter_and_date(str(local), 'README', shas)
+        filter_and_date(str(local), ['README'], shas)
 
     # Fetch and verify.
     fetch_commits(str(local), remotes)
-    dates = filter_and_date(str(local), 'README', shas)
+    dates = filter_and_date(str(local), ['README'], shas)
     assert len(dates) == 3
     run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])

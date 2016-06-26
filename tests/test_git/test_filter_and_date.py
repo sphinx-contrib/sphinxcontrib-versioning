@@ -16,21 +16,45 @@ def test_one_commit(local, run):
     :param run: conftest fixture.
     """
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
-    dates = filter_and_date(str(local), 'does_not_exist', [sha])
+    dates = filter_and_date(str(local), ['does_not_exist'], [sha])
     assert not dates
 
     with pytest.raises(GitError):
-        filter_and_date(str(local), 'README', ['invalid'])
+        filter_and_date(str(local), ['README'], ['invalid'])
 
     # Test with existing conf_rel_path.
-    dates = filter_and_date(str(local), 'README', [sha])
+    dates = filter_and_date(str(local), ['README'], [sha])
     assert list(dates) == [sha]
     assert dates[sha] >= BEFORE
     assert dates[sha] < time.time()
 
     # Test duplicate SHAs.
-    dates2 = filter_and_date(str(local), 'README', [sha, sha, sha])
+    dates2 = filter_and_date(str(local), ['README'], [sha, sha, sha])
     assert dates2 == dates
+
+
+def test_three_commits_multiple_paths(local, run):
+    """Test with two valid candidates and one ignored candidate.
+
+    :param local: conftest fixture.
+    :param run: conftest fixture.
+    """
+    shas = {run(local, ['git', 'rev-parse', 'HEAD']).strip()}
+    run(local, ['git', 'checkout', 'feature'])
+    local.ensure('conf.py').write('pass\n')
+    run(local, ['git', 'add', 'conf.py'])
+    run(local, ['git', 'commit', '-m', 'root'])
+    shas.add(run(local, ['git', 'rev-parse', 'HEAD']).strip())
+    run(local, ['git', 'checkout', '-b', 'subdir', 'master'])
+    local.ensure('docs', 'conf.py').write('pass\n')
+    run(local, ['git', 'add', 'docs/conf.py'])
+    run(local, ['git', 'commit', '-m', 'subdir'])
+    shas.add(run(local, ['git', 'rev-parse', 'HEAD']).strip())
+    run(local, ['git', 'push', 'origin', 'feature', 'subdir'])
+
+    assert len(shas) == 3
+    dates = filter_and_date(str(local), ['conf.py', 'docs/conf.py'], shas)
+    assert len(dates) == 2
 
 
 def test_multiple_commits(local, run):
@@ -49,7 +73,7 @@ def test_multiple_commits(local, run):
         run(local, ['git', 'commit', '-m', 'remove'])
         shas.add(run(local, ['git', 'rev-parse', 'HEAD']).strip())
     assert len(shas) == 101
-    dates = filter_and_date(str(local), 'docs/conf.py', list(shas))
+    dates = filter_and_date(str(local), ['docs/conf.py'], list(shas))
     assert len(dates) == 50
 
 
@@ -75,11 +99,11 @@ def test_outdated_local(tmpdir, local, remote, run):
     remotes = list_remote(str(local))
     shas = [r[0] for r in remotes]
     with pytest.raises(GitError):
-        filter_and_date(str(local), 'README', shas)
+        filter_and_date(str(local), ['README'], shas)
 
     # Pull and retry.
     run(local, ['git', 'pull', 'origin', 'master'])
     run(local, ['git', 'checkout', 'feature'])
     run(local, ['git', 'pull', 'origin', 'feature'])
-    dates = filter_and_date(str(local), 'README', shas)
+    dates = filter_and_date(str(local), ['README'], shas)
     assert len(dates) == 3  # Original SHA is the same for everything. Plus above two commits.

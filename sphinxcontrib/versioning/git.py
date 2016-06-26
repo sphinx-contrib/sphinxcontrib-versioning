@@ -2,6 +2,8 @@
 
 import os
 import re
+import shutil
+import tempfile
 
 from subprocess import CalledProcessError, check_output, PIPE, Popen, STDOUT
 
@@ -104,7 +106,7 @@ def list_remote(local_root):
     return [[i['sha'], i['name'], i['kind']] for i in parsed]
 
 
-def filter_and_date(local_root, conf_rel_path, commits):
+def filter_and_date(local_root, conf_rel_paths, commits):
     """Get commit Unix timestamps. Exclude commits with no conf.py file.
 
     :raise CalledProcessError: Unhandled git command failure.
@@ -112,7 +114,7 @@ def filter_and_date(local_root, conf_rel_path, commits):
     :raise ValueError: Unexpected output from git.
 
     :param str local_root: Local path to git root directory.
-    :param str conf_rel_path: Relative path (to git root) of Sphinx conf.py (e.g. docs/conf.py).
+    :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
     :param iter commits: List of commit SHAs.
 
     :return: Commit time (seconds since Unix epoch) for each commit. SHA keys and int values.
@@ -124,7 +126,7 @@ def filter_and_date(local_root, conf_rel_path, commits):
     for commit in commits:
         if commit in dates:
             continue
-        command = ['git', 'ls-tree', '--name-only', '-r', commit, conf_rel_path]
+        command = ['git', 'ls-tree', '--name-only', '-r', commit] + conf_rel_paths
         try:
             output = run_command(local_root, command)
         except CalledProcessError as exc:
@@ -166,18 +168,37 @@ def fetch_commits(local_root, remotes):
             run_command(local_root, ['git', 'reflog', sha])
 
 
-def export(local_root, docs_rel_path, commit, target):
+def export(local_root, conf_rel_paths, commit, target):
     """Export git commit to directory. "Extracts" all files at the commit to the target directory.
 
     :param str local_root: Local path to git root directory.
-    :param str docs_rel_path: Relative path (to git root) of directory with Sphinx docs.
+    :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
     :param str commit: Git commit SHA to export.
     :param str target: Directory to export to.
     """
-    git_command = ['git', 'archive', '--format=tar', commit, docs_rel_path]
-    tar_command = ['tar', '-x', '-C', target]
     env = dict(os.environ, GIT_DIR=os.path.join(local_root, '.git'))
 
+    # Start git process.
+    docs_rel_paths = [os.path.dirname(p) for p in conf_rel_paths]
+    if not all(docs_rel_paths):  # If one path is in the root just extract everything.
+        docs_rel_paths = list()
+    git_command = ['git', 'archive', '--format=tar', commit] + docs_rel_paths
     git = Popen(git_command, cwd=local_root, env=env, stdout=PIPE, stderr=PIPE)
+
+    # Run tar process.
+    temp_dir = tempfile.mkdtemp()
+    tar_command = ['tar', '-x', '-C', temp_dir]
     check_output(tar_command, stdin=git.stdout)
     git.wait()
+
+    # Determine source and copy to target. Overwrite existing but don't delete anything in target.
+    source = os.path.dirname([i for i in (os.path.join(temp_dir, c) for c in conf_rel_paths) if os.path.exists(i)][0])
+    for s_dirpath, s_filenames in (i[::2] for i in os.walk(source) if i[2]):
+        t_dirpath = os.path.join(target, os.path.relpath(s_dirpath, source))
+        if not os.path.exists(t_dirpath):
+            os.makedirs(t_dirpath)
+        for args in ((os.path.join(s_dirpath, f), os.path.join(t_dirpath, f)) for f in s_filenames):
+            shutil.copy(*args)
+
+    # Cleanup.
+    shutil.rmtree(temp_dir)

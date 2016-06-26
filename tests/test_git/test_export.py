@@ -1,7 +1,5 @@
 """Test function in module."""
 
-import os
-
 import pytest
 
 from sphinxcontrib.versioning.git import export, fetch_commits, list_remote
@@ -17,10 +15,50 @@ def test_simple(tmpdir, local, run):
     target = tmpdir.ensure_dir('target')
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
 
-    export(str(local), '.', sha, str(target))
+    export(str(local), ['README'], sha, str(target))
     run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
     files = [f.relto(target) for f in target.listdir()]
     assert files == ['README']
+
+
+def test_overwrite(tmpdir, local, run):
+    """Test overwriting existing files.
+
+    :param tmpdir: pytest fixture.
+    :param local: conftest fixture.
+    :param run: conftest fixture.
+    """
+    local.ensure('docs', '_templates', 'layout.html').write('three')
+    local.join('docs', 'conf.py').write('one')
+    local.join('docs', 'index.rst').write('two')
+    run(local, ['git', 'add', 'docs'])
+    run(local, ['git', 'commit', '-m', 'Added docs dir.'])
+    run(local, ['git', 'push', 'origin', 'master'])
+    sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+
+    target = tmpdir.ensure_dir('target')
+    target.ensure('_templates', 'other', 'other.html').write('other')
+    target.join('_templates', 'other.html').write('other')
+    target.ensure('other', 'other.py').write('other')
+    target.join('other.rst').write('other')
+
+    export(str(local), ['docs/conf.py'], sha, str(target))
+    run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])
+
+    expected = [
+        '_templates',
+        '_templates/layout.html',
+        '_templates/other',
+        '_templates/other.html',
+        '_templates/other/other.html',
+        'conf.py',
+        'index.rst',
+        'other',
+        'other.rst',
+        'other/other.py',
+    ]
+    paths = sorted(f.relto(target) for f in target.visit())
+    assert paths == expected
 
 
 @pytest.mark.parametrize('levels', range(1, 4))
@@ -33,13 +71,8 @@ def test_docs_dir(tmpdir, local, run, levels):
     :param int levels: Number of subdirectories to put files in.
     """
     docs = local
-    docs_rel_path = ''
-    expected = ['conf.py', 'index.rst', '_templates', '_templates/layout.html']
     for _ in range(levels):
         docs = docs.ensure_dir('docs')
-        docs_rel_path = os.path.join(docs_rel_path, 'docs')
-        expected = [os.path.join('docs', i) for i in expected]
-        expected.append('docs')
     docs.join('conf.py').write('one')
     docs.join('index.rst').write('two')
     docs.ensure('_templates', 'layout.html').write('three')
@@ -47,13 +80,21 @@ def test_docs_dir(tmpdir, local, run, levels):
     run(local, ['git', 'commit', '-m', 'Added docs dir.'])
     run(local, ['git', 'push', 'origin', 'master'])
 
-    target = tmpdir.ensure_dir('target')
+    conf_rel_paths = [
+        'docs/docs/docs/docs/docs/conf.py',
+        'docs/docs/docs/docs/conf.py',
+        'docs/docs/docs/conf.py',
+        'docs/docs/conf.py',
+        'docs/conf.py',
+        'conf.py',
+    ]
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
-
-    export(str(local), docs_rel_path, sha, str(target))
+    target = tmpdir.ensure_dir('target')
+    export(str(local), conf_rel_paths, sha, str(target))
     run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])
+
+    expected = ['_templates', '_templates/layout.html', 'conf.py', 'index.rst']
     paths = sorted(f.relto(target) for f in target.visit())
-    expected.sort()
     assert paths == expected
 
 
@@ -98,7 +139,7 @@ def test_new_branch_tags(tmpdir, remote, run, mode):
 
     # Export.
     target = tmpdir.ensure_dir('exported', sha)
-    export(str(local), '.', sha, str(target))
+    export(str(local), ['README'], sha, str(target))
     files = [f.relto(target) for f in target.listdir()]
     assert files == ['README']
     expected = 'one' if mode == 'pushed_tag_of_unpushed_branch' else 'two'
