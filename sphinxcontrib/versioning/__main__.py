@@ -32,12 +32,14 @@ Options:
 """
 
 import logging
+import os
 import sys
 
 from docoptcfg import docoptcfg
 
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.lib import HandledError
+from sphinxcontrib.versioning.routines import gather_git_info
 from sphinxcontrib.versioning.setup_logging import setup_logging
 
 
@@ -71,7 +73,12 @@ def main(config):
 
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
-    assert config  # TODO
+    conf_rel_paths = [os.path.join(s, 'conf.py') for s in config['SOURCE']]
+    root, filtered_remotes = gather_git_info(os.getcwd(), conf_rel_paths)
+    assert root
+    if not filtered_remotes:
+        log.info('No docs found in any remote branch/tag. Nothing to do.')
+        return
 
 
 def entry_point():
