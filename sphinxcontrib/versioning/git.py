@@ -1,5 +1,7 @@
 """Interface with git locally and remotely."""
 
+import json
+import logging
 import os
 import re
 import shutil
@@ -42,18 +44,32 @@ def chunk(iterator, max_size):
         yield chunked
 
 
-def run_command(local_root, command):
+def run_command(local_root, command, env_var=True):
     """check_output() wrapper.
+
+    :raise CalledProcessError: Command exits non-zero.
 
     :param str local_root: Local path to git root directory.
     :param iter command: Command to run.
+    :param bool env_var: Define GIT_DIR environment variable.
 
     :return: Command output.
     :rtype: str
     """
-    git_root = os.path.join(local_root, '.git')
-    env = dict(os.environ, GIT_DIR=git_root)
-    return check_output(command, cwd=local_root, env=env, stderr=STDOUT).decode('utf-8')
+    log = logging.getLogger(__name__)
+    env = os.environ.copy()
+    if env_var:
+        env['GIT_DIR'] = os.path.join(local_root, '.git')
+    else:
+        env.pop('GIT_DIR', None)
+    try:
+        output = check_output(command, cwd=local_root, env=env, stderr=STDOUT).decode('utf-8')
+    except CalledProcessError as exc:
+        output = exc.output.decode('utf-8')
+        log.debug(json.dumps(dict(command=exc.cmd, cwd=local_root, code=exc.returncode, output=output)))
+        raise
+    log.debug(json.dumps(dict(command=command, cwd=local_root, code=0, output=output)))
+    return output
 
 
 def get_root(directory):
@@ -66,12 +82,11 @@ def get_root(directory):
     :return: Root directory of repository.
     :rtype: str
     """
-    env = {k: v for k, v in os.environ.items() if k != 'GIT_DIR'}
     command = ['git', 'rev-parse', '--show-toplevel']
     try:
-        output = check_output(command, cwd=directory, env=env, stderr=STDOUT).decode('utf-8')
+        output = run_command(directory, command, env_var=False)
     except CalledProcessError as exc:
-        raise GitError('Git failed to list remote refs.', exc.output.decode('utf-8'))
+        raise GitError('Failed to find local git repository root.', exc.output.decode('utf-8'))
     return output.strip()
 
 
@@ -111,7 +126,6 @@ def filter_and_date(local_root, conf_rel_paths, commits):
 
     :raise CalledProcessError: Unhandled git command failure.
     :raise GitError: A commit SHA has not been fetched.
-    :raise ValueError: Unexpected output from git.
 
     :param str local_root: Local path to git root directory.
     :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
