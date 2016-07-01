@@ -1,28 +1,30 @@
 #!/usr/bin/env python
 """Build versioned Sphinx docs for every branch and tag pushed to origin.
 
-SOURCE is the path to the docs directory relative to the git root. Multiple
-source directories may be specified in case your docs have moved around
-between git tags.
+SOURCE is the path to the docs directory relative to the git root. If the
+source directory has moved around between git tags you can specify additional
+directories with one or more --additional-src.
 
 DESTINATION is the directory path to the directory that will hold all
 generated docs for all versions.
 
-To pass additional options to sphinx-build (run for every branch/tag) use a
-double hyphen (e.g. {program} build . /tmp/out -- -D setting=value).
-
-Options may be set via environment variables using the SVB_ prefix (e.g.
-SVB_RECENT_TAG=true or SVB_ROOT_REF=feature_branch).
+To pass options to sphinx-build (run for every branch/tag) use a double hyphen
+(e.g. {program} build /tmp/out docs -- -D setting=value).
 
 Usage:
-    {program} [options] build SOURCE... DESTINATION
+    {program} [-f FILE -r REF -s DIR...] [-t | -T] build SOURCE DESTINATION
     {program} -h | --help
     {program} -V | --version
 
 Options:
+    -f FILE --file=FILE     The file name to look for in the source directory
+                            to indicate it's a Sphinx docs directory
+                            [default: conf.py].
     -h --help               Show this screen.
     -r REF --root-ref=REF   The branch/tag at the root of DESTINATION. All
                             others are in subdirectories [default: master].
+    -s DIR --additional-src Additional/fallback relative source paths to look
+                            for. Stops when conf.py is found.
     -t --greatest-tag       Override root-ref to be the tag with the highest
                             version number.
     -T --recent-tag         Override root-ref to be the most recent committed
@@ -35,7 +37,7 @@ import logging
 import os
 import sys
 
-from docoptcfg import docoptcfg
+from docopt import docopt
 
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.lib import HandledError
@@ -58,7 +60,7 @@ def get_arguments(argv, doc):
     else:
         argv, overflow = argv, list()
     docstring = doc.format(program='sphinx-versioning')
-    config = docoptcfg(docstring, argv=argv, config_option='--config', env_prefix='FAM_', version=__version__)
+    config = docopt(docstring, argv=argv[1:], version=__version__)
     config['overflow'] = overflow
     return config
 
@@ -73,7 +75,7 @@ def main(config):
 
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
-    conf_rel_paths = [os.path.join(s, 'conf.py') for s in config['SOURCE']]
+    conf_rel_paths = [os.path.join(s, config['--file']) for s in [config['SOURCE']] + config['--additional-src']]
     root, filtered_remotes = gather_git_info(os.getcwd(), conf_rel_paths)
     assert root
     if not filtered_remotes:
