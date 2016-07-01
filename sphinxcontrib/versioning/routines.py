@@ -11,6 +11,8 @@ from sphinxcontrib.versioning.lib import HandledError
 def gather_git_info(cwd, conf_rel_paths):
     """Gather info about the remote git repository. Get list of refs.
 
+    :raise HandledError: If function fails with a handled error. Will be logged before raising.
+
     :param str cwd: Current working directory to lookup git root.
     :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
 
@@ -24,7 +26,7 @@ def gather_git_info(cwd, conf_rel_paths):
     try:
         root = get_root(cwd)
     except GitError as exc:
-        log.fatal(exc.message)
+        log.error(exc.message)
         raise HandledError
     log.info('Working in git repository: %s', root)
 
@@ -33,7 +35,7 @@ def gather_git_info(cwd, conf_rel_paths):
     try:
         remotes = list_remote(root)
     except GitError as exc:
-        log.fatal(exc.message)
+        log.error(exc.message)
         raise HandledError
     log.info('Found: %s', ' '.join(i[1] for i in remotes))
 
@@ -47,12 +49,11 @@ def gather_git_info(cwd, conf_rel_paths):
             try:
                 dates = filter_and_date(root, conf_rel_paths, (i[0] for i in remotes))
             except GitError as exc:
-                log.fatal(exc.message)
+                log.error(exc.message)
                 raise HandledError
     except subprocess.CalledProcessError as exc:
-        output = exc.output.decode('utf-8')
-        log.debug(json.dumps(dict(command=exc.cmd, cwd=root, code=exc.returncode, output=output)))
-        log.fatal('Failed to get dates for all remote commits.')
+        log.debug(json.dumps(dict(command=exc.cmd, cwd=root, code=exc.returncode, output=exc.output)))
+        log.error('Failed to get dates for all remote commits.')
         raise HandledError
     filtered_remotes = [(i[0], i[1], i[2], dates[i[0]]) for i in remotes if i[0] in dates]
     log.info('With docs: %s', ' '.join(i[1] for i in filtered_remotes))

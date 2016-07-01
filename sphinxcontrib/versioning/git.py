@@ -7,7 +7,7 @@ import re
 import shutil
 import tempfile
 
-from subprocess import CalledProcessError, check_output, PIPE, Popen, STDOUT
+from subprocess import CalledProcessError, PIPE, Popen, STDOUT
 
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+(?:\^\{})?)$', re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -44,32 +44,50 @@ def chunk(iterator, max_size):
         yield chunked
 
 
-def run_command(local_root, command, env_var=True):
-    """check_output() wrapper.
+def run_command(local_root, command, env_var=True, piped=None):
+    """Run a command and return the output. Run another command and pipe its output to the primary command.
 
     :raise CalledProcessError: Command exits non-zero.
 
     :param str local_root: Local path to git root directory.
     :param iter command: Command to run.
     :param bool env_var: Define GIT_DIR environment variable.
+    :param iter piped: Second command to pipe its stdout to `command`'s stdin.
 
     :return: Command output.
     :rtype: str
     """
     log = logging.getLogger(__name__)
+
+    # Setup env.
     env = os.environ.copy()
     if env_var:
         env['GIT_DIR'] = os.path.join(local_root, '.git')
     else:
         env.pop('GIT_DIR', None)
-    try:
-        output = check_output(command, cwd=local_root, env=env, stderr=STDOUT).decode('utf-8')
-    except CalledProcessError as exc:
-        output = exc.output.decode('utf-8')
-        log.debug(json.dumps(dict(command=exc.cmd, cwd=local_root, code=exc.returncode, output=output)))
-        raise
-    log.debug(json.dumps(dict(command=command, cwd=local_root, code=0, output=output)))
-    return output
+
+    # Start commands.
+    parent = Popen(piped, cwd=local_root, env=env, stdout=PIPE, stderr=PIPE) if piped else None
+    main = Popen(command, cwd=local_root, env=env, stdout=PIPE, stderr=STDOUT, stdin=parent.stdout if piped else None)
+
+    # Wait for commands and log.
+    common_dict = dict(cwd=local_root, env=env, stdin=None)
+    if piped:
+        main.wait()  # Let main command read parent.stdout before parent.communicate() does.
+        parent_output = parent.communicate()[1].decode('utf-8')
+        log.debug(json.dumps(dict(common_dict, command=piped, code=parent.poll(), output=parent_output)))
+    else:
+        parent_output = ''
+    main_output = main.communicate()[0].decode('utf-8')
+    log.debug(json.dumps(dict(common_dict, command=command, code=main.poll(), output=main_output, stdin=piped)))
+
+    # Verify success.
+    if piped and parent.poll() != 0:
+        raise CalledProcessError(parent.poll(), piped, output=parent_output)
+    if main.poll() != 0:
+        raise CalledProcessError(main.poll(), command, output=main_output)
+
+    return main_output
 
 
 def get_root(directory):
@@ -86,7 +104,7 @@ def get_root(directory):
     try:
         output = run_command(directory, command, env_var=False)
     except CalledProcessError as exc:
-        raise GitError('Failed to find local git repository root.', exc.output.decode('utf-8'))
+        raise GitError('Failed to find local git repository root.', exc.output)
     return output.strip()
 
 
@@ -104,7 +122,7 @@ def list_remote(local_root):
     try:
         output = run_command(local_root, command)
     except CalledProcessError as exc:
-        raise GitError('Git failed to list remote refs.', exc.output.decode('utf-8'))
+        raise GitError('Git failed to list remote refs.', exc.output)
 
     # Dereference annotated tags if any. No need to fetch annotations.
     if '^{}' in output:
@@ -144,7 +162,7 @@ def filter_and_date(local_root, conf_rel_paths, commits):
         try:
             output = run_command(local_root, command)
         except CalledProcessError as exc:
-            raise GitError('Git ls-tree failed on {0}'.format(commit), exc.output.decode('utf-8'))
+            raise GitError('Git ls-tree failed on {0}'.format(commit), exc.output)
         if output:
             dates[commit] = None
 
@@ -190,20 +208,15 @@ def export(local_root, conf_rel_paths, commit, target):
     :param str commit: Git commit SHA to export.
     :param str target: Directory to export to.
     """
-    env = dict(os.environ, GIT_DIR=os.path.join(local_root, '.git'))
-
-    # Start git process.
     docs_rel_paths = [os.path.dirname(p) for p in conf_rel_paths]
     if not all(docs_rel_paths):  # If one path is in the root just extract everything.
         docs_rel_paths = list()
     git_command = ['git', 'archive', '--format=tar', commit] + docs_rel_paths
-    git = Popen(git_command, cwd=local_root, env=env, stdout=PIPE, stderr=PIPE)
-
-    # Run tar process.
     temp_dir = tempfile.mkdtemp()
     tar_command = ['tar', '-x', '-C', temp_dir]
-    check_output(tar_command, stdin=git.stdout)
-    git.wait()
+
+    # Run commands.
+    run_command(local_root, tar_command, piped=git_command)
 
     # Determine source and copy to target. Overwrite existing but don't delete anything in target.
     source = os.path.dirname([i for i in (os.path.join(temp_dir, c) for c in conf_rel_paths) if os.path.exists(i)][0])

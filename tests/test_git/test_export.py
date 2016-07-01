@@ -1,5 +1,7 @@
 """Test function in module."""
 
+from subprocess import CalledProcessError
+
 import pytest
 
 from sphinxcontrib.versioning.git import export, fetch_commits, list_remote
@@ -98,49 +100,30 @@ def test_docs_dir(tmpdir, local, run, levels):
     assert paths == expected
 
 
-@pytest.mark.usefixtures('local')
-@pytest.mark.parametrize('mode', ['pushed_tag_of_unpushed_branch', 'annotated_tag_orphaned_branch'])
-def test_new_branch_tags(tmpdir, remote, run, mode):
+@pytest.mark.usefixtures('outdate_local')
+@pytest.mark.parametrize('fail', [False, True])
+def test_new_branch_tags(tmpdir, local_light, fail):
     """Test with new branches and tags unknown to local repo.
 
     :param tmpdir: pytest fixture.
-    :param remote: conftest fixture.
-    :param run: conftest fixture.
-    :param str mode: Test scenario.
+    :param local_light: conftest fixture.
+    :param bool fail: Fail by not fetching.
     """
-    # Setup other behind local with just one cloned branch.
-    local = tmpdir.ensure_dir('local2')
-    run(local, ['git', 'clone', '--depth=1', '--branch=feature', remote, '.'])
-    run(local, ['git', 'checkout', '-qf', run(local, ['git', 'rev-parse', 'HEAD']).strip()])
+    remotes = [r for r in list_remote(str(local_light)) if r[1] == 'ob_at']
 
-    # Commit to separate local repo and push to common remote.
-    local_ahead = tmpdir.ensure_dir('local_ahead')
-    run(local_ahead, ['git', 'clone', remote, '.'])
-    if mode == 'pushed_tag_of_unpushed_branch':
-        run(local_ahead, ['git', 'checkout', '-b', 'un_pushed_branch'])
-        local_ahead.join('README').write('one')
-        run(local_ahead, ['git', 'commit', '-am', 'Changed new branch'])
-        sha = run(local_ahead, ['git', 'rev-parse', 'HEAD']).strip()
-        run(local_ahead, ['git', 'tag', 'nb_tag'])
-        run(local_ahead, ['git', 'push', 'origin', 'nb_tag'])
-    else:
-        run(local_ahead, ['git', 'checkout', '--orphan', 'orphaned_branch'])
-        local_ahead.join('README').write('two')
-        run(local_ahead, ['git', 'add', 'README'])
-        run(local_ahead, ['git', 'commit', '-m', 'Added new README'])
-        sha = run(local_ahead, ['git', 'rev-parse', 'HEAD']).strip()
-        run(local_ahead, ['git', 'tag', '--annotate', '-m', 'Tag annotation.', 'ob_at'])
-        run(local_ahead, ['git', 'push', 'origin', 'orphaned_branch', 'ob_at'])
+    # Fail.
+    sha = remotes[0][0]
+    target = tmpdir.ensure_dir('exported', sha)
+    if fail:
+        with pytest.raises(CalledProcessError):
+            export(str(local_light), ['README'], sha, str(target))
+        return
 
     # Fetch.
-    remotes = [r for r in list_remote(str(local)) if r[0] == sha]
-    assert remotes
-    fetch_commits(str(local), remotes)
+    fetch_commits(str(local_light), remotes)
 
     # Export.
-    target = tmpdir.ensure_dir('exported', sha)
-    export(str(local), ['README'], sha, str(target))
+    export(str(local_light), ['README'], sha, str(target))
     files = [f.relto(target) for f in target.listdir()]
     assert files == ['README']
-    expected = 'one' if mode == 'pushed_tag_of_unpushed_branch' else 'two'
-    assert target.join('README').read() == expected
+    assert target.join('README').read() == 'new'
