@@ -1,4 +1,4 @@
-"""Test flash_air_music.setup_logging functions/classes."""
+"""Test objects in module."""
 
 import logging
 import logging.handlers

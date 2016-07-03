@@ -12,7 +12,7 @@ To pass options to sphinx-build (run for every branch/tag) use a double hyphen
 (e.g. {program} build /tmp/out docs -- -D setting=value).
 
 Usage:
-    {program} [-f FILE -r REF -s DIR...] [-t | -T] build SOURCE DESTINATION
+    {program} [options] [-s DIR...] build SOURCE DESTINATION
     {program} -h | --help
     {program} -V | --version
 
@@ -21,10 +21,16 @@ Options:
                             to indicate it's a Sphinx docs directory
                             [default: conf.py].
     -h --help               Show this screen.
+    --invert                Invert/reverse order of versions.
+    --prioritize=KIND       Set to "branches" or "tags" to group those kinds
+                            of versions at the top (for themes that don't
+                            separate them).
     -r REF --root-ref=REF   The branch/tag at the root of DESTINATION. All
                             others are in subdirectories [default: master].
     -s DIR --additional-src Additional/fallback relative source paths to look
                             for. Stops when conf.py is found.
+    -S OPTS --sort=OPTS     Sort versions by one or more (comma separated):
+                            semver, alpha, chrono
     -t --greatest-tag       Override root-ref to be the tag with the highest
                             version number.
     -T --recent-tag         Override root-ref to be the most recent committed
@@ -43,6 +49,7 @@ from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.lib import HandledError
 from sphinxcontrib.versioning.routines import gather_git_info
 from sphinxcontrib.versioning.setup_logging import setup_logging
+from sphinxcontrib.versioning.versions import Versions
 
 
 def get_arguments(argv, doc):
@@ -76,11 +83,19 @@ def main(config):
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
     conf_rel_paths = [os.path.join(s, config['--file']) for s in [config['SOURCE']] + config['--additional-src']]
-    root, filtered_remotes = gather_git_info(os.getcwd(), conf_rel_paths)
-    assert root
+    filtered_remotes = gather_git_info(os.getcwd(), conf_rel_paths)[1]
     if not filtered_remotes:
         log.info('No docs found in any remote branch/tag. Nothing to do.')
         return
+
+    # Setup Jinja2 environment.
+    versions = Versions(
+        filtered_remotes,
+        sort=(config['--sort'] or '').split(','),
+        prioritize=config['--prioritize'],
+        invert=config['--invert'],
+    )
+    assert versions
 
 
 def entry_point():

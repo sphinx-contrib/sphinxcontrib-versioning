@@ -1,4 +1,4 @@
-"""Test functions in __main__.py."""
+"""Test objects in module."""
 
 import pytest
 
