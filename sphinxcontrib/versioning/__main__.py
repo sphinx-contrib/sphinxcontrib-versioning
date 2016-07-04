@@ -73,9 +73,6 @@ def main(config):
     """Main function.
 
     :param dict config: Parsed command line arguments (get_arguments() output).
-
-    :return: Error code.
-    :rtype: int
     """
     log = logging.getLogger(__name__)
     log.info('Running sphinxcontrib-versioning v%s', __version__)
@@ -85,13 +82,13 @@ def main(config):
     conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['SOURCE']] + config['--additional-src']]
     filtered_remotes = gather_git_info(os.getcwd(), conf_rel_paths)[1]
     if not filtered_remotes:
-        log.warning('No docs found in any remote branch/tag. Nothing to do.')
-        return 1
+        log.error('No docs found in any remote branch/tag. Nothing to do.')
+        raise HandledError
     if config['--root-ref'] not in [r[1] for r in filtered_remotes]:
-        log.warning('Root ref %s not found in: %s', config['--root-ref'], ' '.join(r[1] for r in filtered_remotes))
-        return 1
+        log.error('Root ref %s not found in: %s', config['--root-ref'], ' '.join(r[1] for r in filtered_remotes))
+        raise HandledError
 
-    # Setup Jinja2 environment.
+    # Setup versions.
     versions = Versions(
         filtered_remotes,
         sort=(config['--sort'] or '').split(','),
@@ -99,7 +96,6 @@ def main(config):
         invert=config['--invert'],
     )
     assert versions
-    return 0
 
 
 def entry_point():
@@ -107,7 +103,7 @@ def entry_point():
     try:
         config = get_arguments(sys.argv, __doc__)
         setup_logging(verbose=config['--verbose'])
-        sys.exit(main(config))
+        main(config)
     except HandledError:
         logging.critical('Failure.')
         sys.exit(1)

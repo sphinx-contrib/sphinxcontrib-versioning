@@ -159,3 +159,40 @@ def test_priority(remotes, sort, prioritize, invert):
             expected = ['v2.0.0', 'v10.0.0', 'v3.0.0', 'v2.1.0', 'v1.2.0', 'zh-pages', 'master']
 
     assert actual == expected
+
+
+def test_getitem():
+    """Test Versions.__getitem__ with integer and string keys/indices."""
+    versions = Versions(REMOTES)
+
+    # Test SHA.
+    assert versions['0772e5ff32af52115a809d97cd506837fa209f7f']['name'] == 'zh-pages'
+    assert versions['abaaa358379408d99725']['name'] == 'master'
+    assert versions['3b7987d8f']['name'] == 'v1.2.0'
+    assert versions['c4f19']['name'] == 'v2.0.0'
+
+    # Test name and date.
+    for name, date in (r[1::2] for r in REMOTES):
+        assert versions[name]['name'] == name
+        assert versions[date]['name'] == name
+
+    # Set and test URLs.
+    versions.remotes[1]['url'] = 'url1'
+    versions.remotes[2]['url'] = 'url2'
+    versions.remotes[3]['url'] = 'url3'
+    assert versions['.']['name'] == 'zh-pages'
+    assert versions['url1']['name'] == 'master'
+    assert versions['url2']['name'] == 'v1.2.0'
+    assert versions['url3']['name'] == 'v2.0.0'
+
+    # Indexes.
+    for i, name in enumerate(r[1] for r in REMOTES):
+        assert versions[i]['name'] == name
+
+    # Test IndexError.
+    with pytest.raises(IndexError):
+        assert versions[100]
+
+    # Test KeyError.
+    with pytest.raises(KeyError):
+        assert versions['unknown']

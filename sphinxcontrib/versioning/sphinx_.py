@@ -15,7 +15,10 @@ def build(source, target, versions, overflow):
     :return: Output of Sphinx build_main. 0 is success.
     :rtype: int
     """
-    argv = ['sphinx-build', source, target] + overflow
+    # Inject into Sphinx global objects.
     DEFAULT_NAMESPACE['versions'] = versions
+
+    # Build.
+    argv = ['sphinx-build', source, target] + overflow
     result = build_main(argv)
     return result

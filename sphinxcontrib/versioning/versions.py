@@ -119,6 +119,30 @@ class Versions(object):
         if invert:
             self.remotes.reverse()
 
+    def __getitem__(self, item):
+        """Retrieve a version dict from self.remotes by any of its attributes."""
+        # First assume item is an attribute.
+        for key in ('name', 'date', 'url', 'sha'):
+            for remote in self.remotes:
+                if remote[key] == item:
+                    return remote
+        # Next assume item is a substring of a sha.
+        try:
+            length = len(item)
+        except TypeError:  # Not an int.
+            length = 0
+        if length >= 5:
+            for remote in self.remotes:
+                if item in remote['sha']:
+                    return remote
+        # Finally assume it's an index. Raises IndexError if item is int.
+        try:
+            return self.remotes[item]
+        except TypeError:
+            pass
+        # Nothing found, IndexError not raised. item was probably a string, raising KeyError.
+        raise KeyError(item)
+
     def __iter__(self):
         """Yield name and urls of branches and tags."""
         for remote in self.remotes:
