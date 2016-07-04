@@ -26,15 +26,14 @@ def test_get_arguments_string(mode):
     :param str mode: Scenario to test for.
     """
     argv = list(ARGV)
-    expected = {'--file': 'conf.py', '--root-ref': 'master', '--additional-src': list()}
+    expected = {'--root-ref': 'master', '--additional-src': list()}
     if mode.startswith('cli'):
-        argv += ['-f', 'index.rst', '-r', 'feature', '-s', 'one']
-        expected = {'--file': 'index.rst', '--root-ref': 'feature', '--additional-src': ['one']}
+        argv += ['-r', 'feature', '-s', 'one']
+        expected = {'--root-ref': 'feature', '--additional-src': ['one']}
         if mode.endswith('2'):
             argv.extend(['-s', 'two'])
             expected['--additional-src'].append('two')
 
     config = get_arguments(argv, doc)
-    assert config['--file'] == expected['--file']
     assert config['--root-ref'] == expected['--root-ref']
     assert config['--additional-src'] == expected['--additional-src']

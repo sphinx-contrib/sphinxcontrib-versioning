@@ -17,9 +17,6 @@ Usage:
     {program} -V | --version
 
 Options:
-    -f FILE --file=FILE     The file name to look for in the source directory
-                            to indicate it's a Sphinx docs directory
-                            [default: conf.py].
     -h --help               Show this screen.
     --invert                Invert/reverse order of versions.
     --prioritize=KIND       Set to "branches" or "tags" to group those kinds
@@ -76,17 +73,23 @@ def main(config):
     """Main function.
 
     :param dict config: Parsed command line arguments (get_arguments() output).
+
+    :return: Error code.
+    :rtype: int
     """
     log = logging.getLogger(__name__)
     log.info('Running sphinxcontrib-versioning v%s', __version__)
 
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
-    conf_rel_paths = [os.path.join(s, config['--file']) for s in [config['SOURCE']] + config['--additional-src']]
+    conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['SOURCE']] + config['--additional-src']]
     filtered_remotes = gather_git_info(os.getcwd(), conf_rel_paths)[1]
     if not filtered_remotes:
-        log.info('No docs found in any remote branch/tag. Nothing to do.')
-        return
+        log.warning('No docs found in any remote branch/tag. Nothing to do.')
+        return 1
+    if config['--root-ref'] not in [r[1] for r in filtered_remotes]:
+        log.warning('Root ref %s not found in: %s', config['--root-ref'], ' '.join(r[1] for r in filtered_remotes))
+        return 1
 
     # Setup Jinja2 environment.
     versions = Versions(
@@ -96,6 +99,7 @@ def main(config):
         invert=config['--invert'],
     )
     assert versions
+    return 0
 
 
 def entry_point():
@@ -103,7 +107,7 @@ def entry_point():
     try:
         config = get_arguments(sys.argv, __doc__)
         setup_logging(verbose=config['--verbose'])
-        main(config)
+        sys.exit(main(config))
     except HandledError:
         logging.critical('Failure.')
         sys.exit(1)
