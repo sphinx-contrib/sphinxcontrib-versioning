@@ -1,4 +1,4 @@
-"""Test objects in module."""
+"""Test function."""
 
 import pytest
 
@@ -7,8 +7,8 @@ from sphinxcontrib.versioning.versions import Versions
 
 
 @pytest.mark.parametrize('no_feature', [True, False])
-def test_build(tmpdir, no_feature):
-    """Test function.
+def test_simple(tmpdir, no_feature):
+    """Verify versions are included in HTML.
 
     :param tmpdir: pytest fixture.
     :param bool no_feature: Don't include feature branch in versions. Makes sure there are no false positives.
@@ -17,16 +17,8 @@ def test_build(tmpdir, no_feature):
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1)] + ([] if no_feature else [('', 'feature', 'heads', 2)]))
 
-    source.join('conf.py').write('templates_path = ["_templates"]\nhtml_sidebars = {"**": ["versions.html"]}')
+    source.ensure('conf.py')
     source.join('contents.rst').write('Test\n====\n\nSample documentation.')
-    source.ensure('_templates', 'versions.html').write("""\
-    <h3>{{ _('Versions') }}</h3>
-    <ul>
-        {% for name, url in versions %}
-        <li><a href="{{ url }}">{{ name }}</a></li>
-        {% endfor %}
-    </ul>
-    """)
 
     result = build(str(source), str(target), versions, list())
     assert result == 0
@@ -40,7 +32,7 @@ def test_build(tmpdir, no_feature):
 
 
 @pytest.mark.parametrize('project', [True, False, True, False])
-def test_build_isolation(tmpdir, project):
+def test_isolation(tmpdir, project):
     """Make sure Sphinx doesn't alter global state and carry over settings between builds.
 
     :param tmpdir: pytest fixture.
@@ -65,7 +57,7 @@ def test_build_isolation(tmpdir, project):
         assert '2016, SCV' in contents
 
 
-def test_build_overflow(tmpdir):
+def test_overflow(tmpdir):
     """Test sphinx-build overflow feature.
 
     :param tmpdir: pytest fixture.
@@ -74,12 +66,11 @@ def test_build_overflow(tmpdir):
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1)])
 
-    source.join('conf.py').write('templates_path = ["_templates"]\nhtml_sidebars = {"**": ["versions.html"]}')
+    source.ensure('conf.py')
     source.join('contents.rst').write('Test\n====\n\nSample documentation.')
-    source.ensure('_templates', 'versions.html').write('secret: {{ secret }}')
 
-    result = build(str(source), str(target), versions, ['-A', 'secret=Robpol86'])
+    result = build(str(source), str(target), versions, ['-D', 'copyright=2016, SCV'])
     assert result == 0
 
     contents = target.join('contents.html').read()
-    assert 'secret: Robpol86' in contents
+    assert '2016, SCV' in contents

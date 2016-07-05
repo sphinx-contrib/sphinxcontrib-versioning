@@ -43,6 +43,7 @@ setup(
     license='MIT',
     long_description=readme(),
     name=NAME,
+    package_data={'': ['_templates/versions.html']},
     packages=[NAME.split('-')[0]],
     url='https://github.com/Robpol86/' + NAME,
     version=VERSION,

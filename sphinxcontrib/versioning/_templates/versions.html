@@ -1,0 +1,6 @@
+<h3>{{ _('Versions') }}</h3>
+<ul>
+    {% for name, url in versions %}
+    <li><a href="{{ url }}">{{ name }}</a></li>
+    {% endfor %}
+</ul>
