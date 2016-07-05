@@ -1,6 +1,30 @@
+{% if html_theme == 'sphinx_rtd_theme' %}
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: {{ current_version }}
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            {%- for name, url in versions.tags %}
+            <dd><a href="{{ url }}">{{ name }}</a></dd>
+            {%- endfor %}
+        </dl>
+        <dl>
+            <dt>Branches</dt>
+            {%- for name, url in versions.branches %}
+            <dd><a href="{{ url }}">{{ name }}</a></dd>
+            {%- endfor %}
+        </dl>
+    </div>
+</div>
+{% else %}
 <h3>{{ _('Versions') }}</h3>
 <ul>
-    {% for name, url in versions %}
+    {%- for name, url in versions %}
     <li><a href="{{ url }}">{{ name }}</a></li>
-    {% endfor %}
+    {%- endfor %}
 </ul>
+{%- endif %}

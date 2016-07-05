@@ -13,8 +13,13 @@ from sphinxcontrib.versioning import __version__
 
 
 class EventHandlers(object):
-    """Hold Sphinx event handlers as static or class methods."""
+    """Hold Sphinx event handlers as static or class methods.
 
+    :ivar str CURRENT_VERSION: Current version being built.
+    :ivar iter VERSIONS: List of version dicts.
+    """
+
+    CURRENT_VERSION = None
     VERSIONS = None
 
     @staticmethod
@@ -25,8 +30,8 @@ class EventHandlers(object):
         """
         # Add this extension's _templates directory to Sphinx.
         templates_dir = os.path.join(os.path.dirname(__file__), '_templates')
-        app.builder.templates.pathchain.append(templates_dir)
-        app.builder.templates.loaders.append(SphinxFileSystemLoader(templates_dir))
+        app.builder.templates.pathchain.insert(0, templates_dir)
+        app.builder.templates.loaders.insert(0, SphinxFileSystemLoader(templates_dir))
         app.builder.templates.templatepathlen += 1
 
         # Add versions.html to sidebar.
@@ -41,7 +46,10 @@ class EventHandlers(object):
 
         :param iter args: Arguments given by caller (Sphinx).
         """
+        app = args[0]
         context = args[3]
+        context['current_version'] = cls.CURRENT_VERSION
+        context['html_theme'] = app.config.html_theme
         context['versions'] = cls.VERSIONS
 
 
@@ -67,17 +75,19 @@ class ConfigInject(Config):
         self.extensions.append('sphinxcontrib.versioning.sphinx_')
 
 
-def _build(argv, versions):
+def _build(argv, versions, current_name):
     """Build Sphinx docs via multiprocessing for isolation.
 
     :param iter argv: Arguments to pass to Sphinx.
     :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
+    :param str current_name: The ref name of the current version being built.
 
     :return: Output of Sphinx build_main. 0 is success.
     :rtype: int
     """
     # Patch.
     application.Config = ConfigInject
+    EventHandlers.CURRENT_VERSION = current_name
     EventHandlers.VERSIONS = versions
 
     # Build.
@@ -85,20 +95,20 @@ def _build(argv, versions):
     sys.exit(result)
 
 
-def build(source, target, versions, overflow):
+def build(source, target, versions, current_name, overflow):
     """Build Sphinx docs for one version. Includes Versions class instance with names/urls in the HTML context.
 
     :param str source: Source directory to pass to sphinx-build.
     :param str target: Destination directory to write documentation to (passed to sphinx-build).
     :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
+    :param str current_name: The ref name of the current version being built.
     :param list overflow: Overflow command line options to pass to sphinx-build.
 
     :return: Output of Sphinx build_main. 0 is success.
     :rtype: int
     """
     argv = ['sphinx-build', source, target] + overflow
-    child = multiprocessing.Process(target=_build, args=(argv, versions))
+    child = multiprocessing.Process(target=_build, args=(argv, versions, current_name))
     child.start()
     child.join()  # Block.
-    result = child.exitcode
-    return result
+    return child.exitcode

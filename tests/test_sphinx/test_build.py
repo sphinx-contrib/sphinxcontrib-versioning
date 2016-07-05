@@ -20,7 +20,7 @@ def test_simple(tmpdir, no_feature):
     source.ensure('conf.py')
     source.join('contents.rst').write('Test\n====\n\nSample documentation.')
 
-    result = build(str(source), str(target), versions, list())
+    result = build(str(source), str(target), versions, 'master', list())
     assert result == 0
 
     contents = target.join('contents.html').read()
@@ -45,7 +45,7 @@ def test_isolation(tmpdir, project):
     source.join('conf.py').write('project = "Robpol86"' if project else 'copyright = "2016, SCV"')
     source.join('contents.rst').write('Test\n====\n\nSample documentation.')
 
-    result = build(str(source), str(target), versions, list())
+    result = build(str(source), str(target), versions, 'master', list())
     assert result == 0
 
     contents = target.join('contents.html').read()
@@ -69,8 +69,24 @@ def test_overflow(tmpdir):
     source.ensure('conf.py')
     source.join('contents.rst').write('Test\n====\n\nSample documentation.')
 
-    result = build(str(source), str(target), versions, ['-D', 'copyright=2016, SCV'])
+    result = build(str(source), str(target), versions, 'master', ['-D', 'copyright=2016, SCV'])
     assert result == 0
 
     contents = target.join('contents.html').read()
     assert '2016, SCV' in contents
+
+
+def test_sphinx_error(tmpdir):
+    """Test error handling.
+
+    :param tmpdir: pytest fixture.
+    """
+    source = tmpdir.ensure_dir('source')
+    target = tmpdir.ensure_dir('target')
+    versions = Versions([('', 'master', 'heads', 1)])
+
+    source.join('conf.py').write('undefined')
+    source.join('contents.rst').write('Test\n====\n\nSample documentation.')
+
+    result = build(str(source), str(target), versions, 'master', list())
+    assert result == 1
