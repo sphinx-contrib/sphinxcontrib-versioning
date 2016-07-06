@@ -92,7 +92,7 @@ class Versions(object):
 
     URLs are just '.' initially. Set after instantiation by another function elsewhere. Will be relative URL path.
 
-    :ivar iter remotes: List of dicts for every branch/tag. Dict keys are: sha, name, kind, date, and url.
+    :ivar iter remotes: List of dicts for every branch/tag. Dict keys are: id, sha, name, kind, date, and url.
     """
 
     def __init__(self, remotes, sort=None, prioritize=None, invert=False):
@@ -103,7 +103,14 @@ class Versions(object):
         :param str prioritize: May be "branches" or "tags". Groups either before the other. Maintains order otherwise.
         :param bool invert: Invert sorted/grouped remotes at the end of processing.
         """
-        self.remotes = [dict(sha=r[0], name=r[1], kind=r[2], date=r[3], url='.') for r in remotes]
+        self.remotes = [dict(
+            id='/'.join(r[2:0:-1]),  # kind/name
+            sha=r[0],
+            name=r[1],
+            kind=r[2],
+            date=r[3],
+            url='.',
+        ) for r in remotes]
 
         # Sort one or more times.
         if sort:
@@ -119,10 +126,18 @@ class Versions(object):
         if invert:
             self.remotes.reverse()
 
+    def __bool__(self):
+        """True if self.remotes is not empty. Python 3.x."""
+        return bool(self.remotes)
+
+    def __nonzero__(self):
+        """True if self.remotes is not empty. Python 2.x."""
+        return self.__bool__()
+
     def __getitem__(self, item):
         """Retrieve a version dict from self.remotes by any of its attributes."""
         # First assume item is an attribute.
-        for key in ('name', 'date', 'url', 'sha'):
+        for key in ('id', 'sha', 'name', 'date', 'url'):
             for remote in self.remotes:
                 if remote[key] == item:
                     return remote
@@ -150,14 +165,10 @@ class Versions(object):
 
     @property
     def branches(self):
-        """Yield (name and urls) only branches."""
-        for remote in self.remotes:
-            if remote['kind'] == 'heads':
-                yield remote['name'], remote['url']
+        """Return list of (name and urls) only branches."""
+        return [(r['name'], r['url']) for r in self.remotes if r['kind'] == 'heads']
 
     @property
     def tags(self):
-        """Yield (name and urls) only tags."""
-        for remote in self.remotes:
-            if remote['kind'] == 'tags':
-                yield remote['name'], remote['url']
+        """Return list of (name and urls) only tags."""
+        return [(r['name'], r['url']) for r in self.remotes if r['kind'] == 'tags']

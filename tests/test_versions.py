@@ -196,3 +196,33 @@ def test_getitem():
     # Test KeyError.
     with pytest.raises(KeyError):
         assert versions['unknown']
+
+
+def test_bool():
+    """Test boolean values of Versions and .branches/.tags."""
+    versions = Versions(REMOTES)
+    assert bool(versions) is True
+    assert bool(versions.branches) is True
+    assert bool(versions.tags) is True
+
+    versions = Versions(r for r in REMOTES if r[2] == 'heads')
+    assert bool(versions) is True
+    assert bool(versions.branches) is True
+    assert bool(versions.tags) is False
+
+    versions = Versions(r for r in REMOTES if r[2] == 'tags')
+    assert bool(versions) is True
+    assert bool(versions.branches) is False
+    assert bool(versions.tags) is True
+
+    versions = Versions([])
+    assert bool(versions) is False
+    assert bool(versions.branches) is False
+    assert bool(versions.tags) is False
+
+
+def test_id():
+    """Test remote IDs."""
+    versions = Versions(REMOTES)
+    for remote in versions.remotes:
+        assert remote['id'] == '{}/{}'.format(remote['kind'], remote['name'])
