@@ -13,15 +13,19 @@ from sphinxcontrib.versioning.versions import Versions
     'sphinx_rtd_theme',
     'classic',
     'sphinxdoc',
+    'traditional',
+    'nature',
+    'pyramid',
+    'bizstyle',
 ])
-def test_supported(tmpdir, run, theme):
+def test_supported(tmpdir, local_docs, run, theme):
     """Test with different themes. Verify not much changed between sphinx-build and sphinx-versioning.
 
     :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
     :param run: conftest fixture.
     :param str theme: Theme name to use.
     """
-    source = tmpdir.ensure_dir('source')
     target_n = tmpdir.ensure_dir('target_n')
     target_y = tmpdir.ensure_dir('target_y')
     versions = Versions([
@@ -40,16 +44,13 @@ def test_supported(tmpdir, run, theme):
         ('', 'testing_branch', 'heads', 13),
     ], sort=['semver'])
 
-    source.join('conf.py').write('html_theme="{}"'.format(theme))
-    source.join('contents.rst').write('Test\n====\n\nSample documentation.')
-
     # Build with normal sphinx-build.
-    run(source, ['sphinx-build', '.', str(target_n)])
+    run(local_docs, ['sphinx-build', '.', str(target_n), '-D', 'html_theme=' + theme])
     contents_n = target_n.join('contents.html').read()
     assert 'master' not in contents_n
 
     # Build with versions.
-    result = build(str(source), str(target_y), versions, 'master', list())
+    result = build(str(local_docs), str(target_y), versions, 'master', ['-D', 'html_theme=' + theme])
     assert result == 0
     contents_y = target_y.join('contents.html').read()
     assert 'master' in contents_y
@@ -65,19 +66,18 @@ def test_supported(tmpdir, run, theme):
         assert any(name in line for line in diff if line.startswith('+'))
 
 
-def test_sphinx_rtd_theme(tmpdir):
+def test_sphinx_rtd_theme(tmpdir, local_docs):
     """Test sphinx_rtd_theme features.
 
     :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
     """
-    source = tmpdir.ensure_dir('source')
-    source.join('conf.py').write('html_theme="sphinx_rtd_theme"')
-    source.join('contents.rst').write('Test\n====\n\nSample documentation.')
+    local_docs.join('conf.py').write('html_theme="sphinx_rtd_theme"')
 
     # Build branches only.
     target_b = tmpdir.ensure_dir('target_b')
     versions = Versions([('', 'master', 'heads', 1), ('', 'feature', 'heads', 2)], sort=['semver'])
-    result = build(str(source), str(target_b), versions, 'master', list())
+    result = build(str(local_docs), str(target_b), versions, 'master', list())
     assert result == 0
     contents = target_b.join('contents.html').read()
     assert '<dt>Branches</dt>' in contents
@@ -86,7 +86,7 @@ def test_sphinx_rtd_theme(tmpdir):
     # Build tags only.
     target_t = tmpdir.ensure_dir('target_t')
     versions = Versions([('', 'v1.0.0', 'tags', 3), ('', 'v1.2.0', 'tags', 4)], sort=['semver'])
-    result = build(str(source), str(target_t), versions, 'v1.2.0', list())
+    result = build(str(local_docs), str(target_t), versions, 'v1.2.0', list())
     assert result == 0
     contents = target_t.join('contents.html').read()
     assert '<dt>Branches</dt>' not in contents
@@ -98,7 +98,7 @@ def test_sphinx_rtd_theme(tmpdir):
         ('', 'master', 'heads', 1), ('', 'feature', 'heads', 2),
         ('', 'v1.0.0', 'tags', 3), ('', 'v1.2.0', 'tags', 4)
     ], sort=['semver'])
-    result = build(str(source), str(target_bt), versions, 'master', list())
+    result = build(str(local_docs), str(target_bt), versions, 'master', list())
     assert result == 0
     contents = target_bt.join('contents.html').read()
     assert '<dt>Branches</dt>' in contents

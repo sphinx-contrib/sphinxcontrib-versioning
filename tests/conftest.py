@@ -124,3 +124,55 @@ def outdate_local(tmpdir, local_light, remote, run):
     run(local_ahead, ['git', 'tag', '--annotate', '-m', 'Tag annotation.', 'ob_at'])
     run(local_ahead, ['git', 'push', 'origin', 'nb_tag', 'orphaned_branch', 'ob_at'])
     return local_ahead
+
+
+@pytest.fixture
+def local_docs(local, run):
+    """Local repository with Sphinx doc files. Pushed to remote.
+
+    :param local: local fixture.
+    :param run: local fixture.
+
+    :return: Path to repo root.
+    :rtype: py.path
+    """
+    local.ensure('conf.py')
+    local.join('contents.rst').write(
+        'Test\n'
+        '====\n'
+        '\n'
+        'Sample documentation.\n'
+        '\n'
+        '.. toctree::\n'
+        '    one\n'
+        '    two\n'
+        '    three\n'
+    )
+    local.join('one.rst').write(
+        '.. _one:\n'
+        '\n'
+        'One\n'
+        '===\n'
+        '\n'
+        'Sub page documentation 1.\n'
+    )
+    local.join('two.rst').write(
+        '.. _two:\n'
+        '\n'
+        'Two\n'
+        '===\n'
+        '\n'
+        'Sub page documentation 2.\n'
+    )
+    local.join('three.rst').write(
+        '.. _three:\n'
+        '\n'
+        'Three\n'
+        '=====\n'
+        '\n'
+        'Sub page documentation 3.\n'
+    )
+    run(local, ['git', 'add', 'conf.py', 'contents.rst', 'one.rst', 'two.rst', 'three.rst'])
+    run(local, ['git', 'commit', '-m', 'Adding docs.'])
+    run(local, ['git', 'push', 'origin', 'master'])
+    return local
