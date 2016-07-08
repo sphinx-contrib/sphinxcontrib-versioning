@@ -226,3 +226,59 @@ def test_id():
     versions = Versions(REMOTES)
     for remote in versions.remotes:
         assert remote['id'] == '{}/{}'.format(remote['kind'], remote['name'])
+
+
+def test_copy():
+    """Test copy() method."""
+    versions = Versions(REMOTES)
+    versions['zh-pages']['url'] = 'zh-pages'
+    versions['v1.2.0']['url'] = 'v1.2.0'
+
+    # No change in values.
+    versions2 = versions.copy()
+    assert id(versions) != id(versions2)
+    for remote_old, remote_new in ((r, versions2.remotes[i]) for i, r in enumerate(versions.remotes)):
+        assert remote_old == remote_new  # Values.
+        assert id(remote_old) != id(remote_new)
+
+    # Depth of one.
+    versions2 = versions.copy(1)
+    urls = dict()
+    assert id(versions) != id(versions2)
+    for remote_old, remote_new in ((r, versions2.remotes[i]) for i, r in enumerate(versions.remotes)):
+        assert remote_old != remote_new
+        assert id(remote_old) != id(remote_new)
+        url_old, url_new = remote_old.pop('url'), remote_new.pop('url')
+        assert remote_old == remote_new
+        remote_old['url'] = url_old
+        urls[remote_old['name']] = url_old, url_new
+    assert urls['master'] == ('.', '..')
+    assert urls['zh-pages'] == ('zh-pages', '../zh-pages')
+    assert urls['v1.2.0'] == ('v1.2.0', '../v1.2.0')
+
+    # Depth of two.
+    versions2 = versions.copy(2)
+    urls = dict()
+    assert id(versions) != id(versions2)
+    for remote_old, remote_new in ((r, versions2.remotes[i]) for i, r in enumerate(versions.remotes)):
+        assert remote_old != remote_new
+        assert id(remote_old) != id(remote_new)
+        url_old, url_new = remote_old.pop('url'), remote_new.pop('url')
+        assert remote_old == remote_new
+        remote_old['url'] = url_old
+        urls[remote_old['name']] = url_old, url_new
+    assert urls['master'] == ('.', '../..')
+    assert urls['zh-pages'] == ('zh-pages', '../../zh-pages')
+    assert urls['v1.2.0'] == ('v1.2.0', '../../v1.2.0')
+
+    # Depth of 20.
+    versions2 = versions.copy(20)
+    actual = versions2['master']['url']
+    expected = '../../../../../../../../../../../../../../../../../../../..'
+    assert actual == expected
+    actual = versions2['zh-pages']['url']
+    expected = '../../../../../../../../../../../../../../../../../../../../zh-pages'
+    assert actual == expected
+    actual = versions2['v1.2.0']['url']
+    expected = '../../../../../../../../../../../../../../../../../../../../v1.2.0'
+    assert actual == expected

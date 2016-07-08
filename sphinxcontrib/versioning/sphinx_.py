@@ -1,5 +1,6 @@
 """Interface with Sphinx."""
 
+import logging
 import multiprocessing
 import os
 import sys
@@ -41,16 +42,17 @@ class EventHandlers(object):
             app.config.html_sidebars['**'].append('versions.html')
 
     @classmethod
-    def html_page_context(cls, *args):
+    def html_page_context(cls, app, pagename, *args):
         """Update the Jinja2 HTML context, exposes the Versions class instance to it.
 
-        :param iter args: Arguments given by caller (Sphinx).
+        :param app: Sphinx application object.
+        :param str pagename: Relative path of RST file without the extension.
+        :param iter args: Additional arguments given by Sphinx.
         """
-        app = args[0]
-        context = args[3]
+        context = args[1]
         context['current_version'] = cls.CURRENT_VERSION
         context['html_theme'] = app.config.html_theme
-        context['versions'] = cls.VERSIONS
+        context['versions'] = cls.VERSIONS.copy(pagename.count('/'))
 
 
 def setup(app):
@@ -107,7 +109,9 @@ def build(source, target, versions, current_name, overflow):
     :return: Output of Sphinx build_main. 0 is success.
     :rtype: int
     """
+    log = logging.getLogger(__name__)
     argv = ['sphinx-build', source, target] + overflow
+    log.debug('Running sphinx-build for %s with args: %s', current_name, str(argv))
     child = multiprocessing.Process(target=_build, args=(argv, versions, current_name))
     child.start()
     child.join()  # Block.

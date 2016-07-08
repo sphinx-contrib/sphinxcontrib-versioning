@@ -23,9 +23,9 @@ def test_simple(tmpdir, local_docs, no_feature):
     contents = target.join('contents.html').read()
     assert '<a href=".">master</a></li>' in contents
     if no_feature:
-        assert '<a href=".">feature</a></li>' not in contents
+        assert '<li><a href=".">feature</a></li>' not in contents
     else:
-        assert '<a href=".">feature</a></li>' in contents
+        assert '<li><a href=".">feature</a></li>' in contents
 
 
 @pytest.mark.parametrize('project', [True, False, True, False])
@@ -102,5 +102,51 @@ def test_custom_sidebar(tmpdir, local_docs):
     assert result == 0
 
     contents = target.join('contents.html').read()
-    assert '<a href=".">master</a></li>' in contents
+    assert '<li><a href=".">master</a></li>' in contents
     assert '<h3>Custom Sidebar</h3>' in contents
+
+
+def test_subdirs(tmpdir, local_docs):
+    """Make sure relative URLs in `versions` works with RST files in subdirectories.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
+    """
+    target = tmpdir.ensure_dir('target')
+    versions = Versions([('', 'master', 'heads', 1), ('', 'feature', 'heads', 2)])
+    versions['feature']['url'] = 'feature'
+
+    for i in range(1, 6):
+        path = ['subdir'] * i + ['sub.rst']
+        local_docs.join('contents.rst').write('    ' + '/'.join(path)[:-4] + '\n', mode='a')
+        local_docs.ensure(*path).write(
+            '.. _sub:\n'
+            '\n'
+            'Sub\n'
+            '===\n'
+            '\n'
+            'Sub directory sub page documentation.\n'
+        )
+
+    result = build(str(local_docs), str(target), versions, 'master', list())
+    assert result == 0
+
+    contents = target.join('contents.html').read()
+    assert '<li><a href=".">master</a></li>' in contents
+    assert '<li><a href="feature">feature</a></li>' in contents
+
+    page = target.join('subdir', 'sub.html').read()
+    assert '<li><a href="..">master</a></li>' in page
+    assert '<li><a href="../feature">feature</a></li>' in page
+    page = target.join('subdir', 'subdir', 'sub.html').read()
+    assert '<li><a href="../..">master</a></li>' in page
+    assert '<li><a href="../../feature">feature</a></li>' in page
+    page = target.join('subdir', 'subdir', 'subdir', 'sub.html').read()
+    assert '<li><a href="../../..">master</a></li>' in page
+    assert '<li><a href="../../../feature">feature</a></li>' in page
+    page = target.join('subdir', 'subdir', 'subdir', 'subdir', 'sub.html').read()
+    assert '<li><a href="../../../..">master</a></li>' in page
+    assert '<li><a href="../../../../feature">feature</a></li>' in page
+    page = target.join('subdir', 'subdir', 'subdir', 'subdir', 'subdir', 'sub.html').read()
+    assert '<li><a href="../../../../..">master</a></li>' in page
+    assert '<li><a href="../../../../../feature">feature</a></li>' in page

@@ -172,3 +172,20 @@ class Versions(object):
     def tags(self):
         """Return list of (name and urls) only tags."""
         return [(r['name'], r['url']) for r in self.remotes if r['kind'] == 'tags']
+
+    def copy(self, sub_depth=0):
+        """Duplicate class and self.remotes dictionaries. Prepend '../' to all URLs n times.
+
+        :param int sub_depth: Subdirectory depth. 1 == ../, 2 == ../../,
+
+        :return: Versions
+        """
+        new = self.__class__([])
+        for remote in (r.copy() for r in self.remotes):
+            if sub_depth > 0:
+                path = '/'.join(['..'] * sub_depth + [remote['url']])
+                if path.endswith('/.'):
+                    path = path[:-2]
+                remote['url'] = path
+            new.remotes.append(remote)
+        return new
