@@ -3,14 +3,15 @@
 import logging
 import multiprocessing
 import os
-import sys
 
 from sphinx import application, build_main
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import Config
+from sphinx.errors import SphinxError
 from sphinx.jinja2glue import SphinxFileSystemLoader
 
 from sphinxcontrib.versioning import __version__
+from sphinxcontrib.versioning.lib import HandledError
 
 
 class EventHandlers(object):
@@ -81,11 +82,8 @@ def _build(argv, versions, current_name):
     """Build Sphinx docs via multiprocessing for isolation.
 
     :param iter argv: Arguments to pass to Sphinx.
-    :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
+    :param versions: Version class instance.
     :param str current_name: The ref name of the current version being built.
-
-    :return: Output of Sphinx build_main. 0 is success.
-    :rtype: int
     """
     # Patch.
     application.Config = ConfigInject
@@ -94,20 +92,20 @@ def _build(argv, versions, current_name):
 
     # Build.
     result = build_main(argv)
-    sys.exit(result)
+    if result != 0:
+        raise SphinxError
 
 
 def build(source, target, versions, current_name, overflow):
     """Build Sphinx docs for one version. Includes Versions class instance with names/urls in the HTML context.
+
+    :raise HandledError: If sphinx-build fails. Will be logged before raising.
 
     :param str source: Source directory to pass to sphinx-build.
     :param str target: Destination directory to write documentation to (passed to sphinx-build).
     :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
     :param str current_name: The ref name of the current version being built.
     :param list overflow: Overflow command line options to pass to sphinx-build.
-
-    :return: Output of Sphinx build_main. 0 is success.
-    :rtype: int
     """
     log = logging.getLogger(__name__)
     argv = ['sphinx-build', source, target] + overflow
@@ -115,4 +113,6 @@ def build(source, target, versions, current_name, overflow):
     child = multiprocessing.Process(target=_build, args=(argv, versions, current_name))
     child.start()
     child.join()  # Block.
-    return child.exitcode
+    if child.exitcode != 0:
+        log.error('sphinx-build failed for branch/tag: %s', current_name)
+        raise HandledError

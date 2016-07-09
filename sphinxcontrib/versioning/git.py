@@ -5,9 +5,9 @@ import logging
 import os
 import re
 import shutil
-import tempfile
-
 from subprocess import CalledProcessError, PIPE, Popen, STDOUT
+
+from sphinxcontrib.versioning.lib import TemporaryDirectory
 
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+(?:\^\{})?)$', re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -203,6 +203,8 @@ def fetch_commits(local_root, remotes):
 def export(local_root, conf_rel_paths, commit, target):
     """Export git commit to directory. "Extracts" all files at the commit to the target directory.
 
+    :raise CalledProcessError: Unhandled git command failure.
+
     :param str local_root: Local path to git root directory.
     :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
     :param str commit: Git commit SHA to export.
@@ -212,20 +214,22 @@ def export(local_root, conf_rel_paths, commit, target):
     if not all(docs_rel_paths):  # If one path is in the root just extract everything.
         docs_rel_paths = list()
     git_command = ['git', 'archive', '--format=tar', commit] + docs_rel_paths
-    temp_dir = tempfile.mkdtemp()
-    tar_command = ['tar', '-x', '-C', temp_dir]
 
-    # Run commands.
-    run_command(local_root, tar_command, piped=git_command)
+    with TemporaryDirectory() as temp_dir:
+        # Run commands.
+        run_command(local_root, ['tar', '-x', '-C', temp_dir], piped=git_command)
 
-    # Determine source and copy to target. Overwrite existing but don't delete anything in target.
-    source = os.path.dirname([i for i in (os.path.join(temp_dir, c) for c in conf_rel_paths) if os.path.exists(i)][0])
-    for s_dirpath, s_filenames in (i[::2] for i in os.walk(source) if i[2]):
-        t_dirpath = os.path.join(target, os.path.relpath(s_dirpath, source))
-        if not os.path.exists(t_dirpath):
-            os.makedirs(t_dirpath)
-        for args in ((os.path.join(s_dirpath, f), os.path.join(t_dirpath, f)) for f in s_filenames):
-            shutil.copy(*args)
+        # Determine source.
+        source = None
+        for path in (os.path.join(temp_dir, c) for c in conf_rel_paths):
+            if os.path.exists(path):
+                source = os.path.dirname(path)
+                break
 
-    # Cleanup.
-    shutil.rmtree(temp_dir)
+        # Copy to target. Overwrite existing but don't delete anything in target.
+        for s_dirpath, s_filenames in (i[::2] for i in os.walk(source) if i[2]):
+            t_dirpath = os.path.join(target, os.path.relpath(s_dirpath, source))
+            if not os.path.exists(t_dirpath):
+                os.makedirs(t_dirpath)
+            for args in ((os.path.join(s_dirpath, f), os.path.join(t_dirpath, f)) for f in s_filenames):
+                shutil.copy(*args)

@@ -134,6 +134,10 @@ class Versions(object):
         """True if self.remotes is not empty. Python 2.x."""
         return self.__bool__()
 
+    def __len__(self):
+        """Length of self.remotes."""
+        return len(self.remotes)
+
     def __getitem__(self, item):
         """Retrieve a version dict from self.remotes by any of its attributes."""
         # First assume item is an attribute.

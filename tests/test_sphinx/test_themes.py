@@ -50,8 +50,7 @@ def test_supported(tmpdir, local_docs, run, theme):
     assert 'master' not in contents_n
 
     # Build with versions.
-    result = build(str(local_docs), str(target_y), versions, 'master', ['-D', 'html_theme=' + theme])
-    assert result == 0
+    build(str(local_docs), str(target_y), versions, 'master', ['-D', 'html_theme=' + theme])
     contents_y = target_y.join('contents.html').read()
     assert 'master' in contents_y
 
@@ -77,8 +76,7 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
     # Build branches only.
     target_b = tmpdir.ensure_dir('target_b')
     versions = Versions([('', 'master', 'heads', 1), ('', 'feature', 'heads', 2)], sort=['semver'])
-    result = build(str(local_docs), str(target_b), versions, 'master', list())
-    assert result == 0
+    build(str(local_docs), str(target_b), versions, 'master', list())
     contents = target_b.join('contents.html').read()
     assert '<dt>Branches</dt>' in contents
     assert '<dt>Tags</dt>' not in contents
@@ -86,8 +84,7 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
     # Build tags only.
     target_t = tmpdir.ensure_dir('target_t')
     versions = Versions([('', 'v1.0.0', 'tags', 3), ('', 'v1.2.0', 'tags', 4)], sort=['semver'])
-    result = build(str(local_docs), str(target_t), versions, 'v1.2.0', list())
-    assert result == 0
+    build(str(local_docs), str(target_t), versions, 'v1.2.0', list())
     contents = target_t.join('contents.html').read()
     assert '<dt>Branches</dt>' not in contents
     assert '<dt>Tags</dt>' in contents
@@ -98,8 +95,7 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
         ('', 'master', 'heads', 1), ('', 'feature', 'heads', 2),
         ('', 'v1.0.0', 'tags', 3), ('', 'v1.2.0', 'tags', 4)
     ], sort=['semver'])
-    result = build(str(local_docs), str(target_bt), versions, 'master', list())
-    assert result == 0
+    build(str(local_docs), str(target_bt), versions, 'master', list())
     contents = target_bt.join('contents.html').read()
     assert '<dt>Branches</dt>' in contents
     assert '<dt>Tags</dt>' in contents

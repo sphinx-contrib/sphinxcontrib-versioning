@@ -80,17 +80,17 @@ def main(config):
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
     conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['SOURCE']] + config['--additional-src']]
-    filtered_remotes = gather_git_info(os.getcwd(), conf_rel_paths)[1]
-    if not filtered_remotes:
+    remotes = gather_git_info(os.getcwd(), conf_rel_paths)[1]
+    if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError
-    if config['--root-ref'] not in [r[1] for r in filtered_remotes]:
-        log.error('Root ref %s not found in: %s', config['--root-ref'], ' '.join(r[1] for r in filtered_remotes))
+    if config['--root-ref'] not in [r[1] for r in remotes]:
+        log.error('Root ref %s not found in: %s', config['--root-ref'], ' '.join(r[1] for r in remotes))
         raise HandledError
 
     # Setup versions.
     versions = Versions(
-        filtered_remotes,
+        remotes,
         sort=(config['--sort'] or '').split(','),
         prioritize=config['--prioritize'],
         invert=config['--invert'],

@@ -2,6 +2,7 @@
 
 import pytest
 
+from sphinxcontrib.versioning.lib import HandledError
 from sphinxcontrib.versioning.sphinx_ import build
 from sphinxcontrib.versioning.versions import Versions
 
@@ -17,8 +18,7 @@ def test_simple(tmpdir, local_docs, no_feature):
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1)] + ([] if no_feature else [('', 'feature', 'heads', 2)]))
 
-    result = build(str(local_docs), str(target), versions, 'master', list())
-    assert result == 0
+    build(str(local_docs), str(target), versions, 'master', list())
 
     contents = target.join('contents.html').read()
     assert '<a href=".">master</a></li>' in contents
@@ -40,8 +40,7 @@ def test_isolation(tmpdir, local_docs, project):
     versions = Versions([('', 'master', 'heads', 1)])
 
     overflow = ['-D', 'project=Robpol86' if project else 'copyright="2016, SCV"']
-    result = build(str(local_docs), str(target), versions, 'master', overflow)
-    assert result == 0
+    build(str(local_docs), str(target), versions, 'master', overflow)
 
     contents = target.join('contents.html').read()
     if project:
@@ -61,8 +60,7 @@ def test_overflow(tmpdir, local_docs):
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1)])
 
-    result = build(str(local_docs), str(target), versions, 'master', ['-D', 'copyright=2016, SCV'])
-    assert result == 0
+    build(str(local_docs), str(target), versions, 'master', ['-D', 'copyright=2016, SCV'])
 
     contents = target.join('contents.html').read()
     assert '2016, SCV' in contents
@@ -79,8 +77,8 @@ def test_sphinx_error(tmpdir, local_docs):
 
     local_docs.join('conf.py').write('undefined')
 
-    result = build(str(local_docs), str(target), versions, 'master', list())
-    assert result == 1
+    with pytest.raises(HandledError):
+        build(str(local_docs), str(target), versions, 'master', list())
 
 
 def test_custom_sidebar(tmpdir, local_docs):
@@ -98,8 +96,7 @@ def test_custom_sidebar(tmpdir, local_docs):
     )
     local_docs.ensure('_templates', 'custom.html').write('<h3>Custom Sidebar</h3><ul><li>Test</li></ul>')
 
-    result = build(str(local_docs), str(target), versions, 'master', list())
-    assert result == 0
+    build(str(local_docs), str(target), versions, 'master', list())
 
     contents = target.join('contents.html').read()
     assert '<li><a href=".">master</a></li>' in contents
@@ -128,8 +125,7 @@ def test_subdirs(tmpdir, local_docs):
             'Sub directory sub page documentation.\n'
         )
 
-    result = build(str(local_docs), str(target), versions, 'master', list())
-    assert result == 0
+    build(str(local_docs), str(target), versions, 'master', list())
 
     contents = target.join('contents.html').read()
     assert '<li><a href=".">master</a></li>' in contents

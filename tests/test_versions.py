@@ -198,27 +198,31 @@ def test_getitem():
         assert versions['unknown']
 
 
-def test_bool():
-    """Test boolean values of Versions and .branches/.tags."""
+def test_bool_len():
+    """Test length and boolean values of Versions and .branches/.tags."""
     versions = Versions(REMOTES)
     assert bool(versions) is True
     assert bool(versions.branches) is True
     assert bool(versions.tags) is True
+    assert len(versions) == 7
 
     versions = Versions(r for r in REMOTES if r[2] == 'heads')
     assert bool(versions) is True
     assert bool(versions.branches) is True
     assert bool(versions.tags) is False
+    assert len(versions) == 2
 
     versions = Versions(r for r in REMOTES if r[2] == 'tags')
     assert bool(versions) is True
     assert bool(versions.branches) is False
     assert bool(versions.tags) is True
+    assert len(versions) == 5
 
     versions = Versions([])
     assert bool(versions) is False
     assert bool(versions.branches) is False
     assert bool(versions.tags) is False
+    assert len(versions) == 0
 
 
 def test_id():
@@ -258,18 +262,9 @@ def test_copy():
 
     # Depth of two.
     versions2 = versions.copy(2)
-    urls = dict()
-    assert id(versions) != id(versions2)
-    for remote_old, remote_new in ((r, versions2.remotes[i]) for i, r in enumerate(versions.remotes)):
-        assert remote_old != remote_new
-        assert id(remote_old) != id(remote_new)
-        url_old, url_new = remote_old.pop('url'), remote_new.pop('url')
-        assert remote_old == remote_new
-        remote_old['url'] = url_old
-        urls[remote_old['name']] = url_old, url_new
-    assert urls['master'] == ('.', '../..')
-    assert urls['zh-pages'] == ('zh-pages', '../../zh-pages')
-    assert urls['v1.2.0'] == ('v1.2.0', '../../v1.2.0')
+    assert versions2['master']['url'] == '../..'
+    assert versions2['zh-pages']['url'] == '../../zh-pages'
+    assert versions2['v1.2.0']['url'] == '../../v1.2.0'
 
     # Depth of 20.
     versions2 = versions.copy(20)
