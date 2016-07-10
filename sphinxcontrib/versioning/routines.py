@@ -110,10 +110,15 @@ def pre_build(local_root, versions, root_ref, overflow):
         existing.append(url)
 
     # Define master_doc file paths in URLs in versions.
-    for remote in versions.remotes:
+    for remote in list(versions.remotes):
         log.debug('Partially running sphinx-build to read configuration for: %s', remote['name'])
         source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
-        config = read_config(source, remote['name'], overflow)
+        try:
+            config = read_config(source, remote['name'], overflow)
+        except HandledError:
+            log.warning('Skipping. Will not be building: %s', remote['name'])
+            versions.remotes.pop(versions.remotes.index(remote))
+            continue
         url = os.path.join(remote['url'], '{}.html'.format(config['master_doc']))
         if url.startswith('./'):
             url = url[2:]

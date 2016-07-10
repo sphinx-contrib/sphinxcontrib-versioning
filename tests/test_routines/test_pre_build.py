@@ -1,7 +1,9 @@
 """Test function in module."""
 
 import py
+import pytest
 
+from sphinxcontrib.versioning.lib import HandledError
 from sphinxcontrib.versioning.routines import gather_git_info, pre_build
 from sphinxcontrib.versioning.versions import Versions
 
@@ -94,3 +96,30 @@ def test_invalid_name(local_docs, run):
     pre_build(str(local_docs), versions, 'master', list())
     expected = ['contents.html', 'robpol86_feature/contents.html']
     assert sorted(r['url'] for r in versions.remotes) == expected
+
+
+def test_error(local_docs, run):
+    """Test with a bad root ref. Also test skipping bad non-root refs.
+
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    """
+    run(local_docs, ['git', 'checkout', '-b', 'a_good', 'master'])
+    run(local_docs, ['git', 'checkout', '-b', 'c_good', 'master'])
+    run(local_docs, ['git', 'checkout', '-b', 'b_broken', 'master'])
+    local_docs.join('conf.py').write('master_doc = exception\n')
+    run(local_docs, ['git', 'commit', '-am', 'Broken version.'])
+    run(local_docs, ['git', 'checkout', '-b', 'd_broken', 'b_broken'])
+    run(local_docs, ['git', 'push', 'origin', 'a_good', 'b_broken', 'c_good', 'd_broken'])
+
+    remotes = gather_git_info(str(local_docs), ['conf.py'])[1]
+    versions = Versions(remotes, sort=['alpha'])
+    assert [r[0] for r in versions] == ['a_good', 'b_broken', 'c_good', 'd_broken', 'master']
+
+    # Bad root ref.
+    with pytest.raises(HandledError):
+        pre_build(str(local_docs), versions, 'b_broken', list())
+
+    # Remove bad non-root refs.
+    pre_build(str(local_docs), versions, 'master', list())
+    assert [r[0] for r in versions] == ['a_good', 'c_good', 'master']
