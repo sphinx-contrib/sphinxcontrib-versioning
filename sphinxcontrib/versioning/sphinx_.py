@@ -1,17 +1,19 @@
 """Interface with Sphinx."""
 
+from __future__ import print_function
+
 import logging
 import multiprocessing
 import os
 
-from sphinx import application, build_main
+from sphinx import application, build_main, cmdline
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.jinja2glue import SphinxFileSystemLoader
 
 from sphinxcontrib.versioning import __version__
-from sphinxcontrib.versioning.lib import HandledError
+from sphinxcontrib.versioning.lib import HandledError, TempDir
 
 
 class EventHandlers(object):
@@ -69,6 +71,19 @@ def setup(app):
     return dict(version=__version__)
 
 
+class SphinxBuildAbort(application.Sphinx):
+    """Abort after initializing config and before build."""
+
+    SPECIFIC_CONFIG = None
+
+    def build(self, *_):
+        """Instead of building read the config and store it in the class variable."""
+        config = dict(
+            master_doc=str(self.config.master_doc),
+        )
+        SphinxBuildAbort.SPECIFIC_CONFIG = config
+
+
 class ConfigInject(Config):
     """Inject this extension info self.extensions. Append after user's extensions."""
 
@@ -96,6 +111,23 @@ def _build(argv, versions, current_name):
         raise SphinxError
 
 
+def _read_config(argv, current_name, queue):
+    """Read the Sphinx config via multiprocessing for isolation.
+
+    :param iter argv: Arguments to pass to Sphinx.
+    :param str current_name: The ref name of the current version being built.
+    :param multiprocessing.Queue queue: Communication channel to parent process.
+    """
+    # Patch.
+    cmdline.Sphinx = SphinxBuildAbort
+
+    # Run.
+    _build(argv, None, current_name)
+
+    # Store.
+    queue.put(SphinxBuildAbort.SPECIFIC_CONFIG)
+
+
 def build(source, target, versions, current_name, overflow):
     """Build Sphinx docs for one version. Includes Versions class instance with names/urls in the HTML context.
 
@@ -116,3 +148,32 @@ def build(source, target, versions, current_name, overflow):
     if child.exitcode != 0:
         log.error('sphinx-build failed for branch/tag: %s', current_name)
         raise HandledError
+
+
+def read_config(source, current_name, overflow):
+    """Read the Sphinx config for one version.
+
+    :raise HandledError: If sphinx-build fails. Will be logged before raising.
+
+    :param str source: Source directory to pass to sphinx-build.
+    :param str current_name: The ref name of the current version being built.
+    :param list overflow: Overflow command line options to pass to sphinx-build.
+
+    :return: Specific Sphinx config values.
+    :rtype: dict
+    """
+    log = logging.getLogger(__name__)
+    queue = multiprocessing.Queue()
+
+    with TempDir() as temp_dir:
+        argv = ['sphinx-build', source, temp_dir] + overflow
+        log.debug('Running sphinx-build for config values with args: %s', str(argv))
+        child = multiprocessing.Process(target=_read_config, args=(argv, current_name, queue))
+        child.start()
+        child.join()  # Block.
+        if child.exitcode != 0:
+            log.error('sphinx-build failed for branch/tag while reading config: %s', current_name)
+            raise HandledError
+
+    config = queue.get()
+    return config

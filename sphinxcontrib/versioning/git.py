@@ -7,7 +7,7 @@ import re
 import shutil
 from subprocess import CalledProcessError, PIPE, Popen, STDOUT
 
-from sphinxcontrib.versioning.lib import TemporaryDirectory
+from sphinxcontrib.versioning.lib import TempDir
 
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>\w+)/(?P<name>[\w./-]+(?:\^\{})?)$', re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -215,16 +215,13 @@ def export(local_root, conf_rel_paths, commit, target):
         docs_rel_paths = list()
     git_command = ['git', 'archive', '--format=tar', commit] + docs_rel_paths
 
-    with TemporaryDirectory() as temp_dir:
+    with TempDir() as temp_dir:
         # Run commands.
         run_command(local_root, ['tar', '-x', '-C', temp_dir], piped=git_command)
 
         # Determine source.
-        source = None
-        for path in (os.path.join(temp_dir, c) for c in conf_rel_paths):
-            if os.path.exists(path):
-                source = os.path.dirname(path)
-                break
+        source = [os.path.dirname(p) for p in (os.path.join(temp_dir, c) for c in conf_rel_paths) if os.path.exists(p)]
+        source = source[0]
 
         # Copy to target. Overwrite existing but don't delete anything in target.
         for s_dirpath, s_filenames in (i[::2] for i in os.walk(source) if i[2]):

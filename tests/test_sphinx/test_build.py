@@ -81,19 +81,27 @@ def test_sphinx_error(tmpdir, local_docs):
         build(str(local_docs), str(target), versions, 'master', list())
 
 
-def test_custom_sidebar(tmpdir, local_docs):
+@pytest.mark.parametrize('pre_existing_versions', [False, True])
+def test_custom_sidebar(tmpdir, local_docs, pre_existing_versions):
     """Make sure user's sidebar item is kept intact.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
+    :param bool pre_existing_versions: Test if user already has versions.html in conf.py.
     """
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1)])
 
-    local_docs.join('conf.py').write(
-        'templates_path = ["_templates"]\n'
-        'html_sidebars = {"**": ["localtoc.html", "custom.html"]}\n'
-    )
+    if pre_existing_versions:
+        local_docs.join('conf.py').write(
+            'templates_path = ["_templates"]\n'
+            'html_sidebars = {"**": ["versions.html", "localtoc.html", "custom.html"]}\n'
+        )
+    else:
+        local_docs.join('conf.py').write(
+            'templates_path = ["_templates"]\n'
+            'html_sidebars = {"**": ["localtoc.html", "custom.html"]}\n'
+        )
     local_docs.ensure('_templates', 'custom.html').write('<h3>Custom Sidebar</h3><ul><li>Test</li></ul>')
 
     build(str(local_docs), str(target), versions, 'master', list())
