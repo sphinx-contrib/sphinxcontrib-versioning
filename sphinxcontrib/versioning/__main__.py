@@ -44,7 +44,7 @@ from docopt import docopt
 
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.lib import HandledError
-from sphinxcontrib.versioning.routines import gather_git_info
+from sphinxcontrib.versioning.routines import gather_git_info, pre_build
 from sphinxcontrib.versioning.setup_logging import setup_logging
 from sphinxcontrib.versioning.versions import Versions
 
@@ -80,7 +80,7 @@ def main(config):
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
     conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['SOURCE']] + config['--additional-src']]
-    remotes = gather_git_info(os.getcwd(), conf_rel_paths)[1]
+    root, remotes = gather_git_info(os.getcwd(), conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError
@@ -89,13 +89,15 @@ def main(config):
         raise HandledError
 
     # Setup versions.
+    log.info('Pre-running Sphinx on all versions to determine URLs.')
     versions = Versions(
         remotes,
         sort=(config['--sort'] or '').split(','),
         prioritize=config['--prioritize'],
         invert=config['--invert'],
     )
-    assert versions
+    sources = pre_build(root, conf_rel_paths, versions, config['--root-ref'], config['overflow'])
+    assert sources
 
 
 def entry_point():
