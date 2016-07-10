@@ -15,8 +15,8 @@ def test_working(local):
     """
     root, filtered_remotes = gather_git_info(str(local), [os.path.join('.', 'README')])
     assert root == str(local)
-    expected = [('feature', 'heads'), ('master', 'heads'), ('annotated_tag', 'tags'), ('light_tag', 'tags')]
-    assert [i[1:-1] for i in filtered_remotes] == expected
+    expected = [['feature', 'heads'], ['master', 'heads'], ['annotated_tag', 'tags'], ['light_tag', 'tags']]
+    assert [i[1:-2] for i in filtered_remotes] == expected
 
 
 @pytest.mark.usefixtures('outdate_local')
@@ -37,15 +37,15 @@ def test_fetch(monkeypatch, caplog, local, skip_fetch):
         root, filtered_remotes = gather_git_info(str(local), ['README'])
         assert root == str(local)
         expected = [
-            ('feature', 'heads'),
-            ('master', 'heads'),
-            ('orphaned_branch', 'heads'),
-            ('annotated_tag', 'tags'),
-            ('light_tag', 'tags'),
-            ('nb_tag', 'tags'),
-            ('ob_at', 'tags'),
+            ['feature', 'heads'],
+            ['master', 'heads'],
+            ['orphaned_branch', 'heads'],
+            ['annotated_tag', 'tags'],
+            ['light_tag', 'tags'],
+            ['nb_tag', 'tags'],
+            ['ob_at', 'tags'],
         ]
-        assert [i[1:-1] for i in filtered_remotes] == expected
+        assert [i[1:-2] for i in filtered_remotes] == expected
 
     records = [(r.levelname, r.message) for r in caplog.records]
     assert ('INFO', 'Need to fetch from remote...') in records

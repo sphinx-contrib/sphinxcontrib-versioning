@@ -25,8 +25,9 @@ def test_one_commit(local, run):
     # Test with existing conf_rel_path.
     dates = filter_and_date(str(local), ['README'], [sha])
     assert list(dates) == [sha]
-    assert dates[sha] >= BEFORE
-    assert dates[sha] < time.time()
+    assert dates[sha][0] >= BEFORE
+    assert dates[sha][0] < time.time()
+    assert dates[sha][1] == 'README'
 
     # Test duplicate SHAs.
     dates2 = filter_and_date(str(local), ['README'], [sha, sha, sha])

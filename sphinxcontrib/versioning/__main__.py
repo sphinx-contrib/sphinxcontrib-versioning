@@ -96,7 +96,7 @@ def main(config):
         prioritize=config['--prioritize'],
         invert=config['--invert'],
     )
-    sources = pre_build(root, conf_rel_paths, versions, config['--root-ref'], config['overflow'])
+    sources = pre_build(root, versions, config['--root-ref'], config['overflow'])
     assert sources
 
 

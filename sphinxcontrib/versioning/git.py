@@ -140,7 +140,7 @@ def list_remote(local_root):
 
 
 def filter_and_date(local_root, conf_rel_paths, commits):
-    """Get commit Unix timestamps. Exclude commits with no conf.py file.
+    """Get commit Unix timestamps and first matching conf.py path. Exclude commits with no conf.py file.
 
     :raise CalledProcessError: Unhandled git command failure.
     :raise GitError: A commit SHA has not been fetched.
@@ -149,14 +149,14 @@ def filter_and_date(local_root, conf_rel_paths, commits):
     :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
     :param iter commits: List of commit SHAs.
 
-    :return: Commit time (seconds since Unix epoch) for each commit. SHA keys and int values.
+    :return: Commit time (seconds since Unix epoch) for each commit and conf.py path. SHA keys and [int, str] values.
     :rtype: dict
     """
-    dates = dict()
+    dates_paths = dict()
 
     # Filter without docs.
     for commit in commits:
-        if commit in dates:
+        if commit in dates_paths:
             continue
         command = ['git', 'ls-tree', '--name-only', '-r', commit] + conf_rel_paths
         try:
@@ -164,19 +164,19 @@ def filter_and_date(local_root, conf_rel_paths, commits):
         except CalledProcessError as exc:
             raise GitError('Git ls-tree failed on {0}'.format(commit), exc.output)
         if output:
-            dates[commit] = None
+            dates_paths[commit] = [None, output.splitlines()[0].strip()]
 
     # Get timestamps by groups of 50.
     command_prefix = ['git', 'show', '--no-patch', '--pretty=format:%ct']
-    for commits_group in chunk(dates, 50):
+    for commits_group in chunk(dates_paths, 50):
         command = command_prefix + commits_group
         output = run_command(local_root, command)
         timestamps = [int(i) for i in RE_UNIX_TIME.findall(output)]
         for i, commit in enumerate(commits_group):
-            dates[commit] = timestamps[i]
+            dates_paths[commit][0] = timestamps[i]
 
     # Done.
-    return dates
+    return dates_paths
 
 
 def fetch_commits(local_root, remotes):
@@ -200,32 +200,24 @@ def fetch_commits(local_root, remotes):
             run_command(local_root, ['git', 'reflog', sha])
 
 
-def export(local_root, conf_rel_paths, commit, target):
+def export(local_root, commit, target):
     """Export git commit to directory. "Extracts" all files at the commit to the target directory.
 
     :raise CalledProcessError: Unhandled git command failure.
 
     :param str local_root: Local path to git root directory.
-    :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
     :param str commit: Git commit SHA to export.
     :param str target: Directory to export to.
     """
-    docs_rel_paths = [os.path.dirname(p) for p in conf_rel_paths]
-    if not all(docs_rel_paths):  # If one path is in the root just extract everything.
-        docs_rel_paths = list()
-    git_command = ['git', 'archive', '--format=tar', commit] + docs_rel_paths
+    git_command = ['git', 'archive', '--format=tar', commit]
 
     with TempDir() as temp_dir:
         # Run commands.
         run_command(local_root, ['tar', '-x', '-C', temp_dir], piped=git_command)
 
-        # Determine source.
-        source = [os.path.dirname(p) for p in (os.path.join(temp_dir, c) for c in conf_rel_paths) if os.path.exists(p)]
-        source = source[0]
-
         # Copy to target. Overwrite existing but don't delete anything in target.
-        for s_dirpath, s_filenames in (i[::2] for i in os.walk(source) if i[2]):
-            t_dirpath = os.path.join(target, os.path.relpath(s_dirpath, source))
+        for s_dirpath, s_filenames in (i[::2] for i in os.walk(temp_dir) if i[2]):
+            t_dirpath = os.path.join(target, os.path.relpath(s_dirpath, temp_dir))
             if not os.path.exists(t_dirpath):
                 os.makedirs(t_dirpath)
             for args in ((os.path.join(s_dirpath, f), os.path.join(t_dirpath, f)) for f in s_filenames):

@@ -5,13 +5,13 @@ import pytest
 from sphinxcontrib.versioning.versions import Versions
 
 REMOTES = (
-    ('0772e5ff32af52115a809d97cd506837fa209f7f', 'zh-pages', 'heads', 1465766422),
-    ('abaaa358379408d997255ec8155db30cea2a61a8', 'master', 'heads', 1465764862),
-    ('3b7987d8f5f50457f960cfbb04f69b4f1cb3e5ac', 'v1.2.0', 'tags', 1433133463),
-    ('c4f19d2996ed1ab027b342dd0685157e3572679d', 'v2.0.0', 'tags', 2444613111),
-    ('936956cca39e93cf727e056bfa631bb92319d197', 'v2.1.0', 'tags', 1446526830),
-    ('23781ad05995212d3304fa5e97a37540c35f18a2', 'v3.0.0', 'tags', 1464657292),
-    ('a0db52ded175520aa194e21c4b65b2095ad45358', 'v10.0.0', 'tags', 1464657293),
+    ('0772e5ff32af52115a809d97cd506837fa209f7f', 'zh-pages', 'heads', 1465766422, 'README'),
+    ('abaaa358379408d997255ec8155db30cea2a61a8', 'master', 'heads', 1465764862, 'README'),
+    ('3b7987d8f5f50457f960cfbb04f69b4f1cb3e5ac', 'v1.2.0', 'tags', 1433133463, 'README'),
+    ('c4f19d2996ed1ab027b342dd0685157e3572679d', 'v2.0.0', 'tags', 2444613111, 'README'),
+    ('936956cca39e93cf727e056bfa631bb92319d197', 'v2.1.0', 'tags', 1446526830, 'README'),
+    ('23781ad05995212d3304fa5e97a37540c35f18a2', 'v3.0.0', 'tags', 1464657292, 'README'),
+    ('a0db52ded175520aa194e21c4b65b2095ad45358', 'v10.0.0', 'tags', 1464657293, 'README'),
 )
 REMOTES_SHIFTED = tuple(REMOTES[-s:] + REMOTES[:-s] for s in range(6))
 
@@ -44,7 +44,7 @@ def test_sort_valid(sort):
     """
     items = ['v1.5.1', 'V1.5.1b2', '161', '3.10a', '8.02', '3.4j', '1996.07.12', '3.2.pl0', '3.1.1.6', '2g6', '11g',
              '0.960923', '2.2beta29', '1.13++', '5.5.kw', '2.0b1pl0', 'master', 'gh-pages', 'a', 'z']
-    remotes = [('', item, 'tags', i) for i, item in enumerate(items)]
+    remotes = [('', item, 'tags', i, 'README') for i, item in enumerate(items)]
     versions = Versions(remotes, sort=sort.split(','))
     actual = [i[0] for i in versions]
 
@@ -75,7 +75,7 @@ def test_sort_semver_invalid(sort):
     :param str sort: Passed to function after splitting by comma.
     """
     items = ['master', 'gh-pages', 'a', 'z']
-    remotes = [('', item, 'tags', i) for i, item in enumerate(items)]
+    remotes = [('', item, 'tags', i, 'README') for i, item in enumerate(items)]
     versions = Versions(remotes, sort=sort.split(','))
     actual = [i[0] for i in versions]
 

@@ -29,19 +29,19 @@ def test_supported(tmpdir, local_docs, run, theme):
     target_n = tmpdir.ensure_dir('target_n')
     target_y = tmpdir.ensure_dir('target_y')
     versions = Versions([
-        ('', 'master', 'heads', 1),
-        ('', 'feature', 'heads', 2),
-        ('', 'v1.0.0', 'tags', 3),
-        ('', 'v1.2.0', 'tags', 4),
-        ('', 'v2.0.0', 'tags', 5),
-        ('', 'v2.1.0', 'tags', 6),
-        ('', 'v2.2.0', 'tags', 7),
-        ('', 'v2.3.0', 'tags', 8),
-        ('', 'v2.4.0', 'tags', 9),
-        ('', 'v2.5.0', 'tags', 10),
-        ('', 'v2.6.0', 'tags', 11),
-        ('', 'v2.7.0', 'tags', 12),
-        ('', 'testing_branch', 'heads', 13),
+        ('', 'master', 'heads', 1, 'conf.py'),
+        ('', 'feature', 'heads', 2, 'conf.py'),
+        ('', 'v1.0.0', 'tags', 3, 'conf.py'),
+        ('', 'v1.2.0', 'tags', 4, 'conf.py'),
+        ('', 'v2.0.0', 'tags', 5, 'conf.py'),
+        ('', 'v2.1.0', 'tags', 6, 'conf.py'),
+        ('', 'v2.2.0', 'tags', 7, 'conf.py'),
+        ('', 'v2.3.0', 'tags', 8, 'conf.py'),
+        ('', 'v2.4.0', 'tags', 9, 'conf.py'),
+        ('', 'v2.5.0', 'tags', 10, 'conf.py'),
+        ('', 'v2.6.0', 'tags', 11, 'conf.py'),
+        ('', 'v2.7.0', 'tags', 12, 'conf.py'),
+        ('', 'testing_branch', 'heads', 13, 'conf.py'),
     ], sort=['semver'])
 
     # Build with normal sphinx-build.
@@ -75,7 +75,7 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
 
     # Build branches only.
     target_b = tmpdir.ensure_dir('target_b')
-    versions = Versions([('', 'master', 'heads', 1), ('', 'feature', 'heads', 2)], sort=['semver'])
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')], ['semver'])
     build(str(local_docs), str(target_b), versions, 'master', list())
     contents = target_b.join('contents.html').read()
     assert '<dt>Branches</dt>' in contents
@@ -83,7 +83,7 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
 
     # Build tags only.
     target_t = tmpdir.ensure_dir('target_t')
-    versions = Versions([('', 'v1.0.0', 'tags', 3), ('', 'v1.2.0', 'tags', 4)], sort=['semver'])
+    versions = Versions([('', 'v1.0.0', 'tags', 3, 'conf.py'), ('', 'v1.2.0', 'tags', 4, 'conf.py')], sort=['semver'])
     build(str(local_docs), str(target_t), versions, 'v1.2.0', list())
     contents = target_t.join('contents.html').read()
     assert '<dt>Branches</dt>' not in contents
@@ -92,8 +92,8 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
     # Build both.
     target_bt = tmpdir.ensure_dir('target_bt')
     versions = Versions([
-        ('', 'master', 'heads', 1), ('', 'feature', 'heads', 2),
-        ('', 'v1.0.0', 'tags', 3), ('', 'v1.2.0', 'tags', 4)
+        ('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py'),
+        ('', 'v1.0.0', 'tags', 3, 'conf.py'), ('', 'v1.2.0', 'tags', 4, 'conf.py')
     ], sort=['semver'])
     build(str(local_docs), str(target_bt), versions, 'master', list())
     contents = target_bt.join('contents.html').read()

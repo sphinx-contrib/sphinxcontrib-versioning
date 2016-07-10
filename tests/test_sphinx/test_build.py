@@ -16,7 +16,9 @@ def test_simple(tmpdir, local_docs, no_feature):
     :param bool no_feature: Don't include feature branch in versions. Makes sure there are no false positives.
     """
     target = tmpdir.ensure_dir('target')
-    versions = Versions([('', 'master', 'heads', 1)] + ([] if no_feature else [('', 'feature', 'heads', 2)]))
+    versions = Versions(
+        [('', 'master', 'heads', 1, 'conf.py')] + ([] if no_feature else [('', 'feature', 'heads', 2, 'conf.py')])
+    )
 
     build(str(local_docs), str(target), versions, 'master', list())
 
@@ -37,7 +39,7 @@ def test_isolation(tmpdir, local_docs, project):
     :param bool project: Set project in conf.py, else set copyright.
     """
     target = tmpdir.ensure_dir('target')
-    versions = Versions([('', 'master', 'heads', 1)])
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
 
     overflow = ['-D', 'project=Robpol86' if project else 'copyright="2016, SCV"']
     build(str(local_docs), str(target), versions, 'master', overflow)
@@ -58,7 +60,7 @@ def test_overflow(tmpdir, local_docs):
     :param local_docs: conftest fixture.
     """
     target = tmpdir.ensure_dir('target')
-    versions = Versions([('', 'master', 'heads', 1)])
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
 
     build(str(local_docs), str(target), versions, 'master', ['-D', 'copyright=2016, SCV'])
 
@@ -73,7 +75,7 @@ def test_sphinx_error(tmpdir, local_docs):
     :param local_docs: conftest fixture.
     """
     target = tmpdir.ensure_dir('target')
-    versions = Versions([('', 'master', 'heads', 1)])
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
 
     local_docs.join('conf.py').write('undefined')
 
@@ -90,7 +92,7 @@ def test_custom_sidebar(tmpdir, local_docs, pre_existing_versions):
     :param bool pre_existing_versions: Test if user already has versions.html in conf.py.
     """
     target = tmpdir.ensure_dir('target')
-    versions = Versions([('', 'master', 'heads', 1)])
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
 
     if pre_existing_versions:
         local_docs.join('conf.py').write(
@@ -118,7 +120,7 @@ def test_subdirs(tmpdir, local_docs):
     :param local_docs: conftest fixture.
     """
     target = tmpdir.ensure_dir('target')
-    versions = Versions([('', 'master', 'heads', 1), ('', 'feature', 'heads', 2)])
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
     versions['feature']['url'] = 'feature'
 
     for i in range(1, 6):

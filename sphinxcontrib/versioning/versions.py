@@ -92,7 +92,7 @@ class Versions(object):
 
     URLs are just '.' initially. Set after instantiation by another function elsewhere. Will be relative URL path.
 
-    :ivar iter remotes: List of dicts for every branch/tag. Dict keys are: id, sha, name, kind, date, and url.
+    :ivar iter remotes: List of dicts for every branch/tag.
     """
 
     def __init__(self, remotes, sort=None, prioritize=None, invert=False):
@@ -109,6 +109,7 @@ class Versions(object):
             name=r[1],
             kind=r[2],
             date=r[3],
+            conf_rel_path=r[4],
             url='.',
         ) for r in remotes]
 
