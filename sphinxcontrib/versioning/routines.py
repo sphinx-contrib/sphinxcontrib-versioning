@@ -97,7 +97,7 @@ def pre_build(local_root, versions, root_ref, overflow):
     with TempDir() as temp_dir:
         log.debug('Building root ref (before setting URLs) in temporary directory: %s', temp_dir)
         source = os.path.dirname(os.path.join(exported_root, root_remote['sha'], root_remote['conf_rel_path']))
-        build(source, temp_dir, versions, root_ref, overflow)
+        build(source, temp_dir, versions, root_remote['name'], overflow)
         existing = os.listdir(temp_dir)
 
     # Define directory paths in URLs in versions. Skip the root ref (will remain '.').
@@ -125,3 +125,36 @@ def pre_build(local_root, versions, root_ref, overflow):
         remote['url'] = url
 
     return exported_root
+
+
+def build_all(exported_root, destination, versions, root_ref, overflow):
+    """Build all versions.
+
+    :param str exported_root: Tempdir path with exported commits as subdirectories.
+    :param str destination: Destination directory to copy/overwrite built docs to. Does not delete old files.
+    :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
+    :param str root_ref: Branch/tag at the root of all HTML docs. Other branches/tags will be in subdirectories.
+    :param list overflow: Overflow command line options to pass to sphinx-build.
+    """
+    log = logging.getLogger(__name__)
+    root_remote = versions[root_ref]
+
+    while True:
+        # Build root ref.
+        log.info('Building root ref: %s', root_remote['name'])
+        source = os.path.dirname(os.path.join(exported_root, root_remote['sha'], root_remote['conf_rel_path']))
+        build(source, destination, versions, root_remote['name'], overflow)
+
+        # Build other refs.
+        for remote in list(r for r in versions.remotes if r != root_remote):
+            log.info('Building ref: %s', remote['name'])
+            source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
+            target = os.path.join(destination, os.path.dirname(remote['url']))
+            try:
+                build(source, target, versions.copy(1), remote['name'], overflow)
+            except HandledError:
+                log.warning('Skipping. Will not be building %s. Rebuilding everything.', remote['name'])
+                versions.remotes.pop(versions.remotes.index(remote))
+                break  # Break out of for loop.
+        else:
+            break  # Break out of while loop if for loop didn't execute break statement above.

@@ -38,13 +38,14 @@ Options:
 
 import logging
 import os
+import shutil
 import sys
 
 from docopt import docopt
 
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.lib import HandledError
-from sphinxcontrib.versioning.routines import gather_git_info, pre_build
+from sphinxcontrib.versioning.routines import build_all, gather_git_info, pre_build
 from sphinxcontrib.versioning.setup_logging import setup_logging
 from sphinxcontrib.versioning.versions import Versions
 
@@ -96,8 +97,14 @@ def main(config):
         prioritize=config['--prioritize'],
         invert=config['--invert'],
     )
-    sources = pre_build(root, versions, config['--root-ref'], config['overflow'])
-    assert sources
+    exported_root = pre_build(root, versions, config['--root-ref'], config['overflow'])
+
+    # Build.
+    build_all(exported_root, config['DESTINATION'], versions, config['--root-ref'], config['overflow'])
+
+    # Cleanup.
+    log.debug('Removing: %s', exported_root)
+    shutil.rmtree(exported_root)
 
 
 def entry_point():

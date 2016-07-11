@@ -13,8 +13,7 @@ def test_single(local_docs):
 
     :param local_docs: conftest fixture.
     """
-    remotes = gather_git_info(str(local_docs), ['conf.py'])[1]
-    versions = Versions(remotes)
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
     assert len(versions) == 1
 
     # Run and verify directory.
@@ -45,8 +44,7 @@ def test_dual(local_docs, run):
     run(local_docs, ['git', 'commit', '-m', 'Adding docs with master_doc'])
     run(local_docs, ['git', 'push', 'origin', 'feature'])
 
-    remotes = gather_git_info(str(local_docs), ['conf.py'])[1]
-    versions = Versions(remotes)
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
     assert len(versions) == 2
 
     # Run and verify directory.
@@ -69,8 +67,7 @@ def test_file_collision(local_docs, run):
     run(local_docs, ['git', 'checkout', '-b', '_static'])
     run(local_docs, ['git', 'push', 'origin', '_static'])
 
-    remotes = gather_git_info(str(local_docs), ['conf.py'])[1]
-    versions = Versions(remotes)
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
     assert len(versions) == 2
 
     # Run and verify URLs.
@@ -88,8 +85,7 @@ def test_invalid_name(local_docs, run):
     run(local_docs, ['git', 'checkout', '-b', 'robpol86/feature'])
     run(local_docs, ['git', 'push', 'origin', 'robpol86/feature'])
 
-    remotes = gather_git_info(str(local_docs), ['conf.py'])[1]
-    versions = Versions(remotes)
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
     assert len(versions) == 2
 
     # Run and verify URLs.
@@ -112,8 +108,7 @@ def test_error(local_docs, run):
     run(local_docs, ['git', 'checkout', '-b', 'd_broken', 'b_broken'])
     run(local_docs, ['git', 'push', 'origin', 'a_good', 'b_broken', 'c_good', 'd_broken'])
 
-    remotes = gather_git_info(str(local_docs), ['conf.py'])[1]
-    versions = Versions(remotes, sort=['alpha'])
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1], sort=['alpha'])
     assert [r[0] for r in versions] == ['a_good', 'b_broken', 'c_good', 'd_broken', 'master']
 
     # Bad root ref.

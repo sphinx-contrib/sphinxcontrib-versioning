@@ -15,6 +15,8 @@ from sphinx.jinja2glue import SphinxFileSystemLoader
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.lib import HandledError, TempDir
 
+SC_VERSIONING_VERSIONS = list()  # Updated after forking.
+
 
 class EventHandlers(object):
     """Hold Sphinx event handlers as static or class methods.
@@ -66,6 +68,10 @@ def setup(app):
     :returns: Extension version.
     :rtype: dict
     """
+    # Used internally. For rebuilding all pages when one or more non-root-ref fails.
+    app.add_config_value('sphinxcontrib_versioning_versions', SC_VERSIONING_VERSIONS, 'html')
+
+    # Event handlers.
     app.connect('builder-inited', EventHandlers.builder_inited)
     app.connect('html-page-context', EventHandlers.html_page_context)
     return dict(version=__version__)
@@ -104,6 +110,7 @@ def _build(argv, versions, current_name):
     application.Config = ConfigInject
     EventHandlers.CURRENT_VERSION = current_name
     EventHandlers.VERSIONS = versions
+    SC_VERSIONING_VERSIONS[:] = list(versions)
 
     # Build.
     result = build_main(argv)
@@ -122,7 +129,7 @@ def _read_config(argv, current_name, queue):
     cmdline.Sphinx = SphinxBuildAbort
 
     # Run.
-    _build(argv, None, current_name)
+    _build(argv, list(), current_name)
 
     # Store.
     queue.put(SphinxBuildAbort.SPECIFIC_CONFIG)
