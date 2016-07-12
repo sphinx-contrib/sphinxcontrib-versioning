@@ -81,7 +81,7 @@ def main(config):
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
     conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['SOURCE']] + config['--additional-src']]
-    root, remotes = gather_git_info(os.getcwd(), conf_rel_paths)
+    root, remotes = gather_git_info(config['SOURCE'], conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError

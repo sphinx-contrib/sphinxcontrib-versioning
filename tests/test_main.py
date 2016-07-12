@@ -1,8 +1,11 @@
 """Test objects in module."""
 
+from subprocess import CalledProcessError
+
 import pytest
 
 from sphinxcontrib.versioning.__main__ import __doc__ as doc, get_arguments, main
+from sphinxcontrib.versioning.lib import HandledError
 
 ARGV = (__file__, 'build', 'docs', 'html')
 
@@ -39,15 +42,16 @@ def test_get_arguments_string(mode):
     assert config['--additional-src'] == expected['--additional-src']
 
 
-def test_main_working(monkeypatch, tmpdir, local_docs, run):
+@pytest.mark.parametrize('subprocess', [False, True])
+def test_main_working(monkeypatch, tmpdir, local_docs, run, subprocess):
     """Test main() with working docs.
 
     :param monkeypatch: pytest fixture.
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
+    :param bool subprocess: Run through subprocess instead of calling main().
     """
-    monkeypatch.chdir(local_docs)
     local_docs.ensure('subdir', 'sub.rst').write(
         '.. _sub:\n'
         '\n'
@@ -63,8 +67,11 @@ def test_main_working(monkeypatch, tmpdir, local_docs, run):
     run(local_docs, ['git', 'push', 'origin', 'master', 'v1.0.0'])
 
     destination = tmpdir.ensure_dir('destination')
-    config = get_arguments([__file__, 'build', '.', str(destination)], doc)
-    main(config)
+    if subprocess:
+        run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)])
+    else:
+        monkeypatch.chdir(local_docs)
+        main(get_arguments([__file__, 'build', '.', str(destination)], doc))
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -81,3 +88,40 @@ def test_main_working(monkeypatch, tmpdir, local_docs, run):
     contents = destination.join('v1.0.0', 'subdir', 'sub.html').read()
     assert '<li><a href="../../contents.html">master</a></li>' in contents
     assert '<li><a href="../../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+
+
+@pytest.mark.parametrize('subprocess', [False, True])
+def test_main_errors(tmpdir, caplog, local_docs, run, subprocess):
+    """Test main() error handling.
+
+    :param tmpdir: pytest fixture.
+    :param caplog: pytest extension fixture.
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    :param bool subprocess: Run through subprocess instead of calling main().
+    """
+    destination = tmpdir.ensure_dir('destination')
+
+    # Test no docs found error.
+    if subprocess:
+        with pytest.raises(CalledProcessError) as exc:
+            run(local_docs, ['sphinx-versioning', 'build', str(local_docs.ensure_dir('unknown')), str(destination)])
+        records = exc.value.output.splitlines()
+        assert records[-2] == 'No docs found in any remote branch/tag. Nothing to do.'
+    else:
+        with pytest.raises(HandledError):
+            main(get_arguments([__file__, 'build', str(local_docs.ensure_dir('unknown')), str(destination)], doc))
+        records = [(r.levelname, r.message) for r in caplog.records]
+        assert ('ERROR', 'No docs found in any remote branch/tag. Nothing to do.') == records[-1]
+
+    # Test unknown root ref error.
+    if subprocess:
+        with pytest.raises(CalledProcessError) as exc:
+            run(local_docs, ['sphinx-versioning', 'build', str(local_docs), str(destination), '-r', 'unknown'])
+        records = exc.value.output.splitlines()
+        assert records[-2] == 'Root ref unknown not found in: master'
+    else:
+        with pytest.raises(HandledError):
+            main(get_arguments([__file__, 'build', str(local_docs), str(destination), '-r', 'unknown'], doc))
+        records = [(r.levelname, r.message) for r in caplog.records]
+        assert ('ERROR', 'Root ref unknown not found in: master') == records[-1]
