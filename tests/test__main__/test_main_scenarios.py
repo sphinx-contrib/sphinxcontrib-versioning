@@ -6,7 +6,7 @@ import pytest
 
 
 def test_sub_page_and_tag(tmpdir, local_docs, run):
-    """Test with sub pages and one git tag. Testing with chdir.
+    """Test with sub pages and one git tag. Testing from local git repo.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
@@ -47,8 +47,32 @@ def test_sub_page_and_tag(tmpdir, local_docs, run):
     assert '<li><a href="../../v1.0.0/contents.html">v1.0.0</a></li>' in contents
 
 
+def test_moved_docs(tmpdir, local_docs, run):
+    """Test with docs being in their own directory.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    """
+    run(local_docs, ['git', 'tag', 'v1.0.0'])  # Ignored since we only specify 'docs' in the command below.
+    local_docs.ensure_dir('docs')
+    run(local_docs, ['git', 'mv', 'conf.py', 'docs/conf.py'])
+    run(local_docs, ['git', 'mv', 'contents.rst', 'docs/contents.rst'])
+    run(local_docs, ['git', 'commit', '-m', 'Moved docs.'])
+    run(local_docs, ['git', 'push', 'origin', 'master', 'v1.0.0'])
+
+    # Run.
+    destination = tmpdir.join('destination')
+    run(local_docs, ['sphinx-versioning', 'build', 'docs', str(destination)])
+
+    # Check master.
+    contents = destination.join('contents.html').read()
+    assert '<li><a href="contents.html">master</a></li>' in contents
+    assert 'v1.0' not in contents
+
+
 def test_moved_docs_many(tmpdir, local_docs, run):
-    """Test with additional sources. Testing without chdir. Non-created destination.
+    """Test with additional sources. Testing with --chdir. Non-created destination.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
@@ -69,7 +93,8 @@ def test_moved_docs_many(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.join('destination')
-    run(tmpdir, ['sphinx-versioning', 'build', str(local_docs), str(destination), '-s', 'docs', '-s', 'docs2'])
+    run(tmpdir,
+        ['sphinx-versioning', 'build', '.', str(destination), '-c', str(local_docs), '-s', 'docs', '-s', 'docs2'])
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -87,6 +112,25 @@ def test_moved_docs_many(tmpdir, local_docs, run):
         assert '<li><a href="../v1.0.2/contents.html">v1.0.2</a></li>' in contents
 
 
+@pytest.mark.usefixtures('local_docs')
+def test_multiple_local_repos(tmpdir, run):
+    """Test from another git repo as the current working directory.
+
+    :param tmpdir: pytest fixture.
+    :param run: conftest fixture.
+    """
+    other = tmpdir.ensure_dir('other')
+    run(other, ['git', 'init'])
+
+    # Run.
+    destination = tmpdir.ensure_dir('destination')
+    run(other, ['sphinx-versioning', 'build', '.', str(destination), '-c', '../local', '-v'])
+
+    # Check master.
+    contents = destination.join('contents.html').read()
+    assert '<li><a href="contents.html">master</a></li>' in contents
+
+
 def test_error_bad_path(tmpdir, run):
     """Test handling of bad paths.
 
@@ -94,12 +138,13 @@ def test_error_bad_path(tmpdir, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', 'build', 'unknown', str(tmpdir)])
+        run(tmpdir, ['sphinx-versioning', 'build', '.', str(tmpdir), '-c', 'unknown'])
     assert 'Path not found: unknown\n' in exc.value.output
 
+    tmpdir.ensure('is_file')
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', 'build', str(tmpdir.ensure('is_file')), str(tmpdir)])
-    assert 'Path not a directory: {}\n'.format(tmpdir.join('is_file')) in exc.value.output
+        run(tmpdir, ['sphinx-versioning', 'build', '.', str(tmpdir), '-c', 'is_file'])
+    assert 'Path not a directory: is_file\n' in exc.value.output
 
     with pytest.raises(CalledProcessError) as exc:
         run(tmpdir, ['sphinx-versioning', 'build', '.', str(tmpdir)])

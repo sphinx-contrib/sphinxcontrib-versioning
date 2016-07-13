@@ -17,6 +17,7 @@ Usage:
     {program} -V | --version
 
 Options:
+    -c DIR --chdir=DIR      cd into this directory before running.
     -h --help               Show this screen.
     -i --invert             Invert/reverse order of versions.
     -p K --prioritize=KIND  Set to "branches" or "tags" to group those kinds
@@ -78,10 +79,22 @@ def main(config):
     log = logging.getLogger(__name__)
     log.info('Running sphinxcontrib-versioning v%s', __version__)
 
+    # chdir.
+    if config['--chdir']:
+        try:
+            os.chdir(config['--chdir'])
+        except OSError as exc:
+            log.debug(str(exc))
+            if exc.errno == 2:
+                log.error('Path not found: %s', config['--chdir'])
+            else:
+                log.error('Path not a directory: %s', config['--chdir'])
+            raise HandledError
+
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
     conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['REL_SOURCE']] + config['--additional-src']]
-    root, remotes = gather_git_info(config['REL_SOURCE'], conf_rel_paths)
+    root, remotes = gather_git_info(os.getcwd(), conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError

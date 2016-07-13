@@ -33,13 +33,6 @@ def gather_git_info(cwd, conf_rel_paths):
     except GitError as exc:
         log.error(exc.message)
         raise HandledError
-    except OSError as exc:
-        log.debug(str(exc))
-        if exc.errno == 2:
-            log.error('Path not found: %s', cwd)
-        else:
-            log.error('Path not a directory: %s', cwd)
-        raise HandledError
     log.info('Working in git repository: %s', root)
 
     # List remote.
