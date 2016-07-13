@@ -47,7 +47,7 @@ def test_sub_page_and_tag(tmpdir, local_docs, run):
     assert '<li><a href="../../v1.0.0/contents.html">v1.0.0</a></li>' in contents
 
 
-def test_moved_docs(tmpdir, local_docs, run):
+def test_moved_docs_many(tmpdir, local_docs, run):
     """Test with additional sources. Testing without chdir. Non-created destination.
 
     :param tmpdir: pytest fixture.
@@ -106,7 +106,7 @@ def test_error_bad_path(tmpdir, run):
     assert 'Failed to find local git repository root.' in exc.value.output
 
 
-def test_no_docs_found(tmpdir, local, run):
+def test_error_no_docs_found(tmpdir, local, run):
     """Test no docs to build.
 
     :param tmpdir: pytest fixture.
@@ -118,7 +118,7 @@ def test_no_docs_found(tmpdir, local, run):
     assert 'No docs found in any remote branch/tag. Nothing to do.\n' in exc.value.output
 
 
-def test_bad_root_ref(tmpdir, local_docs, run):
+def test_error_bad_root_ref(tmpdir, local_docs, run):
     """Test bad root ref.
 
     :param tmpdir: pytest fixture.

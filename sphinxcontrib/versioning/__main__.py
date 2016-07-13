@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Build versioned Sphinx docs for every branch and tag pushed to origin.
 
-SOURCE is the path to the docs directory relative to the git root. If the
+REL_SOURCE is the path to the docs directory relative to the git root. If the
 source directory has moved around between git tags you can specify additional
 directories with one or more --additional-src.
 
@@ -12,14 +12,14 @@ To pass options to sphinx-build (run for every branch/tag) use a double hyphen
 (e.g. {program} build /tmp/out docs -- -D setting=value).
 
 Usage:
-    {program} [options] [-s DIR...] build SOURCE DESTINATION
+    {program} [options] [-s DIR...] build REL_SOURCE DESTINATION
     {program} -h | --help
     {program} -V | --version
 
 Options:
     -h --help               Show this screen.
-    --invert                Invert/reverse order of versions.
-    --prioritize=KIND       Set to "branches" or "tags" to group those kinds
+    -i --invert             Invert/reverse order of versions.
+    -p K --prioritize=KIND  Set to "branches" or "tags" to group those kinds
                             of versions at the top (for themes that don't
                             separate them).
     -r REF --root-ref=REF   The branch/tag at the root of DESTINATION. All
@@ -80,8 +80,8 @@ def main(config):
 
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
-    conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['SOURCE']] + config['--additional-src']]
-    root, remotes = gather_git_info(config['SOURCE'], conf_rel_paths)
+    conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['REL_SOURCE']] + config['--additional-src']]
+    root, remotes = gather_git_info(config['REL_SOURCE'], conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError
