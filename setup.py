@@ -38,7 +38,7 @@ setup(
     ],
     description='Sphinx extension that allows building versioned docs for self-hosting.',
     entry_points={'console_scripts': ['sphinx-versioning = sphinxcontrib.versioning.__main__:entry_point']},
-    install_requires=['docopt', 'sphinx'],
+    install_requires=['colorclass', 'docopt', 'sphinx'],
     keywords='sphinx versioning versions version branches tags',
     license='MIT',
     long_description=readme(),

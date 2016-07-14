@@ -18,6 +18,7 @@ Usage:
 
 Options:
     -c DIR --chdir=DIR      cd into this directory before running.
+    -C --no-colors          Disable colors in terminal output.
     -h --help               Show this screen.
     -i --invert             Invert/reverse order of versions.
     -p K --prioritize=KIND  Set to "branches" or "tags" to group those kinds
@@ -124,7 +125,7 @@ def entry_point():
     """Entry-point from setuptools."""
     try:
         config = get_arguments(sys.argv, __doc__)
-        setup_logging(verbose=config['--verbose'])
+        setup_logging(verbose=config['--verbose'], colors=not config['--no-colors'])
         main(config)
     except HandledError:
         logging.critical('Failure.')
