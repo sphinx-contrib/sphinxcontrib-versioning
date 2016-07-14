@@ -104,7 +104,7 @@ def main(config):
         raise HandledError
 
     # Setup versions.
-    log.info('Pre-running Sphinx on all versions to determine URLs.')
+    log.info('Pre-running Sphinx to determine URLs.')
     versions = Versions(
         remotes,
         sort=(config['--sort'] or '').split(','),
