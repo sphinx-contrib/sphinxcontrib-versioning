@@ -113,6 +113,40 @@ def test_custom_sidebar(tmpdir, local_docs, pre_existing_versions):
     assert '<h3>Custom Sidebar</h3>' in contents
 
 
+def test_versions_override(tmpdir, local_docs):
+    """Verify GitHub/BitBucket versions are overridden.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
+    """
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
+
+    local_docs.join('conf.py').write(
+        'templates_path = ["_templates"]\n'
+        'html_sidebars = {"**": ["custom.html"]}\n'
+        'html_context = dict(github_version="replace_me", bitbucket_version="replace_me")\n'
+    )
+    local_docs.ensure('_templates', 'custom.html').write(
+        '<h3>Custom Sidebar</h3>\n'
+        '<ul>\n'
+        '<li>GitHub: {{ github_version }}</li>\n'
+        '<li>BitBucket: {{ bitbucket_version }}</li>\n'
+        '</ul>\n'
+    )
+
+    target = tmpdir.ensure_dir('target_master')
+    build(str(local_docs), str(target), versions, 'master', list())
+    contents = target.join('contents.html').read()
+    assert '<li>GitHub: master</li>' in contents
+    assert '<li>BitBucket: master</li>' in contents
+
+    target = tmpdir.ensure_dir('target_feature')
+    build(str(local_docs), str(target), versions, 'feature', list())
+    contents = target.join('contents.html').read()
+    assert '<li>GitHub: feature</li>' in contents
+    assert '<li>BitBucket: feature</li>' in contents
+
+
 def test_subdirs(tmpdir, local_docs):
     """Make sure relative URLs in `versions` works with RST files in subdirectories.
 

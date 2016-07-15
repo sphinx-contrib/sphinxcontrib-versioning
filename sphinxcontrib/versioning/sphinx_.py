@@ -55,7 +55,9 @@ class EventHandlers(object):
         :param iter args: Additional arguments given by Sphinx.
         """
         context = args[1]
+        context['bitbucket_version'] = cls.CURRENT_VERSION
         context['current_version'] = cls.CURRENT_VERSION
+        context['github_version'] = cls.CURRENT_VERSION
         context['html_theme'] = app.config.html_theme
         context['versions'] = cls.VERSIONS.copy(pagename.count('/'))
 
