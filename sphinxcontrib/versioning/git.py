@@ -68,8 +68,10 @@ def run_command(local_root, command, env_var=True, piped=None):
         env.pop('GIT_DIR', None)
 
     # Start commands.
-    parent = Popen(piped, cwd=local_root, env=env, stdout=PIPE, stderr=PIPE) if piped else None
-    main = Popen(command, cwd=local_root, env=env, stdout=PIPE, stderr=STDOUT, stdin=parent.stdout if piped else None)
+    with open(os.devnull) as null:
+        parent = Popen(piped, cwd=local_root, env=env, stdout=PIPE, stderr=PIPE, stdin=null) if piped else None
+        stdin = parent.stdout if piped else null
+        main = Popen(command, cwd=local_root, env=env, stdout=PIPE, stderr=STDOUT, stdin=stdin)
 
     # Wait for commands and log.
     common_dict = dict(cwd=local_root, env=env, stdin=None)

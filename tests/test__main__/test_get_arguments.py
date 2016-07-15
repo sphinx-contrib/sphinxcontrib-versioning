@@ -37,3 +37,15 @@ def test_string(mode):
     config = get_arguments(argv, doc)
     assert config['--root-ref'] == expected['--root-ref']
     assert config['--additional-src'] == expected['--additional-src']
+
+
+def test_line_length(capsys):
+    """Make sure {program} substitute doesn't make --help too wide.
+
+    :param capsys: pytest fixture.
+    """
+    with pytest.raises(SystemExit):
+        get_arguments([__file__, '--help'], doc)
+    stdout = capsys.readouterr()[0]
+    for line in stdout.splitlines():
+        assert len(line) <= 80

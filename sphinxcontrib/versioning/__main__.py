@@ -9,7 +9,7 @@ DESTINATION is the directory path to the directory that will hold all
 generated docs for all versions.
 
 To pass options to sphinx-build (run for every branch/tag) use a double hyphen
-(e.g. {program} build /tmp/out docs -- -D setting=value).
+(e.g. {program} build docs /tmp/out -- -D setting=value).
 
 Usage:
     {program} [options] [-s DIR...] build REL_SOURCE DESTINATION

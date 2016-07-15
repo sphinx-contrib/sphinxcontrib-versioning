@@ -32,6 +32,7 @@ def gather_git_info(cwd, conf_rel_paths):
         root = get_root(cwd)
     except GitError as exc:
         log.error(exc.message)
+        log.error(exc.output)
         raise HandledError
     log.info('Working in git repository: %s', root)
 
@@ -41,6 +42,7 @@ def gather_git_info(cwd, conf_rel_paths):
         remotes = list_remote(root)
     except GitError as exc:
         log.error(exc.message)
+        log.error(exc.output)
         raise HandledError
     log.info('Found: %s', ' '.join(i[1] for i in remotes))
 
@@ -55,6 +57,7 @@ def gather_git_info(cwd, conf_rel_paths):
                 dates_paths = filter_and_date(root, conf_rel_paths, (i[0] for i in remotes))
             except GitError as exc:
                 log.error(exc.message)
+                log.error(exc.output)
                 raise HandledError
     except subprocess.CalledProcessError as exc:
         log.debug(json.dumps(dict(command=exc.cmd, cwd=root, code=exc.returncode, output=exc.output)))
