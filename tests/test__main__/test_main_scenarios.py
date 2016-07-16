@@ -28,7 +28,7 @@ def test_sub_page_and_tag(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)])
+    run(local_docs, ['sphinx-versioning', 'build', str(destination), '.'])
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -63,7 +63,7 @@ def test_moved_docs(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.join('destination')
-    run(local_docs, ['sphinx-versioning', 'build', 'docs', str(destination)])
+    run(local_docs, ['sphinx-versioning', 'build', str(destination), 'docs'])
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -94,7 +94,7 @@ def test_moved_docs_many(tmpdir, local_docs, run):
     # Run.
     destination = tmpdir.join('destination')
     run(tmpdir,
-        ['sphinx-versioning', 'build', '.', str(destination), '-c', str(local_docs), '-s', 'docs', '-s', 'docs2'])
+        ['sphinx-versioning', 'build', str(destination), '-c', str(local_docs), '.', 'docs', 'docs2'])
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -124,7 +124,7 @@ def test_multiple_local_repos(tmpdir, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    run(other, ['sphinx-versioning', 'build', '.', str(destination), '-c', '../local', '-v'])
+    run(other, ['sphinx-versioning', 'build', str(destination), '.', '-c', '../local', '-v'])
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -138,16 +138,16 @@ def test_error_bad_path(tmpdir, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', 'build', '.', str(tmpdir), '-C', '-c', 'unknown'])
+        run(tmpdir, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-c', 'unknown'])
     assert 'Path not found: unknown\n' in exc.value.output
 
     tmpdir.ensure('is_file')
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', 'build', '.', str(tmpdir), '-C', '-c', 'is_file'])
+        run(tmpdir, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-c', 'is_file'])
     assert 'Path not a directory: is_file\n' in exc.value.output
 
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', 'build', '.', str(tmpdir), '-C'])
+        run(tmpdir, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C'])
     assert 'Failed to find local git repository root.' in exc.value.output
 
 
@@ -159,7 +159,7 @@ def test_error_no_docs_found(tmpdir, local, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(local, ['sphinx-versioning', 'build', '.', str(tmpdir), '-C', '-v'])
+        run(local, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-v'])
     assert 'No docs found in any remote branch/tag. Nothing to do.\n' in exc.value.output
 
 
@@ -171,5 +171,5 @@ def test_error_bad_root_ref(tmpdir, local_docs, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(local_docs, ['sphinx-versioning', 'build', '.', str(tmpdir), '-C', '-v', '-r', 'unknown'])
+        run(local_docs, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-v', '-r', 'unknown'])
     assert 'Root ref unknown not found in: master\n' in exc.value.output

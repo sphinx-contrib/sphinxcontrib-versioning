@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 """Build versioned Sphinx docs for every branch and tag pushed to origin.
 
-REL_SOURCE is the path to the docs directory relative to the git root. If the
-source directory has moved around between git tags you can specify additional
-directories with one or more --additional-src.
-
 DESTINATION is the directory path to the directory that will hold all
 generated docs for all versions.
 
+REL_SOURCE is the path to the docs directory relative to the git root. If the
+source directory has moved around between git tags you can specify additional
+directories.
+
 To pass options to sphinx-build (run for every branch/tag) use a double hyphen
-(e.g. {program} build docs /tmp/out -- -D setting=value).
+(e.g. {program} build /tmp/out docs -- -D setting=value).
 
 Usage:
-    {program} [options] [-s DIR...] build REL_SOURCE DESTINATION
+    {program} [options] build DESTINATION REL_SOURCE...
     {program} -h | --help
     {program} -V | --version
 
@@ -26,8 +26,6 @@ Options:
                             separate them).
     -r REF --root-ref=REF   The branch/tag at the root of DESTINATION. All
                             others are in subdirectories [default: master].
-    -s DIR --additional-src Additional/fallback relative source paths to look
-                            for. Stops when conf.py is found.
     -S OPTS --sort=OPTS     Sort versions by one or more (comma separated):
                             semver, alpha, chrono
     -t --greatest-tag       Override root-ref to be the tag with the highest
@@ -94,7 +92,7 @@ def main(config):
 
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
-    conf_rel_paths = [os.path.join(s, 'conf.py') for s in [config['REL_SOURCE']] + config['--additional-src']]
+    conf_rel_paths = [os.path.join(s, 'conf.py') for s in config['REL_SOURCE']]
     root, remotes = gather_git_info(os.getcwd(), conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
