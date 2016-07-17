@@ -87,7 +87,7 @@ def pre_build(local_root, versions, root_ref, overflow):
     :rtype: str
     """
     log = logging.getLogger(__name__)
-    exported_root = TempDir().name
+    exported_root = TempDir(True).name
     root_remote = versions[root_ref]
 
     # Extract all.

@@ -74,7 +74,7 @@ def run_command(local_root, command, env_var=True, piped=None):
         main = Popen(command, cwd=local_root, env=env, stdout=PIPE, stderr=STDOUT, stdin=stdin)
 
     # Wait for commands and log.
-    common_dict = dict(cwd=local_root, env=env, stdin=None)
+    common_dict = dict(cwd=local_root, stdin=None)
     if piped:
         main.wait()  # Let main command read parent.stdout before parent.communicate() does.
         parent_output = parent.communicate()[1].decode('utf-8')

@@ -1,5 +1,6 @@
 """Test calls to main() with different command line options."""
 
+import time
 from subprocess import CalledProcessError
 
 import pytest
@@ -28,7 +29,8 @@ def test_sub_page_and_tag(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    run(local_docs, ['sphinx-versioning', 'build', str(destination), '.'])
+    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.'])
+    assert 'Traceback' not in output
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -63,7 +65,8 @@ def test_moved_docs(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.join('destination')
-    run(local_docs, ['sphinx-versioning', 'build', str(destination), 'docs'])
+    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), 'docs'])
+    assert 'Traceback' not in output
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -93,8 +96,8 @@ def test_moved_docs_many(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.join('destination')
-    run(tmpdir,
-        ['sphinx-versioning', 'build', str(destination), '-c', str(local_docs), '.', 'docs', 'docs2'])
+    output = run(tmpdir, ['sphinx-versioning', 'build', str(destination), '-c', str(local_docs), '.', 'docs', 'docs2'])
+    assert 'Traceback' not in output
 
     # Check master.
     contents = destination.join('contents.html').read()
@@ -124,11 +127,48 @@ def test_multiple_local_repos(tmpdir, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    run(other, ['sphinx-versioning', 'build', str(destination), '.', '-c', '../local', '-v'])
+    output = run(other, ['sphinx-versioning', 'build', str(destination), '.', '-c', '../local', '-v'])
+    assert 'Traceback' not in output
 
     # Check master.
     contents = destination.join('contents.html').read()
     assert '<li><a href="contents.html">master</a></li>' in contents
+
+
+def test_root_ref(tmpdir, local_docs, run):
+    """Test --root-ref and friends.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    """
+    local_docs.join('conf.py').write(
+        'templates_path = ["_templates"]\n'
+        'html_sidebars = {"**": ["custom.html"]}\n'
+    )
+    local_docs.ensure('_templates', 'custom.html').write(
+        '<h3>Custom Sidebar</h3>\n'
+        '<ul>\n'
+        '<li>Current version: {{ current_version }}</li>\n'
+        '</ul>\n'
+    )
+    run(local_docs, ['git', 'add', 'conf.py', '_templates'])
+    run(local_docs, ['git', 'commit', '-m', 'Displaying version.'])
+    time.sleep(1.5)
+    run(local_docs, ['git', 'tag', 'v2.0.0'])
+    time.sleep(1.5)
+    run(local_docs, ['git', 'tag', 'v1.0.0'])
+    run(local_docs, ['git', 'checkout', '-b', 'f2'])
+    run(local_docs, ['git', 'push', 'origin', 'master', 'v1.0.0', 'v2.0.0', 'f2'])
+
+    for arg, expected in (('--root-ref=f2', 'f2'), ('--greatest-tag', 'v2.0.0'), ('--recent-tag', 'v1.0.0')):
+        # Run.
+        destination = tmpdir.join('destination', arg[2:])
+        output = run(tmpdir, ['sphinx-versioning', 'build', str(destination), '-c', str(local_docs), '.', arg])
+        assert 'Traceback' not in output
+        # Check root.
+        contents = destination.join('contents.html').read()
+        assert 'Current version: {}'.format(expected) in contents
 
 
 def test_error_bad_path(tmpdir, run):
@@ -173,3 +213,11 @@ def test_error_bad_root_ref(tmpdir, local_docs, run):
     with pytest.raises(CalledProcessError) as exc:
         run(local_docs, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-v', '-r', 'unknown'])
     assert 'Root ref unknown not found in: master\n' in exc.value.output
+
+    with pytest.raises(CalledProcessError) as exc:
+        run(local_docs, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-v', '-t'])
+    assert 'No git tags with docs found in remote.\n' in exc.value.output
+
+    with pytest.raises(CalledProcessError) as exc:
+        run(local_docs, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-v', '-T'])
+    assert 'No git tags with docs found in remote.\n' in exc.value.output

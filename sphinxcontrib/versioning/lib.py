@@ -1,12 +1,10 @@
 """Common objects used throughout the project."""
 
+import atexit
+import functools
 import shutil
 import tempfile
-
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    TemporaryDirectory = None
+import weakref
 
 
 class HandledError(Exception):
@@ -15,12 +13,21 @@ class HandledError(Exception):
     pass
 
 
-class TemporaryDirectoryPy2(object):
-    """TemporaryDirectory defined for Python 2.x since stdlib has it for only Python 3.x."""
+class TempDir(object):
+    """Similar to TemporaryDirectory in Python 3.x but with tuned weakref implementation."""
 
-    def __init__(self, suffix=''):
-        """Constructor."""
-        self.name = tempfile.mkdtemp(suffix)
+    def __init__(self, defer_atexit=False):
+        """Constructor.
+
+        :param bool defer_atexit: cleanup() to atexit instead of after garbage collection.
+        """
+        self.name = tempfile.mkdtemp('sphinxcontrib_versioning')
+        if defer_atexit:
+            atexit.register(shutil.rmtree, self.name, True)
+        elif hasattr(weakref, 'finalize'):
+            weakref.finalize(self, shutil.rmtree, self.name, True)
+        else:
+            weakref.proxy(self, functools.partial(shutil.rmtree, self.name, True))
 
     def __enter__(self):
         """Return directory path."""
@@ -33,11 +40,3 @@ class TemporaryDirectoryPy2(object):
     def cleanup(self):
         """Recursively delete directory."""
         shutil.rmtree(self.name)
-
-
-class TempDir(TemporaryDirectory or TemporaryDirectoryPy2):
-    """Context manager for tempdir.mkdtemp()."""
-
-    def __init__(self):
-        """Constructor."""
-        super(TempDir, self).__init__('sphinxcontrib_versioning')
