@@ -1,5 +1,6 @@
 """Interface with git locally and remotely."""
 
+import glob
 import json
 import logging
 import os
@@ -12,6 +13,67 @@ from sphinxcontrib.versioning.lib import TempDir
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>heads|tags)/(?P<name>[\w./-]+(?:\^\{})?)$',
                        re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
+WHITELIST_ENV_VARS = (
+    'APPVEYOR',
+    'APPVEYOR_ACCOUNT_NAME',
+    'APPVEYOR_BUILD_ID',
+    'APPVEYOR_BUILD_NUMBER',
+    'APPVEYOR_BUILD_VERSION',
+    'APPVEYOR_FORCED_BUILD',
+    'APPVEYOR_JOB_ID',
+    'APPVEYOR_JOB_NAME',
+    'APPVEYOR_PROJECT_ID',
+    'APPVEYOR_PROJECT_NAME',
+    'APPVEYOR_PROJECT_SLUG',
+    'APPVEYOR_PULL_REQUEST_NUMBER',
+    'APPVEYOR_PULL_REQUEST_TITLE',
+    'APPVEYOR_RE_BUILD',
+    'APPVEYOR_REPO_BRANCH',
+    'APPVEYOR_REPO_COMMIT',
+    'APPVEYOR_REPO_NAME',
+    'APPVEYOR_REPO_PROVIDER',
+    'APPVEYOR_REPO_TAG',
+    'APPVEYOR_REPO_TAG_NAME',
+    'APPVEYOR_SCHEDULED_BUILD',
+    'CI',
+    'CI_PULL_REQUEST',
+    'CI_PULL_REQUESTS',
+    'CIRCLE_BRANCH',
+    'CIRCLE_BUILD_IMAGE',
+    'CIRCLE_BUILD_NUM',
+    'CIRCLE_BUILD_URL',
+    'CIRCLE_COMPARE_URL',
+    'CIRCLE_PR_NUMBER',
+    'CIRCLE_PR_REPONAME',
+    'CIRCLE_PR_USERNAME',
+    'CIRCLE_PREVIOUS_BUILD_NUM',
+    'CIRCLE_PROJECT_REPONAME',
+    'CIRCLE_PROJECT_USERNAME',
+    'CIRCLE_REPOSITORY_URL',
+    'CIRCLE_SHA1',
+    'CIRCLE_TAG',
+    'CIRCLE_USERNAME',
+    'CIRCLECI',
+    'LANG',
+    'LC_ALL',
+    'PLATFORM',
+    'TRAVIS',
+    'TRAVIS_BRANCH',
+    'TRAVIS_BUILD_ID',
+    'TRAVIS_BUILD_NUMBER',
+    'TRAVIS_COMMIT',
+    'TRAVIS_COMMIT_RANGE',
+    'TRAVIS_EVENT_TYPE',
+    'TRAVIS_JOB_ID',
+    'TRAVIS_JOB_NUMBER',
+    'TRAVIS_OS_NAME',
+    'TRAVIS_PULL_REQUEST',
+    'TRAVIS_PYTHON_VERSION',
+    'TRAVIS_REPO_SLUG',
+    'TRAVIS_SECURE_ENV_VARS',
+    'TRAVIS_TAG',
+    'TRAVIS_TEST_RESULT',
+)
 
 
 class GitError(Exception):
@@ -225,3 +287,94 @@ def export(local_root, commit, target):
                 os.makedirs(t_dirpath)
             for args in ((os.path.join(s_dirpath, f), os.path.join(t_dirpath, f)) for f in s_filenames):
                 shutil.copy(*args)
+
+
+def clone(local_root, new_root, branch, rel_dst, exclude):
+    """Clone "local_root" origin into a new directory and check out a specific branch. Optionally run "git rm".
+
+    :raise CalledProcessError: Unhandled git command failure.
+    :raise GitError: Handled git failures.
+
+    :param str local_root: Local path to git root directory.
+    :param str new_root: Local path empty directory in which branch will be cloned into.
+    :param str branch: Checkout this branch.
+    :param str rel_dst: Run "git rm" on this directory if exclude is truthy.
+    :param iter exclude: List of strings representing relative file paths to exclude from "git rm".
+    """
+    log = logging.getLogger(__name__)
+    remote_url = run_command(local_root, ['git', 'ls-remote', '--get-url', 'origin']).strip()
+    if remote_url == 'origin':
+        raise GitError('Git repo missing remote "origin".', remote_url)
+
+    # Clone.
+    try:
+        run_command(new_root, ['git', 'clone', remote_url, '--branch', branch, '.'])
+    except CalledProcessError as exc:
+        raise GitError('Failed to clone ' + remote_url, exc.output)
+
+    # Make sure user didn't select a tag as their DST_BRANCH.
+    try:
+        run_command(new_root, ['git', 'symbolic-ref', 'HEAD'])
+    except CalledProcessError as exc:
+        raise GitError('Specified branch is not a real branch.', exc.output)
+
+    # Done if no exclude.
+    if not exclude:
+        return
+
+    # Resolve exclude paths.
+    exclude_joined = [
+        os.path.relpath(p, new_root) for e in exclude for p in glob.glob(os.path.join(new_root, rel_dst, e))
+    ]
+    log.debug('Expanded %s to %s', repr(exclude), repr(exclude_joined))
+
+    # Do "git rm".
+    try:
+        run_command(new_root, ['git', 'rm', '-rf', rel_dst])
+    except CalledProcessError as exc:
+        raise GitError('"git rm" failed to remove ' + rel_dst, exc.output)
+
+    # Restore files in exclude.
+    run_command(new_root, ['git', 'reset', 'HEAD'] + exclude_joined)
+    run_command(new_root, ['git', 'checkout', '--'] + exclude_joined)
+
+
+def commit_and_push(local_root):
+    """Commit changed, new, and deleted files in the repo and attempt to push the branch to origin.
+
+    :raise CalledProcessError: Unhandled git command failure.
+    :raise GitError: Conflicting changes made in remote by other client.
+
+    :param str local_root: Local path to git root directory.
+
+    :return: If push succeeded.
+    :rtype: bool
+    """
+    log = logging.getLogger(__name__)
+    current_branch = run_command(local_root, ['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip()
+    run_command(local_root, ['git', 'add', '.'])
+
+    # Check if there are no changes.
+    try:
+        run_command(local_root, ['git', 'diff', 'HEAD', '--no-ext-diff', '--quiet', '--exit-code'])
+    except CalledProcessError:
+        pass  # Repo is dirty, something has changed.
+    else:
+        log.info('No changes to commit.')
+        return True
+
+    # Commit.
+    commit_subject = 'AUTO: sphinxcontrib-versioning'
+    commit_body = '\n'.join('{}: {}'.format(v, os.environ[v]) for v in WHITELIST_ENV_VARS if v in os.environ)
+    run_command(local_root, ['git', 'commit', '-m', commit_subject, '-m', commit_body])
+
+    # Push.
+    try:
+        run_command(local_root, ['git', 'push', 'origin', current_branch])
+    except CalledProcessError as exc:
+        if '[rejected]' in exc.output and '(fetch first)' in exc.output:
+            log.debug('Remote has changed since cloning the repo. Must retry.')
+            return False
+        raise GitError('Failed to push to remote.', exc.output)
+
+    return True
