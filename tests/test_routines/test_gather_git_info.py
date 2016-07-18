@@ -51,18 +51,6 @@ def test_fetch(monkeypatch, caplog, local, skip_fetch):
     assert ('INFO', 'Need to fetch from remote...') in records
 
 
-def test_not_git_root(tmpdir, caplog):
-    """Test error.
-
-    :param tmpdir: pytest fixture.
-    :param caplog: pytest plugin fixture.
-    """
-    with pytest.raises(HandledError):
-        gather_git_info(str(tmpdir), ['README'])
-    records = [(r.levelname, r.message) for r in caplog.records]
-    assert ('ERROR', 'Failed to find local git repository root.') in records
-
-
 def test_failed_list(caplog, local_empty):
     """Test error.
 

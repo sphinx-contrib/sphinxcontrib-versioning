@@ -44,6 +44,7 @@ import sys
 from docopt import docopt
 
 from sphinxcontrib.versioning import __version__
+from sphinxcontrib.versioning.git import get_root, GitError
 from sphinxcontrib.versioning.lib import HandledError
 from sphinxcontrib.versioning.routines import build_all, gather_git_info, pre_build
 from sphinxcontrib.versioning.setup_logging import setup_logging
@@ -70,17 +71,20 @@ def get_arguments(argv, doc):
     return config
 
 
-def main_build(config):
+def main_build(config, root):
     """Main function for build sub command.
 
+    :raise HandledError: If function fails with a handled error. Will be logged before raising.
+
     :param dict config: Parsed command line arguments (get_arguments() output).
+    :param str root: Root directory of repository.
     """
     log = logging.getLogger(__name__)
 
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
     conf_rel_paths = [os.path.join(s, 'conf.py') for s in config['REL_SOURCE']]
-    root, remotes = gather_git_info(os.getcwd(), conf_rel_paths)
+    root, remotes = gather_git_info(root, conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError
@@ -120,6 +124,8 @@ def main_build(config):
 def main(config):
     """Main function.
 
+    :raise HandledError: If function fails with a handled error. Will be logged before raising.
+
     :param dict config: Parsed command line arguments (get_arguments() output).
     """
     log = logging.getLogger(__name__)
@@ -138,8 +144,17 @@ def main(config):
             raise HandledError
     log.debug('Working directory: %s', os.getcwd())
 
+    # Get root.
+    try:
+        root = get_root(os.getcwd())
+    except GitError as exc:
+        log.error(exc.message)
+        log.error(exc.output)
+        raise HandledError
+    log.info('Working in git repository: %s', root)
+
     # Run build sub command.
-    main_build(config)
+    main_build(config, root)
 
 
 def entry_point():
