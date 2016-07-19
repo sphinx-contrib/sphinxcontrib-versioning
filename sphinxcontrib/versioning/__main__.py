@@ -71,13 +71,14 @@ def get_arguments(argv, doc):
     return config
 
 
-def main_build(config, root):
+def main_build(config, root, destination):
     """Main function for build sub command.
 
     :raise HandledError: If function fails with a handled error. Will be logged before raising.
 
     :param dict config: Parsed command line arguments (get_arguments() output).
     :param str root: Root directory of repository.
+    :param str destination: Value of config['DESTINATION'].
     """
     log = logging.getLogger(__name__)
 
@@ -114,7 +115,7 @@ def main_build(config, root):
     exported_root = pre_build(root, versions, root_ref, config['overflow'])
 
     # Build.
-    build_all(exported_root, config['DESTINATION'], versions, root_ref, config['overflow'])
+    build_all(exported_root, destination, versions, root_ref, config['overflow'])
 
     # Cleanup.
     log.debug('Removing: %s', exported_root)
@@ -154,7 +155,7 @@ def main(config):
     log.info('Working in git repository: %s', root)
 
     # Run build sub command.
-    main_build(config, root)
+    main_build(config, root, config['DESTINATION'])
 
 
 def entry_point():

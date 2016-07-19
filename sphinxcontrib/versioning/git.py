@@ -308,9 +308,9 @@ def clone(local_root, new_root, branch, rel_dst, exclude):
 
     # Clone.
     try:
-        run_command(new_root, ['git', 'clone', remote_url, '--branch', branch, '.'])
+        run_command(new_root, ['git', 'clone', remote_url, '--depth=1', '--branch', branch, '.'])
     except CalledProcessError as exc:
-        raise GitError('Failed to clone ' + remote_url, exc.output)
+        raise GitError('Failed to clone from remote repo URL.', exc.output)
 
     # Make sure user didn't select a tag as their DST_BRANCH.
     try:
@@ -361,6 +361,18 @@ def commit_and_push(local_root):
         pass  # Repo is dirty, something has changed.
     else:
         log.info('No changes to commit.')
+        return True
+
+    # Check if there are changes excluding those files that always change.
+    output = run_command(local_root, ['git', 'diff', 'HEAD', '--no-ext-diff', '--name-status'])
+    for status, name in (l.split('\t', 1) for l in output.splitlines()):
+        if status != 'M':
+            break  # Only looking for modified files.
+        components = name.split(os.sep)
+        if '.doctrees' not in components and components[-1] != 'searchindex.js':
+            break  # Something other than those two dirs/files has changed.
+    else:
+        log.info('No significant changes to commit.')
         return True
 
     # Commit.

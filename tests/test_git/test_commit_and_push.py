@@ -1,5 +1,7 @@
 """Test function in module."""
 
+from subprocess import CalledProcessError
+
 import pytest
 
 from sphinxcontrib.versioning.git import commit_and_push, GitError, WHITELIST_ENV_VARS
@@ -33,6 +35,54 @@ def test_nothing_to_commit(caplog, local, run, exclude):
 
     records = [(r.levelname, r.message) for r in caplog.records]
     assert ('INFO', 'No changes to commit.') in records
+
+
+@pytest.mark.parametrize('subdirs', [False, True])
+def test_nothing_significant_to_commit(caplog, local, run, subdirs):
+    """Test ignoring of always-changing generated Sphinx files.
+
+    :param caplog: pytest extension fixture.
+    :param local: conftest fixture.
+    :param run: conftest fixture.
+    :param bool subdirs: Test these files from sub directories.
+    """
+    local.ensure('sub' if subdirs else '', '.doctrees', 'file.bin').write('data')
+    local.ensure('sub' if subdirs else '', 'searchindex.js').write('data')
+    old_sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+    actual = commit_and_push(str(local))
+    assert actual is True
+    sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+    assert sha != old_sha
+    run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
+    records = [(r.levelname, r.message) for r in caplog.records]
+    assert ('INFO', 'No changes to commit.') not in records
+    assert ('INFO', 'No significant changes to commit.') not in records
+
+    local.ensure('sub' if subdirs else '', '.doctrees', 'file.bin').write('changed')
+    local.ensure('sub' if subdirs else '', 'searchindex.js').write('changed')
+    old_sha = sha
+    records_seek = len(caplog.records)
+    actual = commit_and_push(str(local))
+    assert actual is True
+    sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+    assert sha == old_sha
+    with pytest.raises(CalledProcessError):
+        run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])
+    records = [(r.levelname, r.message) for r in caplog.records][records_seek:]
+    assert ('INFO', 'No changes to commit.') not in records
+    assert ('INFO', 'No significant changes to commit.') in records
+
+    local.join('README').write('changed')  # Should cause other two to be committed.
+    old_sha = sha
+    records_seek = len(caplog.records)
+    actual = commit_and_push(str(local))
+    assert actual is True
+    sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+    assert sha != old_sha
+    run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
+    records = [(r.levelname, r.message) for r in caplog.records][records_seek:]
+    assert ('INFO', 'No changes to commit.') not in records
+    assert ('INFO', 'No significant changes to commit.') not in records
 
 
 def test_changes(monkeypatch, local, run):
