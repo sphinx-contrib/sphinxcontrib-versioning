@@ -135,12 +135,14 @@ def test_multiple_local_repos(tmpdir, run):
     assert '<li><a href="contents.html">master</a></li>' in contents
 
 
-def test_root_ref(tmpdir, local_docs, run):
+@pytest.mark.parametrize('no_tags', [False, True])
+def test_root_ref(tmpdir, local_docs, run, no_tags):
     """Test --root-ref and friends.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
+    :param bool no_tags: Don't push tags. Test fallback handling.
     """
     local_docs.join('conf.py').write(
         'templates_path = ["_templates"]\n'
@@ -155,11 +157,12 @@ def test_root_ref(tmpdir, local_docs, run):
     run(local_docs, ['git', 'add', 'conf.py', '_templates'])
     run(local_docs, ['git', 'commit', '-m', 'Displaying version.'])
     time.sleep(1.5)
-    run(local_docs, ['git', 'tag', 'v2.0.0'])
-    time.sleep(1.5)
-    run(local_docs, ['git', 'tag', 'v1.0.0'])
+    if not no_tags:
+        run(local_docs, ['git', 'tag', 'v2.0.0'])
+        time.sleep(1.5)
+        run(local_docs, ['git', 'tag', 'v1.0.0'])
     run(local_docs, ['git', 'checkout', '-b', 'f2'])
-    run(local_docs, ['git', 'push', 'origin', 'master', 'v1.0.0', 'v2.0.0', 'f2'])
+    run(local_docs, ['git', 'push', 'origin', 'master', 'f2'] + ([] if no_tags else ['v1.0.0', 'v2.0.0']))
 
     for arg, expected in (('--root-ref=f2', 'f2'), ('--greatest-tag', 'v2.0.0'), ('--recent-tag', 'v1.0.0')):
         # Run.
@@ -168,7 +171,14 @@ def test_root_ref(tmpdir, local_docs, run):
         assert 'Traceback' not in output
         # Check root.
         contents = destination.join('contents.html').read()
+        if no_tags and expected != 'f2':
+            expected = 'master'
         assert 'Current version: {}'.format(expected) in contents
+        # Check warning.
+        if no_tags and 'tag' in arg:
+            assert 'No git tags with docs found in remote. Falling back to --root-ref value.' in output
+        else:
+            assert 'No git tags with docs found in remote. Falling back to --root-ref value.' not in output
 
 
 def test_error_bad_path(tmpdir, run):
@@ -213,11 +223,3 @@ def test_error_bad_root_ref(tmpdir, local_docs, run):
     with pytest.raises(CalledProcessError) as exc:
         run(local_docs, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-v', '-r', 'unknown'])
     assert 'Root ref unknown not found in: master\n' in exc.value.output
-
-    with pytest.raises(CalledProcessError) as exc:
-        run(local_docs, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-v', '-t'])
-    assert 'No git tags with docs found in remote.\n' in exc.value.output
-
-    with pytest.raises(CalledProcessError) as exc:
-        run(local_docs, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-v', '-T'])
-    assert 'No git tags with docs found in remote.\n' in exc.value.output

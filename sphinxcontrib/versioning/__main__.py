@@ -113,14 +113,15 @@ def main_build(config, root, destination):
     )
 
     # Get root ref.
+    root_ref = None
     if config['--greatest-tag'] or config['--recent-tag']:
         candidates = [r for r in versions.remotes if r['kind'] == 'tags']
         if not candidates:
-            log.error('No git tags with docs found in remote.')
-            raise HandledError
-        multi_sort(candidates, ['semver' if config['--greatest-tag'] else 'chrono'])
-        root_ref = candidates[0]['name']
-    else:
+            log.warning('No git tags with docs found in remote. Falling back to --root-ref value.')
+        else:
+            multi_sort(candidates, ['semver' if config['--greatest-tag'] else 'chrono'])
+            root_ref = candidates[0]['name']
+    if not root_ref:
         root_ref = config['--root-ref']
         if config['--root-ref'] not in [r[1] for r in remotes]:
             log.error('Root ref %s not found in: %s', config['--root-ref'], ' '.join(r[1] for r in remotes))

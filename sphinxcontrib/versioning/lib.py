@@ -24,9 +24,10 @@ class TempDir(object):
         self.name = tempfile.mkdtemp('sphinxcontrib_versioning')
         if defer_atexit:
             atexit.register(shutil.rmtree, self.name, True)
-        elif hasattr(weakref, 'finalize'):
+            return
+        try:
             weakref.finalize(self, shutil.rmtree, self.name, True)
-        else:
+        except AttributeError:
             weakref.proxy(self, functools.partial(shutil.rmtree, self.name, True))
 
     def __enter__(self):
