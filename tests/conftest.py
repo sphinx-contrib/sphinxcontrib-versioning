@@ -176,3 +176,20 @@ def local_docs(local, run):
     run(local, ['git', 'commit', '-m', 'Adding docs.'])
     run(local, ['git', 'push', 'origin', 'master'])
     return local
+
+
+@pytest.fixture
+def local_docs_ghp(local_docs, run):
+    """Add an orphaned branch to remote.
+
+    :param local_docs: local fixture.
+    :param run: local fixture.
+    """
+    run(local_docs, ['git', 'checkout', '--orphan', 'gh-pages'])
+    run(local_docs, ['git', 'rm', '-rf', '.'])
+    local_docs.join('README').write('Orphaned branch for HTML docs.')
+    run(local_docs, ['git', 'add', 'README'])
+    run(local_docs, ['git', 'commit', '-m', 'Initial Commit'])
+    run(local_docs, ['git', 'push', 'origin', 'gh-pages'])
+    run(local_docs, ['git', 'checkout', 'master'])
+    return local_docs

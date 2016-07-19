@@ -8,17 +8,29 @@ REL_SOURCE is the path to the docs directory relative to the git root. If the
 source directory has moved around between git tags you can specify additional
 directories.
 
+DST_BRANCH is the branch name where generated docs will be committed to. The
+branch will then be pushed to origin. If there is a race condition with another
+job pushing to origin the docs will be re-generated and pushed again.
+
+REL_DST is the path to the directory that will hold all generated docs for
+all versions relative to the git roof of DST_BRANCH.
+
 To pass options to sphinx-build (run for every branch/tag) use a double hyphen
 (e.g. {program} build /tmp/out docs -- -D setting=value).
 
 Usage:
     {program} [options] build DESTINATION REL_SOURCE...
+    {program} [options] [-e F...] push DST_BRANCH REL_DST REL_SOURCE...
     {program} -h | --help
     {program} -V | --version
 
 Options:
     -c DIR --chdir=DIR      cd into this directory before running.
     -C --no-colors          Disable colors in terminal output.
+    -e F --grm-exclude=FILE Push only. If specified "git rm" will delete all
+                            files in REL_DEST except for these. Specify
+                            multiple times for more. Paths are relative to
+                            REL_DEST in DST_BRANCH.
     -h --help               Show this screen.
     -i --invert             Invert/reverse order of versions.
     -p K --prioritize=KIND  Set to "branches" or "tags" to group those kinds
@@ -40,15 +52,19 @@ import logging
 import os
 import shutil
 import sys
+import time
 
 from docopt import docopt
 
 from sphinxcontrib.versioning import __version__
-from sphinxcontrib.versioning.git import get_root, GitError
-from sphinxcontrib.versioning.lib import HandledError
+from sphinxcontrib.versioning.git import clone, commit_and_push, get_root, GitError
+from sphinxcontrib.versioning.lib import HandledError, TempDir
 from sphinxcontrib.versioning.routines import build_all, gather_git_info, pre_build
 from sphinxcontrib.versioning.setup_logging import setup_logging
 from sphinxcontrib.versioning.versions import multi_sort, Versions
+
+PUSH_RETRIES = 3
+PUSH_SLEEP = 3  # Seconds.
 
 
 def get_arguments(argv, doc):
@@ -122,6 +138,35 @@ def main_build(config, root, destination):
     shutil.rmtree(exported_root)
 
 
+def main_push(config, root, temp_dir):
+    """Main function for push sub command.
+
+    :raise HandledError: On unrecoverable errors. Will be logged before raising.
+
+    :param dict config: Parsed command line arguments (get_arguments() output).
+    :param str root: Root directory of repository.
+    :param str temp_dir: Local path empty directory in which branch will be cloned into.
+
+    :return: If push succeeded.
+    :rtype: bool
+    """
+    log = logging.getLogger(__name__)
+
+    log.info('Cloning %s into temporary directory...', config['DST_BRANCH'])
+    try:
+        clone(root, temp_dir, config['DST_BRANCH'], config['REL_DST'], config['--grm-exclude'])
+    except GitError as exc:
+        log.error(exc.message)
+        log.error(exc.output)
+        raise HandledError
+
+    log.info('Building docs...')
+    main_build(config, root, os.path.join(temp_dir, config['REL_DST']))
+
+    log.info('Attempting to push to branch %s on remote repository.', config['DST_BRANCH'])
+    return commit_and_push(temp_dir)
+
+
 def main(config):
     """Main function.
 
@@ -155,7 +200,22 @@ def main(config):
     log.info('Working in git repository: %s', root)
 
     # Run build sub command.
-    main_build(config, root, config['DESTINATION'])
+    if config['build']:
+        main_build(config, root, config['DESTINATION'])
+        return
+
+    # Clone, build, push.
+    for _ in range(PUSH_RETRIES):
+        with TempDir() as temp_dir:
+            if main_push(config, root, temp_dir):
+                log.info('Successfully pushed to remote repository.')
+                return
+        log.warning('Failed to push to remote repository. Retrying in %d seconds...', PUSH_SLEEP)
+        time.sleep(PUSH_SLEEP)
+
+    # Failed if this is reached.
+    log.error('Ran out of retries, giving up.')
+    raise HandledError
 
 
 def entry_point():

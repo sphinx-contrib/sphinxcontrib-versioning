@@ -23,17 +23,22 @@ def test_string(mode):
 
     :param str mode: Scenario to test for.
     """
-    argv = [__file__, 'build', 'html', 'docs']
-    expected = {'--root-ref': 'master', 'REL_SOURCE': ['docs']}
+    argv = [__file__, 'push', 'gh-pages', 'html', 'docs']
+    expected = {'--root-ref': 'master', 'REL_SOURCE': ['docs'], '--grm-exclude': list()}
     if mode.startswith('cli'):
-        argv += ['-r', 'feature']
+        argv.extend(['-r', 'feature', '-e', '.gitignore'])
         expected['--root-ref'] = 'feature'
+        expected['--grm-exclude'].append('.gitignore')
         if mode.endswith('2'):
-            argv.extend(['two'])
+            argv.extend(['-e', 'docs/README.md', 'two'])
+            expected['--grm-exclude'].append('docs/README.md')
             expected['REL_SOURCE'].append('two')
 
     config = get_arguments(argv, doc)
+    assert config['--grm-exclude'] == expected['--grm-exclude']
     assert config['--root-ref'] == expected['--root-ref']
+    assert config['build'] is False
+    assert config['push'] is True
     assert config['REL_SOURCE'] == expected['REL_SOURCE']
 
 
