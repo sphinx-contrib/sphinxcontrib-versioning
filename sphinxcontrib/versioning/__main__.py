@@ -165,7 +165,12 @@ def main_push(config, root, temp_dir):
     main_build(config, root, os.path.join(temp_dir, config['REL_DST']))
 
     log.info('Attempting to push to branch %s on remote repository.', config['DST_BRANCH'])
-    return commit_and_push(temp_dir)
+    try:
+        return commit_and_push(temp_dir)
+    except GitError as exc:
+        log.error(exc.message)
+        log.error(exc.output)
+        raise HandledError
 
 
 def main(config):

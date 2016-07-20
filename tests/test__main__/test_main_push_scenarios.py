@@ -1,8 +1,10 @@
 """Test calls to main() with different command line options."""
 
 import os
+import re
 from subprocess import CalledProcessError, PIPE, Popen, STDOUT
 
+import py
 import pytest
 
 
@@ -94,7 +96,7 @@ def test_race(tmpdir, local_docs_ghp, remote, run, give_up):
     run(local_other, ['git', 'clone', remote, '--branch=gh-pages', '.'])
 
     # Prepare command.
-    env = dict(os.environ, GIT_DIR=os.path.join(str(local_docs_ghp), '.git'))
+    env = dict(os.environ, GIT_DIR=str(local_docs_ghp.join('.git')))
     command = ['sphinx-versioning', 'push', 'gh-pages', 'html/docs', '.', '--no-colors']
     output_lines = list()
     caused = False
@@ -170,3 +172,39 @@ def test_error_build_failure(local_docs_ghp, run):
     assert 'Building docs...' in exc.value.output
     assert 'sphinx-build failed for branch/tag: master' in exc.value.output
     assert exc.value.output.endswith('Failure.\n')
+
+
+def test_bad_git_config(local_docs_ghp, run):
+    """Git commit fails.
+
+    Need to do the crazy Popen thing since the local repo being committed to is the gh-pages temporary repo.
+
+    :param local_docs_ghp: conftest fixture.
+    :param run: conftest fixture.
+    """
+    env = dict(os.environ, GIT_DIR=str(local_docs_ghp.join('.git')), HOME=str(local_docs_ghp.join('..')))
+    command = ['sphinx-versioning', 'push', 'gh-pages', '.', '.', '-v']
+    output_lines = list()
+    caused = False
+
+    # Run.
+    proc = Popen(command, cwd=str(local_docs_ghp), env=env, stdout=PIPE, stderr=STDOUT)
+    for line in iter(proc.stdout.readline, b''):
+        output_lines.append(line)
+        if b'"command": ["git", "clone"' in line:
+            if not caused:
+                # Invalidate lock file.
+                tmp_repo = py.path.local(re.findall(r'"cwd": "([^"]+)"', line.decode('utf-8'))[0])
+                assert tmp_repo.check(dir=True)
+                run(tmp_repo, ['git', 'config', 'user.useConfigOnly', 'true'])
+                run(tmp_repo, ['git', 'config', 'user.email', '(none)'])
+                caused = True
+    output_lines.append(proc.communicate()[0])
+    output = b''.join(output_lines).decode('utf-8')
+    assert proc.poll() != 0
+    assert caused
+
+    # Verify.
+    assert 'Traceback' not in output
+    assert 'Failed to commit locally.' in output
+    assert 'Please tell me who you are.' in output

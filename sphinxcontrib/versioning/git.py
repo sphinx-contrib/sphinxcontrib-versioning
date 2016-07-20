@@ -343,7 +343,7 @@ def commit_and_push(local_root):
     """Commit changed, new, and deleted files in the repo and attempt to push the branch to origin.
 
     :raise CalledProcessError: Unhandled git command failure.
-    :raise GitError: Conflicting changes made in remote by other client.
+    :raise GitError: Conflicting changes made in remote by other client and bad git config for commits.
 
     :param str local_root: Local path to git root directory.
 
@@ -376,9 +376,16 @@ def commit_and_push(local_root):
         return True
 
     # Commit.
-    commit_subject = 'AUTO: sphinxcontrib-versioning'
-    commit_body = '\n'.join('{}: {}'.format(v, os.environ[v]) for v in WHITELIST_ENV_VARS if v in os.environ)
-    run_command(local_root, ['git', 'commit', '-m', commit_subject, '-m', commit_body])
+    commit_message_file = os.path.join(local_root, '_scv_commit_message.txt')
+    with open(commit_message_file, 'w') as handle:
+        handle.write('AUTO: sphinxcontrib-versioning\n\n')
+        for line in ('{}: {}\n'.format(v, os.environ[v]) for v in WHITELIST_ENV_VARS if v in os.environ):
+            handle.write(line)
+    try:
+        run_command(local_root, ['git', 'commit', '-F', commit_message_file])
+    except CalledProcessError as exc:
+        raise GitError('Failed to commit locally.', exc.output)
+    os.remove(commit_message_file)
 
     # Push.
     try:

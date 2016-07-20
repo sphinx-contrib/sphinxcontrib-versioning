@@ -18,8 +18,15 @@ deploy:
   user: Robpol86
   password:
     secure:
-      "multi\
-      line\
-      encrypted"
+      "SL9UOy/1SkvG3t5K1kRjN8OPLoP8OR6DAw5hiWkUBaqRsqvWh3YJep6uECQ20gYAU5HXgLJ\
+      Jug1LCUqiJ52JBCHbrc5rWy0XqfxwhG2euMfT3D3D527URthifchECNIhJpYDffuiCT5m4VR\
+      zg35E98UoiFAWpTHvyzO33JyP5ZWXrlEI1HYXRwS9fosJSsTNnzc5u4fraQs1mjCWSwRrS6+\
+      HUbbNY0NygQ7wwL4KIjn9/h1C3X4nqwBqgFt9Ed6yvQgXh3OMv/rseA6oko9Iw3pVJZR5emU\
+      sejcQ1txJ4EMbahcdWJFo4xpYy2VNxRAyQWtav4IWST19bGmhQB1Cgn2WBW7PQswYev+IZ7Z\
+      FS1L3OXFItUuS7IV/uOTnMPetD1WqIrVlPHy+N4Sy30QBoZPDO6/DlknPK4dDXhmb+atrVCZ\
+      z8y2Ol06QEwM8Ewmn+ch+Hez9dxLsD5TczHSYMrz/c/AloHqr+3lZDJ+hr0D2vvnerqLqJvH\
+      Mp5p+vwnYNtpSInlYNLvcUITpQaOaqBzkFiJ+mIFoswsPhfw15gGZ0akIvVT9YAqJ2eeMrGx\
+      kzxiCBVD4dqGxMh318BmwXdurgWZbia2DJWs+QBNs44kiSByQmXWFXo2KamiBZAez+AdBPgA\
+      Hs/smp3nE3TI9cHQzzbhDFZftI4dtLf8osNI="
   on:
     tags: true
