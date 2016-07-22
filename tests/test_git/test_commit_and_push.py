@@ -5,6 +5,12 @@ from subprocess import CalledProcessError
 import pytest
 
 from sphinxcontrib.versioning.git import commit_and_push, GitError, WHITELIST_ENV_VARS
+from sphinxcontrib.versioning.versions import Versions
+
+REMOTES = (
+    ('0772e5ff32af52115a809d97cd506837fa209f7f', 'zh-pages', 'heads', 1469163411, 'README'),
+    ('abaaa358379408d997255ec8155db30cea2a61a8', 'master', 'heads', 1465764862, 'README'),
+)
 
 
 def test_whitelist():
@@ -28,7 +34,7 @@ def test_nothing_to_commit(caplog, local, run, exclude):
         local.join('README').write(contents)  # Unstaged restore.
     old_sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
 
-    actual = commit_and_push(str(local))
+    actual = commit_and_push(str(local), Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha == old_sha
@@ -49,7 +55,7 @@ def test_nothing_significant_to_commit(caplog, local, run, subdirs):
     local.ensure('sub' if subdirs else '', '.doctrees', 'file.bin').write('data')
     local.ensure('sub' if subdirs else '', 'searchindex.js').write('data')
     old_sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
-    actual = commit_and_push(str(local))
+    actual = commit_and_push(str(local), Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha != old_sha
@@ -62,7 +68,7 @@ def test_nothing_significant_to_commit(caplog, local, run, subdirs):
     local.ensure('sub' if subdirs else '', 'searchindex.js').write('changed')
     old_sha = sha
     records_seek = len(caplog.records)
-    actual = commit_and_push(str(local))
+    actual = commit_and_push(str(local), Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha == old_sha
@@ -75,7 +81,7 @@ def test_nothing_significant_to_commit(caplog, local, run, subdirs):
     local.join('README').write('changed')  # Should cause other two to be committed.
     old_sha = sha
     records_seek = len(caplog.records)
-    actual = commit_and_push(str(local))
+    actual = commit_and_push(str(local), Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha != old_sha
@@ -98,7 +104,7 @@ def test_changes(monkeypatch, local, run):
     local.ensure('new', 'new.txt')
     local.join('README').write('test\n', mode='a')
 
-    actual = commit_and_push(str(local))
+    actual = commit_and_push(str(local), Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha != old_sha
@@ -106,7 +112,7 @@ def test_changes(monkeypatch, local, run):
 
     # Verify commit message.
     subject, body = run(local, ['git', 'log', '-n1', '--pretty=%B']).strip().split('\n', 2)[::2]
-    assert subject == 'AUTO: sphinxcontrib-versioning'
+    assert subject == 'AUTO sphinxcontrib-versioning 20160722 0772e5ff32a'
     assert body == 'LANG: en_US.UTF-8\nTRAVIS_BRANCH: master\nTRAVIS_BUILD_ID: 12345'
 
 
@@ -121,7 +127,7 @@ def test_branch_deleted(local, run):
     local.join('README').write('Changed by local.')
 
     # Run.
-    actual = commit_and_push(str(local))
+    actual = commit_and_push(str(local), Versions(REMOTES))
     assert actual is True
     run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
     assert local.join('README').read() == 'Changed by local.'
@@ -148,7 +154,7 @@ def test_retryable_race(tmpdir, local, remote, run, collision):
 
     # Make unstaged changes and then run.
     local.ensure('sub', 'added.txt').write('Added by local.')
-    actual = commit_and_push(str(local))
+    actual = commit_and_push(str(local), Versions(REMOTES))
 
     # Verify.
     assert actual is False
@@ -164,5 +170,5 @@ def test_origin_deleted(local, remote):
     remote.remove()
 
     with pytest.raises(GitError) as exc:
-        commit_and_push(str(local))
+        commit_and_push(str(local), Versions(REMOTES))
     assert 'Could not read from remote repository' in exc.value.output

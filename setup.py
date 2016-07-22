@@ -44,7 +44,7 @@ setup(
     long_description=readme(),
     name=NAME,
     package_data={'': ['_templates/versions.html']},
-    packages=[NAME.split('-')[0]],
+    packages=[NAME.split('-')[0], os.path.join(*NAME.split('-'))],
     url='https://github.com/Robpol86/' + NAME,
     version=VERSION,
     zip_safe=True,

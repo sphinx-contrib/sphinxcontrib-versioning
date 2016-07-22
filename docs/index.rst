@@ -16,3 +16,4 @@ Project Links
     :caption: General
 
     install
+    tutorial

@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import shutil
+from datetime import datetime
 from subprocess import CalledProcessError, PIPE, Popen, STDOUT
 
 from sphinxcontrib.versioning.lib import TempDir
@@ -54,6 +55,7 @@ WHITELIST_ENV_VARS = (
     'CIRCLE_TAG',
     'CIRCLE_USERNAME',
     'CIRCLECI',
+    'HOSTNAME',
     'LANG',
     'LC_ALL',
     'PLATFORM',
@@ -73,6 +75,7 @@ WHITELIST_ENV_VARS = (
     'TRAVIS_SECURE_ENV_VARS',
     'TRAVIS_TAG',
     'TRAVIS_TEST_RESULT',
+    'USER',
 )
 
 
@@ -339,13 +342,14 @@ def clone(local_root, new_root, branch, rel_dst, exclude):
     run_command(new_root, ['git', 'checkout', '--'] + exclude_joined)
 
 
-def commit_and_push(local_root):
+def commit_and_push(local_root, versions):
     """Commit changed, new, and deleted files in the repo and attempt to push the branch to origin.
 
     :raise CalledProcessError: Unhandled git command failure.
     :raise GitError: Conflicting changes made in remote by other client and bad git config for commits.
 
     :param str local_root: Local path to git root directory.
+    :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
 
     :return: If push succeeded.
     :rtype: bool
@@ -376,9 +380,13 @@ def commit_and_push(local_root):
         return True
 
     # Commit.
+    latest_commit = sorted(versions.remotes, key=lambda v: v['date'])[-1]
     commit_message_file = os.path.join(local_root, '_scv_commit_message.txt')
     with open(commit_message_file, 'w') as handle:
-        handle.write('AUTO: sphinxcontrib-versioning\n\n')
+        handle.write('AUTO sphinxcontrib-versioning {} {}\n\n'.format(
+            datetime.utcfromtimestamp(latest_commit['date']).strftime('%Y%m%d'),
+            latest_commit['sha'][:11],
+        ))
         for line in ('{}: {}\n'.format(v, os.environ[v]) for v in WHITELIST_ENV_VARS if v in os.environ):
             handle.write(line)
     try:

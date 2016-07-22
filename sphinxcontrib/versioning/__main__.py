@@ -95,6 +95,9 @@ def main_build(config, root, destination):
     :param dict config: Parsed command line arguments (get_arguments() output).
     :param str root: Root directory of repository.
     :param str destination: Value of config['DESTINATION'].
+
+    :return: Versions class instance.
+    :rtype: sphinxcontrib.versioning.versions.Versions
     """
     log = logging.getLogger(__name__)
 
@@ -138,6 +141,8 @@ def main_build(config, root, destination):
     log.debug('Removing: %s', exported_root)
     shutil.rmtree(exported_root)
 
+    return versions
+
 
 def main_push(config, root, temp_dir):
     """Main function for push sub command.
@@ -162,11 +167,11 @@ def main_push(config, root, temp_dir):
         raise HandledError
 
     log.info('Building docs...')
-    main_build(config, root, os.path.join(temp_dir, config['REL_DST']))
+    versions = main_build(config, root, os.path.join(temp_dir, config['REL_DST']))
 
     log.info('Attempting to push to branch %s on remote repository.', config['DST_BRANCH'])
     try:
-        return commit_and_push(temp_dir)
+        return commit_and_push(temp_dir, versions)
     except GitError as exc:
         log.error(exc.message)
         log.error(exc.output)
