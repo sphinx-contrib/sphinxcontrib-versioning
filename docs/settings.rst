@@ -4,8 +4,8 @@
 Settings
 ========
 
-sphinxcontrib-versioning reads settings only from command line arguments. Here are all the options will be listed along
-with their descriptions.
+SCVersioning reads settings only from command line arguments. Here are all the options will be listed along with their
+descriptions.
 
 .. code-block:: bash
 
@@ -81,9 +81,9 @@ These arguments/options apply to both :ref:`build <build-arguments>` and :ref:`p
 Overflow/Pass Options
 ---------------------
 
-It is possible to give the underlying ``sphinx-build`` program comand line options. sphinxcontrib-versioning passes
-everything after ``--`` to it. For example if you changed the theme for your docs between versions and want docs for all
-versions to have the same theme, you can run:
+It is possible to give the underlying ``sphinx-build`` program comand line options. SCVersioning passes everything after
+``--`` to it. For example if you changed the theme for your docs between versions and want docs for all versions to have
+the same theme, you can run:
 
 .. code-block:: bash
 
@@ -127,7 +127,8 @@ HTML files are committed to :option:`DST_BRANCH` and pushed to origin.
     The path to the directory that will hold all generated docs for all versions relative to the git roof of DST_BRANCH.
 
     If you want your generated **index.html** to be at the root of :option:`DST_BRANCH` you can just specify a period
-    for REL_DST. If you want HTML files to be placed in say... "<git root>/html/docs", then you specify "html/docs".
+    (e.g. ``.``) for REL_DST. If you want HTML files to be placed in say... "<git root>/html/docs", then you specify
+    "html/docs".
 
 .. option:: -e <file>, --grm-exclude <file>
 
@@ -136,5 +137,4 @@ HTML files are committed to :option:`DST_BRANCH` and pushed to origin.
     multiple files or directories to be excluded by adding more ``--grm-exclude`` arguments.
 
     If this argument is not specified then nothing will be deleted from the branch. This may cause stale/orphaned HTML
-    files in the branch if a branch is deleted from the repo after sphinxcontrib-versioning already created HTML files
-    for it.
+    files in the branch if a branch is deleted from the repo after SCVersioning already created HTML files for it.

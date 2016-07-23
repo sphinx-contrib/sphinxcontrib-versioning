@@ -9,7 +9,7 @@ Getting started is pretty simple. The first step is to install the library.
 Pip Install
 ===========
 
-The easiest way to get sphinxcontrib-versioning is to use `pip <https://pip.pypa.io>`_. Simply run this command.
+The easiest way to get SCVersioning is to use `pip <https://pip.pypa.io>`_. Simply run this command.
 
 .. code-block:: bash
 

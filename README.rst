@@ -33,7 +33,9 @@ Usage:
 
 .. code:: bash
 
-    sphinx-versioned-build --help
+    sphinx-versioning --help
+
+.. changelog-section-start
 
 Changelog
 =========
@@ -44,3 +46,5 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 ------------------
 
 * Initial release.
+
+.. changelog-section-end

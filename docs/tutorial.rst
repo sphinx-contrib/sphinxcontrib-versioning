@@ -27,15 +27,15 @@ and dirty you can do the following:
 
 .. note::
 
-    It is **required** to push doc files to origin. sphinxcontrib-versioning only works with remote branches/tags and
-    ignores any local changes (committed, staged, unstaged, etc). If you don't push to origin sphinxcontrib-versioning
-    won't see them. This eliminates race conditions when multiple CI jobs are building docs at the same time.
+    It is **required** to push doc files to origin. SCVersioning only works with remote branches/tags and ignores any
+    local changes (committed, staged, unstaged, etc). If you don't push to origin SCVersioning won't see them. This
+    eliminates race conditions when multiple CI jobs are building docs at the same time.
 
 Build All Versions
 ------------------
 
 Now that you've got docs pushed to origin and they build fine with ``sphinx-build`` let's try building them with
-sphinxcontrib-versioning:
+SCVersioning:
 
 .. code-block:: bash
 
@@ -55,15 +55,14 @@ convenience:
 The command should have worked and your docs should be available in **docs/_build/html/index.html** with a "Versions"
 section in the sidebar.
 
-If all you want sphinxcontrib-versioning to do is build docs for you for all versions and let you handle pushing them
-to a web host and hosting them yourself then you are done here. Otherwise if you want to use the ``push`` feature then
-keep reading.
+If all you want SCVersioning to do is build docs for you for all versions and let you handle pushing them to a web host
+and hosting them yourself then you are done here. Otherwise if you want to use the ``push`` feature then keep reading.
 
 Pushing to Remote Branch
 ========================
 
-sphinxcontrib-versioning supports pushing generated HTML files of your documentation to a remote branch, handling
-retries in case of race conditions where other parallel jobs try to build docs and push them to the same branch.
+SCVersioning supports pushing generated HTML files of your documentation to a remote branch, handling retries in case of
+race conditions where other parallel jobs try to build docs and push them to the same branch.
 
 Building on the previous section above let's go ahead and push those docs to a branch called ``gh-pages``. The branch
 must already exist before trying to use the push feature, branches won't be automatically created. So let's do that:
@@ -81,10 +80,12 @@ must already exist before trying to use the push feature, branches won't be auto
 Since this branch will just host HTML pages you can create an orphaned branch with no history instead of cluttering it
 up with the history of your code changes.
 
+.. _push-all-versions:
+
 Push All Versions
 -----------------
 
-Now that you have the destination branch in origin go ahead and run sphinxcontrib-versioning:
+Now that you have the destination branch in origin go ahead and run SCVersioning:
 
 .. code-block:: bash
 
@@ -102,7 +103,7 @@ for convenience:
 
 .. note::
 
-    By default sphinxcontrib-versioning does not delete any files in the destination directory/branch. It only adds new
+    By default SCVersioning does not delete any files in the destination directory/branch. It only adds new
     ones or changes existing ones. This may lead to orphaned files in the branch if you delete branches/tags from the
     repository (their HTML files will be left behind in gh-pages and still accessible to your users). To enable the
     delete feature use one or more ``--grm-exclude <path>`` options. More info in :option:`--grm-exclude` or ``--help``.
