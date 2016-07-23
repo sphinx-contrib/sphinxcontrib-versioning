@@ -115,6 +115,53 @@ def test_moved_docs_many(tmpdir, local_docs, run):
         assert '<li><a href="../v1.0.2/contents.html">v1.0.2</a></li>' in contents
 
 
+def test_version_change(tmpdir, local_docs, run):
+    """Verify new links are added and old links are removed when only changing versions. Using the same doc files.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    """
+    destination = tmpdir.join('destination')
+
+    # Only master.
+    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.', 'docs'])
+    assert 'Traceback' not in output
+    contents = destination.join('contents.html').read()
+    assert '<li><a href="contents.html">master</a></li>' in contents
+    assert '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>' not in contents
+    assert '<li><a href="v2.0.0/contents.html">v2.0.0</a></li>' not in contents
+
+    # Add tags.
+    run(local_docs, ['git', 'tag', 'v1.0.0'])
+    run(local_docs, ['git', 'tag', 'v2.0.0'])
+    run(local_docs, ['git', 'push', 'origin', 'v1.0.0', 'v2.0.0'])
+    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.', 'docs'])
+    assert 'Traceback' not in output
+    contents = destination.join('contents.html').read()
+    assert '<li><a href="contents.html">master</a></li>' in contents
+    assert '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    for name in ('v1.0.0', 'v2.0.0'):
+        contents = destination.join(name, 'contents.html').read()
+        assert '<li><a href="../contents.html">master</a></li>' in contents
+        assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+        assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+
+    # Remove one tag.
+    run(local_docs, ['git', 'push', 'origin', '--delete', 'v2.0.0'])
+    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.', 'docs'])
+    assert 'Traceback' not in output
+    contents = destination.join('contents.html').read()
+    assert '<li><a href="contents.html">master</a></li>' in contents
+    assert '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="v2.0.0/contents.html">v2.0.0</a></li>' not in contents
+    contents = destination.join('v1.0.0', 'contents.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' not in contents
+
+
 @pytest.mark.usefixtures('local_docs')
 def test_multiple_local_repos(tmpdir, run):
     """Test from another git repo as the current working directory.

@@ -42,7 +42,8 @@ sphinxcontrib-versioning:
     sphinx-versioning -r feature_branch build docs/_build/html docs
     open docs/_build/html/index.html
 
-More information about all of the options can be found by running with ``-help`` but just for convenience:
+More information about all of the options can be found at :ref:`settings` or by running with ``-help`` but just for
+convenience:
 
 * ``-r feature_branch`` tells the program to build our newly created/pushed branch at the root of the "html" directory.
   We do this assuming there are no docs in master yet. Otherwise you can omit this argument.
@@ -89,7 +90,8 @@ Now that you have the destination branch in origin go ahead and run sphinxcontri
 
     sphinx-versioning -r feature_branch push gh-pages . docs
 
-Again you can find more information about all of the options by running with ``-help`` but just for convenience:
+Again you can find more information about all of the options at :ref:`settings` or by running with ``-help`` but just
+for convenience:
 
 * ``gh-pages`` is obviously the branch that will hold generated HTML docs.
 * ``.`` is the path relative to the git root directory in the ``gh-pages`` branch where HTML files will be placed. If
@@ -103,4 +105,4 @@ Again you can find more information about all of the options by running with ``-
     By default sphinxcontrib-versioning does not delete any files in the destination directory/branch. It only adds new
     ones or changes existing ones. This may lead to orphaned files in the branch if you delete branches/tags from the
     repository (their HTML files will be left behind in gh-pages and still accessible to your users). To enable the
-    delete feature use one or more ``--grm-exclude <path>`` options. More info in ``--help``.
+    delete feature use one or more ``--grm-exclude <path>`` options. More info in :option:`--grm-exclude` or ``--help``.

@@ -12,8 +12,9 @@ Project Links
 * PyPI homepage: https://pypi.python.org/pypi/sphinxcontrib-versioning
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :caption: General
 
     install
     tutorial
+    settings
