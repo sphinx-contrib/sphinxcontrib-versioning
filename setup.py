@@ -9,7 +9,7 @@ import os
 from setuptools import setup
 
 NAME = 'sphinxcontrib-versioning'
-VERSION = '0.0.1'
+VERSION = '1.0.0'
 
 
 def readme():

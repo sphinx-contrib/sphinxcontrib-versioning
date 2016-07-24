@@ -11,6 +11,14 @@ before_script:
 script: tox -e lint,py35,py34,py33,pypy,py27,docs
 after_success:
   - coveralls
+  - touch docs/key; chmod 600 docs/key  # Secure before storing key data.
+  - openssl aes-256-cbc -K $encrypted_9c2bf3fbb9ea_key -iv $encrypted_9c2bf3fbb9ea_iv -in docs/key.enc -out docs/key -d
+  - eval `ssh-agent -s`; ssh-add docs/key
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "Travis CI"
+  - git remote set-url origin "git@github.com:$TRAVIS_REPO_SLUG"
+  - export ${!TRAVIS*}  # For commit messages.
+  - tox -e docsV
 
 # Deploy.
 deploy:
