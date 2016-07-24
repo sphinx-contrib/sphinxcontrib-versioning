@@ -4,7 +4,7 @@
 Tutorial
 ========
 
-This section will go over the basics of the project.
+This guide will go over the basics of the project.
 
 Make sure that you've already :ref:`installed <install>` it.
 

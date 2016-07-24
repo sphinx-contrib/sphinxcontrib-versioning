@@ -43,6 +43,12 @@ Project Links
     themes
 
 .. toctree::
+    :maxdepth: 2
+    :caption: Web Hosting
+
+    github_pages
+
+.. toctree::
     :maxdepth: 1
     :caption: Appendix
 

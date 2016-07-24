@@ -404,4 +404,5 @@ def commit_and_push(local_root, versions):
             return False
         raise GitError('Failed to push to remote.', exc.output)
 
+    log.info('Successfully pushed to remote repository.')
     return True

@@ -219,7 +219,6 @@ def main(config):
     for _ in range(PUSH_RETRIES):
         with TempDir() as temp_dir:
             if main_push(config, root, temp_dir):
-                log.info('Successfully pushed to remote repository.')
                 return
         log.warning('Failed to push to remote repository. Retrying in %d seconds...', PUSH_SLEEP)
         time.sleep(PUSH_SLEEP)
@@ -235,6 +234,7 @@ def entry_point():
         config = get_arguments(sys.argv, __doc__)
         setup_logging(verbose=config['--verbose'], colors=not config['--no-colors'])
         main(config)
+        logging.info('Success.')
     except HandledError:
         logging.critical('Failure.')
         sys.exit(1)
