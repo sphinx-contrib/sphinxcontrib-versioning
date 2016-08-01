@@ -155,7 +155,7 @@ def test_error_clone_failure(local_docs, run):
 
 
 def test_error_build_failure(local_docs_ghp, run):
-    """HandledError in main_build().
+    """Test HandledError in main_build().
 
     :param local_docs_ghp: conftest fixture.
     :param run: conftest fixture.
