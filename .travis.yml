@@ -18,7 +18,6 @@ before_script:
 script: tox -e $TOX_ENV
 after_success:
   - coveralls
-  - '[ "$TOX_ENV" = "docs" ] || exit 0'
   - touch docs/key; chmod 600 docs/key  # Secure before storing key data.
   - openssl aes-256-cbc -K $encrypted_9c2bf3fbb9ea_key -iv $encrypted_9c2bf3fbb9ea_iv -in docs/key.enc -out docs/key -d
   - eval `ssh-agent -s`; ssh-add docs/key
