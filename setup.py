@@ -13,7 +13,7 @@ IMPORT = 'sphinxcontrib.versioning'
 INSTALL_REQUIRES = ['colorclass', 'docopt', 'sphinx']
 LICENSE = 'MIT'
 NAME = 'sphinxcontrib-versioning'
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 
 def readme(path='README.rst'):
@@ -104,5 +104,5 @@ setup(
     packages=['sphinxcontrib', os.path.join('sphinxcontrib', 'versioning')],
     url='https://github.com/Robpol86/' + NAME,
     version=VERSION,
-    zip_safe=True,
+    zip_safe=False,
 )
