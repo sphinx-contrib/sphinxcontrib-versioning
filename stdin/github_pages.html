@@ -266,9 +266,8 @@ Travis CI Deploy Key&#8221;</p>
 we still need to make one more change to the file before committing it. Update .travis.yml with these <code class="docutils literal"><span class="pre">chmod</span></code>,
 <code class="docutils literal"><span class="pre">eval</span></code>, and <code class="docutils literal"><span class="pre">git</span> <span class="pre">remote</span></code> commands. The after_success section should end up looking like this:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
-  - touch docs/key<span class="p">;</span> chmod <span class="m">600</span> docs/key  <span class="c1"># Secure before storing key data.</span>
-  - openssl aes-256-cbc -K <span class="nv">$encrypted_key</span> -iv <span class="nv">$encrypted_iv</span> -in docs/key.enc -out docs/key -d
-  - <span class="nb">eval</span> <span class="sb">`</span>ssh-agent -s<span class="sb">`</span><span class="p">;</span> ssh-add docs/key &lt;<span class="p">&amp;</span>-  <span class="c1"># Closing stdin is important.</span>
+  - touch ~/.ssh/id_rsa<span class="p">;</span> chmod <span class="m">600</span> ~/.ssh/id_rsa  <span class="c1"># Secure before storing key data.</span>
+  - openssl aes-256-cbc -K <span class="nv">$encrypted_key</span> -iv <span class="nv">$encrypted_iv</span> -in docs/key.enc -out ~/.ssh/id_rsa -d
   - git config --global user.email <span class="s2">&quot;builds@travis-ci.com&quot;</span>
   - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
   - git remote set-url origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
@@ -278,9 +277,9 @@ we still need to make one more change to the file before committing it. Update .
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p>The <code class="docutils literal"><span class="pre">&lt;&amp;-</span></code> at the end of the <code class="docutils literal"><span class="pre">ssh-add</span></code> command
-<a class="reference external" href="http://www.tldp.org/LDP/abs/html/io-redirection.html#CFD">closes its stdin</a>. Without this your CI job will hang,
-time out, and fail during pull requests. This is true for Travis CI and probably others. What happens is:</p>
+<p>We&#8217;re using the ~/.ssh/id_rsa method instead of ssh-agent/ssh-add because of potential job hanging issues. ssh-add
+may prompt for a password causing your CI job to hang, time out, and fail during pull requests. This is true for
+Travis CI and probably others. What happens is:</p>
 <ol class="last arabic simple">
 <li>Travis CI does not set encrypted variables during pull requests for security reasons.</li>
 <li>The two environment variables used in the openssl command will be blank. OpenSSL will create an empty docs/key
