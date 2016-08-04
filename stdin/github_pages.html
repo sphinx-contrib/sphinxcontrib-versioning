@@ -268,7 +268,7 @@ we still need to make one more change to the file before committing it. Update .
 <div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
   - touch docs/key<span class="p">;</span> chmod <span class="m">600</span> docs/key  <span class="c1"># Secure before storing key data.</span>
   - openssl aes-256-cbc -K <span class="nv">$encrypted_key</span> -iv <span class="nv">$encrypted_iv</span> -in docs/key.enc -out docs/key -d
-  - <span class="nb">eval</span> <span class="sb">`</span>ssh-agent -s<span class="sb">`</span><span class="p">;</span> ssh-add docs/key &lt;<span class="p">&amp;</span>-  <span class="c1"># closing stdin important.</span>
+  - <span class="nb">eval</span> <span class="sb">`</span>ssh-agent -s<span class="sb">`</span><span class="p">;</span> ssh-add docs/key &lt;<span class="p">&amp;</span>-  <span class="c1"># Closing stdin is important.</span>
   - git config --global user.email <span class="s2">&quot;builds@travis-ci.com&quot;</span>
   - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
   - git remote set-url origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
