@@ -266,8 +266,9 @@ Travis CI Deploy Key&#8221;</p>
 we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
 section look like this:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
-  - <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>ssh-agent -s<span class="k">)</span><span class="s2">&quot;</span>  <span class="c1"># Needed by ssh-add.</span>
-  - openssl aes-256-cbc -K <span class="nv">$encrypted_xxxx_key</span> -iv <span class="nv">$encrypted_xxxx_iv</span> -in docs/key.enc <span class="p">|</span>ssh-add -
+  - <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>ssh-agent -s<span class="k">)</span><span class="s2">&quot;</span><span class="p">;</span> touch docs/key<span class="p">;</span> chmod <span class="m">0600</span> docs/key
+  - openssl aes-256-cbc -d -K <span class="s2">&quot;</span><span class="nv">$encrypted_key</span><span class="s2">&quot;</span> -iv <span class="s2">&quot;</span><span class="nv">$encrypted_iv</span><span class="s2">&quot;</span> &lt; docs/key.enc &gt; docs/key
+    <span class="o">&amp;&amp;</span> ssh-add docs/key  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
   - git config --global user.email <span class="s2">&quot;builds@travis-ci.com&quot;</span>
   - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
   - git remote set-url origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
@@ -275,12 +276,17 @@ section look like this:</p>
   - sphinx-versioning push gh-pages . docs
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>We&#8217;re using this piped ssh-add method instead of a decrypted SSH key file because encrypted environment variables
-are not available in pull requests for security reasons.</p>
-<p class="last">OpenSSL will fail and create an empty output file but Travis keeps executing the after_success section. Your tests
-will hang, timeout, and fail because ssh-add interprets empty files as encrypted files and prompts for a passphrase.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Always conditionally run ssh-add only if openssl succeeds like in the example above. Encrypted environment variables
+are not set on Travis CI and probably other CIs during pull requests for security reasons. If you always run ssh-add
+(which appears to be what everyone does) all of your pull requests will have failing tests because:</p>
+<ol class="last arabic simple">
+<li>Travis CI runs all commands in after_success even if one fails.</li>
+<li>openssl appears to copy &#8220;key.enc&#8221; to &#8220;key&#8221; when it fails to decrypt.</li>
+<li>ssh-add will prompt for a passphrase because it thinks the file is encrypted with an SSH passphrase.</li>
+<li>The Travis job will hang, timeout, and fail even if tests pass.</li>
+</ol>
 </div>
 <p>Finally commit both <strong>.travis.yml</strong> and the encrypted <strong>docs/key.enc</strong> file. Push and watch Travis update your docs
 automatically for you.</p>
