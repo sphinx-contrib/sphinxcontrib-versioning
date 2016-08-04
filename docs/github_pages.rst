@@ -119,20 +119,31 @@ travis.yml
 ----------
 
 The ``travis encrypt-file`` command should have updated your ``.travis.yml`` with the openssl command for you. However
-we still need to make one more change to the file before committing it. Update .travis.yml with these ``chmod``,
-``eval``, and ``git remote`` commands. The after_success section should end up looking like this:
+we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
+section look like this:
 
 .. code-block:: bash
 
     after_success:
-      - touch docs/key; chmod 600 docs/key  # Secure before storing key data.
-      - openssl aes-256-cbc ... -in docs/key.enc -out docs/key -d
-      - eval `ssh-agent -s`; ssh-add docs/key
+      - eval "$(ssh-agent -s)"; touch docs/key; chmod 0600 docs/key
+      - openssl aes-256-cbc -d -K "$encrypted_key" -iv "$encrypted_iv" < docs/key.enc > docs/key
+        && ssh-add docs/key  # Use && to prevent ssh-add from prompting during pull requests.
       - git config --global user.email "builds@travis-ci.com"
       - git config --global user.name "Travis CI"
       - git remote set-url origin "git@github.com:$TRAVIS_REPO_SLUG"
       - export ${!TRAVIS*}  # Optional, for commit messages.
       - sphinx-versioning push gh-pages . docs
+
+.. warning::
+
+    Always conditionally run ssh-add only if openssl succeeds like in the example above. Encrypted environment variables
+    are not set on Travis CI and probably other CIs during pull requests for security reasons. If you always run ssh-add
+    (which appears to be what everyone does) all of your pull requests will have failing tests because:
+
+    #. Travis CI runs all commands in after_success even if one fails.
+    #. openssl appears to copy "key.enc" to "key" when it fails to decrypt.
+    #. ssh-add will prompt for a passphrase because it thinks the file is encrypted with an SSH passphrase.
+    #. The Travis job will hang, timeout, and fail even if tests pass.
 
 Finally commit both **.travis.yml** and the encrypted **docs/key.enc** file. Push and watch Travis update your docs
 automatically for you.

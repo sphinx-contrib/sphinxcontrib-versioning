@@ -42,6 +42,12 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+Unreleased
+----------
+
+Fixed
+    * https://github.com/Robpol86/sphinxcontrib-versioning/issues/5
+
 1.0.1 - 2016-08-02
 ------------------
 
