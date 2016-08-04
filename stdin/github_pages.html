@@ -263,11 +263,11 @@ Travis CI Deploy Key&#8221;</p>
 <div class="section" id="id3">
 <h3>travis.yml<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal"><span class="pre">travis</span> <span class="pre">encrypt-file</span></code> command should have updated your <code class="docutils literal"><span class="pre">.travis.yml</span></code> with the openssl command for you. However
-we still need to make one more change to the file before committing it. Update .travis.yml with these <code class="docutils literal"><span class="pre">chmod</span></code>,
-<code class="docutils literal"><span class="pre">eval</span></code>, and <code class="docutils literal"><span class="pre">git</span> <span class="pre">remote</span></code> commands. The after_success section should end up looking like this:</p>
+we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
+section look like this:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
-  - touch ~/.ssh/id_rsa<span class="p">;</span> chmod <span class="m">600</span> ~/.ssh/id_rsa  <span class="c1"># Secure before storing key data.</span>
-  - openssl aes-256-cbc -K <span class="nv">$encrypted_key</span> -iv <span class="nv">$encrypted_iv</span> -in docs/key.enc -out ~/.ssh/id_rsa -d
+  - <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>ssh-agent -s<span class="k">)</span><span class="s2">&quot;</span>  <span class="c1"># Needed by ssh-add.</span>
+  - openssl aes-256-cbc -K <span class="nv">$encrypted_xxxx_key</span> -iv <span class="nv">$encrypted_xxxx_iv</span> -in docs/key.enc <span class="p">|</span>ssh-add -
   - git config --global user.email <span class="s2">&quot;builds@travis-ci.com&quot;</span>
   - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
   - git remote set-url origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
@@ -275,19 +275,12 @@ we still need to make one more change to the file before committing it. Update .
   - sphinx-versioning push gh-pages . docs
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p>We&#8217;re using the ~/.ssh/id_rsa method instead of ssh-agent/ssh-add because of potential job hanging issues. ssh-add
-may prompt for a password causing your CI job to hang, time out, and fail during pull requests. This is true for
-Travis CI and probably others. What happens is:</p>
-<ol class="last arabic simple">
-<li>Travis CI does not set encrypted variables during pull requests for security reasons.</li>
-<li>The two environment variables used in the openssl command will be blank. OpenSSL will create an empty docs/key
-and then error out. Travis CI keeps running other commands in <strong>after_success</strong>. It then runs ssh-add.</li>
-<li>ssh-add cannot decrypt the empty docs/key file so it then prompts the user for a passphrase.</li>
-<li>The Travis CI job will hang waiting for user input and eventually time out, failing the build even though tests
-may have passed.</li>
-</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>We&#8217;re using this piped ssh-add method instead of a decrypted SSH key file because encrypted environment variables
+are not available in pull requests for security reasons.</p>
+<p class="last">OpenSSL will fail and create an empty output file but Travis keeps executing the after_success section. Your tests
+will hang, timeout, and fail because ssh-add interprets empty files as encrypted files and prompts for a passphrase.</p>
 </div>
 <p>Finally commit both <strong>.travis.yml</strong> and the encrypted <strong>docs/key.enc</strong> file. Push and watch Travis update your docs
 automatically for you.</p>
