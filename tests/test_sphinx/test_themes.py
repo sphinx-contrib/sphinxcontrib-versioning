@@ -7,8 +7,7 @@ import pytest
 from sphinxcontrib.versioning.sphinx_ import build
 from sphinxcontrib.versioning.versions import Versions
 
-
-@pytest.mark.parametrize('theme', [
+THEMES = [
     'alabaster',
     'sphinx_rtd_theme',
     'classic',
@@ -17,7 +16,10 @@ from sphinxcontrib.versioning.versions import Versions
     'nature',
     'pyramid',
     'bizstyle',
-])
+]
+
+
+@pytest.mark.parametrize('theme', THEMES)
 def test_supported(tmpdir, local_docs, run, theme):
     """Test with different themes. Verify not much changed between sphinx-build and sphinx-versioning.
 

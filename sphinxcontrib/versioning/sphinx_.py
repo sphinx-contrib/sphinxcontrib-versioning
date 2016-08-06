@@ -32,7 +32,7 @@ class EventHandlers(object):
     def builder_inited(app):
         """Update the Sphinx builder.
 
-        :param app: Sphinx application object.
+        :param sphinx.application.Sphinx app: Sphinx application object.
         """
         # Add this extension's _templates directory to Sphinx.
         templates_dir = os.path.join(os.path.dirname(__file__), '_templates')
@@ -47,14 +47,16 @@ class EventHandlers(object):
             app.config.html_sidebars['**'].append('versions.html')
 
     @classmethod
-    def html_page_context(cls, app, pagename, *args):
+    def html_page_context(cls, app, pagename, templatename, context, doctree):
         """Update the Jinja2 HTML context, exposes the Versions class instance to it.
 
-        :param app: Sphinx application object.
-        :param str pagename: Relative path of RST file without the extension.
-        :param iter args: Additional arguments given by Sphinx.
+        :param sphinx.application.Sphinx app: Sphinx application object.
+        :param str pagename: Name of the page being rendered (without .html or any file extension).
+        :param str templatename: Page name with .html.
+        :param dict context: Jinja2 HTML context.
+        :param docutils.nodes.document doctree: Tree of docutils nodes.
         """
-        context = args[1]
+        assert templatename or doctree  # Unused, for linting.
         context['bitbucket_version'] = cls.CURRENT_VERSION
         context['current_version'] = cls.CURRENT_VERSION
         context['github_version'] = cls.CURRENT_VERSION
@@ -65,7 +67,7 @@ class EventHandlers(object):
 def setup(app):
     """Called by Sphinx during phase 0 (initialization).
 
-    :param app: Sphinx application object.
+    :param sphinx.application.Sphinx app: Sphinx application object.
 
     :returns: Extension version.
     :rtype: dict
