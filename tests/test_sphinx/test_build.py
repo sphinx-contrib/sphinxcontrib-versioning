@@ -19,6 +19,7 @@ def test_simple(tmpdir, local_docs, no_feature):
     versions = Versions(
         [('', 'master', 'heads', 1, 'conf.py')] + ([] if no_feature else [('', 'feature', 'heads', 2, 'conf.py')])
     )
+    versions.set_root_remote('master')
 
     build(str(local_docs), str(target), versions, 'master', list())
 
@@ -40,6 +41,7 @@ def test_isolation(tmpdir, local_docs, project):
     """
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
+    versions.set_root_remote('master')
 
     overflow = ['-D', 'project=Robpol86' if project else 'copyright="2016, SCV"']
     build(str(local_docs), str(target), versions, 'master', overflow)
@@ -61,6 +63,7 @@ def test_overflow(tmpdir, local_docs):
     """
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
+    versions.set_root_remote('master')
 
     build(str(local_docs), str(target), versions, 'master', ['-D', 'copyright=2016, SCV'])
 
@@ -93,6 +96,7 @@ def test_custom_sidebar(tmpdir, local_docs, pre_existing_versions):
     """
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
+    versions.set_root_remote('master')
 
     if pre_existing_versions:
         local_docs.join('conf.py').write(
@@ -120,6 +124,7 @@ def test_versions_override(tmpdir, local_docs):
     :param local_docs: conftest fixture.
     """
     versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
+    versions.set_root_remote('master')
 
     local_docs.join('conf.py').write(
         'templates_path = ["_templates"]\n'
@@ -155,6 +160,7 @@ def test_subdirs(tmpdir, local_docs):
     """
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
+    versions.set_root_remote('master')
     versions['feature']['url'] = 'feature'
 
     for i in range(1, 6):

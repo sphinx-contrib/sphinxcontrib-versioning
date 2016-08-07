@@ -75,11 +75,20 @@ class EventHandlers(object):
         :param docutils.nodes.document doctree: Tree of docutils nodes.
         """
         assert templatename or doctree  # Unused, for linting.
+        versions = cls.VERSIONS.copy(pagename.count('/'), pagename)
+        this_remote = versions[cls.CURRENT_VERSION]
+
+        # Update Jinja2 context.
         context['bitbucket_version'] = cls.CURRENT_VERSION
         context['current_version'] = cls.CURRENT_VERSION
         context['github_version'] = cls.CURRENT_VERSION
         context['html_theme'] = app.config.html_theme
-        context['versions'] = cls.VERSIONS.copy(pagename.count('/'), pagename)
+        context['scv_is_branch'] = this_remote['kind'] == 'heads'
+        context['scv_is_root_ref'] = this_remote == versions.root_remote
+        context['scv_is_tag'] = this_remote['kind'] == 'tags'
+        context['scv_root_ref_is_branch'] = versions.root_remote['kind'] == 'heads'
+        context['scv_root_ref_is_tag'] = versions.root_remote['kind'] == 'tags'
+        context['versions'] = versions
 
 
 def setup(app):

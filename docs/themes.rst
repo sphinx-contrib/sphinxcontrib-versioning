@@ -10,8 +10,8 @@ sidebars.
 HTML Context Variables (API)
 ============================
 
-If you want to add support to another theme it's pretty easy. You just need to handle a few
-`Jinja2 <http://jinja.pocoo.org/>`_ context variables:
+If you want to add support to another theme it's pretty easy. The following `Jinja2 <http://jinja.pocoo.org/>`_ context
+variables are exposed:
 
 .. attribute:: current_version
 
@@ -20,6 +20,26 @@ If you want to add support to another theme it's pretty easy. You just need to h
     .. code-block:: jinja
 
         <h3>Current Version: {{ current_version }}</h3>
+
+.. attribute:: scv_is_branch
+
+    A boolean set to True if the current version being built is from a git branch.
+
+.. attribute:: scv_is_root_ref
+
+    A boolean set to True if the current version being built is the :option:`--root-ref`.
+
+.. attribute:: scv_is_tag
+
+    A boolean set to True if the current version being built is from a git tag.
+
+.. attribute:: scv_root_ref_is_branch
+
+    A boolean set to True if the root ref is from a git branch.
+
+.. attribute:: scv_root_ref_is_tag
+
+    A boolean set to True if the root ref is from a git tag.
 
 .. attribute:: versions
 
