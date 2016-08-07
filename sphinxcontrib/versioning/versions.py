@@ -93,6 +93,7 @@ class Versions(object):
     URLs are just '.' initially. Set after instantiation by another function elsewhere. Will be relative URL path.
 
     :ivar iter remotes: List of dicts for every branch/tag.
+    :ivar dict root_remote: Branch/tag at the root of all HTML docs.
     """
 
     def __init__(self, remotes, sort=None, prioritize=None, invert=False):
@@ -112,6 +113,7 @@ class Versions(object):
             conf_rel_path=r[4],
             url='.',
         ) for r in remotes]
+        self.root_remote = None
 
         # Sort one or more times.
         if sort:
@@ -186,11 +188,20 @@ class Versions(object):
         :return: Versions
         """
         new = self.__class__([])
-        for remote in (r.copy() for r in self.remotes):
+        for remote_old, remote_new in ((r, r.copy()) for r in self.remotes):
             if sub_depth > 0:
-                path = '/'.join(['..'] * sub_depth + [remote['url']])
+                path = '/'.join(['..'] * sub_depth + [remote_new['url']])
                 if path.endswith('/.'):
                     path = path[:-2]
-                remote['url'] = path
-            new.remotes.append(remote)
+                remote_new['url'] = path
+            new.remotes.append(remote_new)
+            if self.root_remote == remote_old:
+                new.root_remote = remote_new
         return new
+
+    def set_root_remote(self, root_ref):
+        """Set the root remote based on the root ref.
+
+        :param str root_ref: Branch/tag at the root of all HTML docs.
+        """
+        self.root_remote = self[root_ref]

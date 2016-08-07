@@ -16,6 +16,7 @@ def test_single(tmpdir, local_docs):
     """
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
     versions['master']['url'] = 'contents.html'
+    versions.set_root_remote('master')
 
     # Export.
     exported_root = tmpdir.ensure_dir('exported_root')
@@ -23,7 +24,7 @@ def test_single(tmpdir, local_docs):
 
     # Run and verify directory.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, 'master', list())
+    build_all(str(exported_root), str(destination), versions, list())
     actual = sorted(f.relto(destination) for f in destination.visit() if f.check(dir=True))
     expected = [
         '.doctrees',
@@ -57,6 +58,7 @@ def test_multiple(tmpdir, local_docs, run, triple):
     versions['v1.0.0']['url'] = 'v1.0.0/contents.html'
     if triple:
         versions['v1.0.1']['url'] = 'v1.0.1/contents.html'
+    versions.set_root_remote('master')
 
     # Export (git tags point to same master sha).
     exported_root = tmpdir.ensure_dir('exported_root')
@@ -64,7 +66,7 @@ def test_multiple(tmpdir, local_docs, run, triple):
 
     # Run and verify directory.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, 'master', list())
+    build_all(str(exported_root), str(destination), versions, list())
     actual = sorted(f.relto(destination) for f in destination.visit() if f.check(dir=True))
     expected = [
         '.doctrees',
@@ -134,12 +136,14 @@ def test_error(tmpdir, local_docs, run):
     export(str(local_docs), versions['b_broken']['sha'], str(exported_root.join(versions['b_broken']['sha'])))
 
     # Bad root ref.
+    versions.set_root_remote('b_broken')
     destination = tmpdir.ensure_dir('destination')
     with pytest.raises(HandledError):
-        build_all(str(exported_root), str(destination), versions, 'b_broken', list())
+        build_all(str(exported_root), str(destination), versions, list())
 
     # Remove bad non-root refs.
-    build_all(str(exported_root), str(destination), versions, 'master', list())
+    versions.set_root_remote('master')
+    build_all(str(exported_root), str(destination), versions, list())
     assert [r[0] for r in versions] == ['a_good', 'c_good', 'master']
 
     # Verify root ref HTML links.
@@ -184,6 +188,7 @@ def test_all_errors(tmpdir, local_docs, run):
     versions['master']['url'] = 'contents.html'
     versions['a_broken']['url'] = 'a_broken/contents.html'
     versions['b_broken']['url'] = 'b_broken/contents.html'
+    versions.set_root_remote('master')
 
     exported_root = tmpdir.ensure_dir('exported_root')
     export(str(local_docs), versions['master']['sha'], str(exported_root.join(versions['master']['sha'])))
@@ -191,7 +196,7 @@ def test_all_errors(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, 'master', list())
+    build_all(str(exported_root), str(destination), versions, list())
     assert [r[0] for r in versions] == ['master']
 
     # Verify root ref HTML links.

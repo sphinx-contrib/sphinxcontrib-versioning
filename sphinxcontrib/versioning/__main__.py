@@ -129,13 +129,14 @@ def main_build(config, root, destination):
         if config['--root-ref'] not in [r[1] for r in remotes]:
             log.error('Root ref %s not found in: %s', config['--root-ref'], ' '.join(r[1] for r in remotes))
             raise HandledError
+    versions.set_root_remote(root_ref)
 
     # Pre-build.
     log.info('Pre-running Sphinx to determine URLs.')
-    exported_root = pre_build(root, versions, root_ref, config['overflow'])
+    exported_root = pre_build(root, versions, config['overflow'])
 
     # Build.
-    build_all(exported_root, destination, versions, root_ref, config['overflow'])
+    build_all(exported_root, destination, versions, config['overflow'])
 
     # Cleanup.
     log.debug('Removing: %s', exported_root)

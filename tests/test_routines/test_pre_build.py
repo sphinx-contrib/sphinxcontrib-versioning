@@ -14,10 +14,11 @@ def test_single(local_docs):
     :param local_docs: conftest fixture.
     """
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
+    versions.set_root_remote('master')
     assert len(versions) == 1
 
     # Run and verify directory.
-    exported_root = py.path.local(pre_build(str(local_docs), versions, 'master', list()))
+    exported_root = py.path.local(pre_build(str(local_docs), versions, list()))
     assert len(exported_root.listdir()) == 1
     assert exported_root.join(versions['master']['sha'], 'conf.py').read() == ''
 
@@ -45,10 +46,11 @@ def test_dual(local_docs, run):
     run(local_docs, ['git', 'push', 'origin', 'feature'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
+    versions.set_root_remote('master')
     assert len(versions) == 2
 
     # Run and verify directory.
-    exported_root = py.path.local(pre_build(str(local_docs), versions, 'master', list()))
+    exported_root = py.path.local(pre_build(str(local_docs), versions, list()))
     assert len(exported_root.listdir()) == 2
     assert exported_root.join(versions['master']['sha'], 'conf.py').read() == ''
     assert exported_root.join(versions['feature']['sha'], 'conf.py').read() == 'master_doc = "index"\n'
@@ -68,10 +70,11 @@ def test_file_collision(local_docs, run):
     run(local_docs, ['git', 'push', 'origin', '_static'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
+    versions.set_root_remote('master')
     assert len(versions) == 2
 
     # Run and verify URLs.
-    pre_build(str(local_docs), versions, 'master', list())
+    pre_build(str(local_docs), versions, list())
     expected = ['_static_/contents.html', 'contents.html']
     assert sorted(r['url'] for r in versions.remotes) == expected
 
@@ -86,10 +89,11 @@ def test_invalid_name(local_docs, run):
     run(local_docs, ['git', 'push', 'origin', 'robpol86/feature'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'])[1])
+    versions.set_root_remote('master')
     assert len(versions) == 2
 
     # Run and verify URLs.
-    pre_build(str(local_docs), versions, 'master', list())
+    pre_build(str(local_docs), versions, list())
     expected = ['contents.html', 'robpol86_feature/contents.html']
     assert sorted(r['url'] for r in versions.remotes) == expected
 
@@ -112,9 +116,11 @@ def test_error(local_docs, run):
     assert [r[0] for r in versions] == ['a_good', 'b_broken', 'c_good', 'd_broken', 'master']
 
     # Bad root ref.
+    versions.set_root_remote('b_broken')
     with pytest.raises(HandledError):
-        pre_build(str(local_docs), versions, 'b_broken', list())
+        pre_build(str(local_docs), versions, list())
 
     # Remove bad non-root refs.
-    pre_build(str(local_docs), versions, 'master', list())
+    versions.set_root_remote('master')
+    pre_build(str(local_docs), versions, list())
     assert [r[0] for r in versions] == ['a_good', 'c_good', 'master']

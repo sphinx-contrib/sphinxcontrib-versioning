@@ -59,7 +59,7 @@ def gather_git_info(root, conf_rel_paths):
     return root, filtered_remotes
 
 
-def pre_build(local_root, versions, root_ref, overflow):
+def pre_build(local_root, versions, overflow):
     """Build docs for all versions to determine URL (non-root directory name and master_doc names).
 
     Need to build docs to (a) avoid filename collision with files from root_ref and branch/tag names and (b) determine
@@ -70,7 +70,6 @@ def pre_build(local_root, versions, root_ref, overflow):
 
     :param str local_root: Local path to git root directory.
     :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
-    :param str root_ref: Branch/tag at the root of all HTML docs. Other branches/tags will be in subdirectories.
     :param list overflow: Overflow command line options to pass to sphinx-build.
 
     :return: Tempdir path with exported commits as subdirectories.
@@ -78,7 +77,7 @@ def pre_build(local_root, versions, root_ref, overflow):
     """
     log = logging.getLogger(__name__)
     exported_root = TempDir(True).name
-    root_remote = versions[root_ref]
+    root_remote = versions.root_remote
 
     # Extract all.
     for sha in {r['sha'] for r in versions.remotes}:
@@ -120,17 +119,16 @@ def pre_build(local_root, versions, root_ref, overflow):
     return exported_root
 
 
-def build_all(exported_root, destination, versions, root_ref, overflow):
+def build_all(exported_root, destination, versions, overflow):
     """Build all versions.
 
     :param str exported_root: Tempdir path with exported commits as subdirectories.
     :param str destination: Destination directory to copy/overwrite built docs to. Does not delete old files.
     :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
-    :param str root_ref: Branch/tag at the root of all HTML docs. Other branches/tags will be in subdirectories.
     :param list overflow: Overflow command line options to pass to sphinx-build.
     """
     log = logging.getLogger(__name__)
-    root_remote = versions[root_ref]
+    root_remote = versions.root_remote
 
     while True:
         # Build root ref.

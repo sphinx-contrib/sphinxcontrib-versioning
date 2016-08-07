@@ -240,15 +240,21 @@ def test_copy():
 
     # No change in values.
     versions2 = versions.copy()
+    assert versions.root_remote is None
+    assert versions2.root_remote is None
     assert id(versions) != id(versions2)
     for remote_old, remote_new in ((r, versions2.remotes[i]) for i, r in enumerate(versions.remotes)):
         assert remote_old == remote_new  # Values.
         assert id(remote_old) != id(remote_new)
 
     # Depth of one.
+    versions.set_root_remote('zh-pages')
     versions2 = versions.copy(1)
     urls = dict()
     assert id(versions) != id(versions2)
+    assert id(versions.root_remote) != id(versions2.root_remote)
+    assert versions.root_remote['name'] == 'zh-pages'
+    assert versions2.root_remote['name'] == 'zh-pages'
     for remote_old, remote_new in ((r, versions2.remotes[i]) for i, r in enumerate(versions.remotes)):
         assert remote_old != remote_new
         assert id(remote_old) != id(remote_new)
