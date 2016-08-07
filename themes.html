@@ -163,8 +163,8 @@
 sidebars.</p>
 <div class="section" id="html-context-variables-api">
 <h2>HTML Context Variables (API)<a class="headerlink" href="#html-context-variables-api" title="Permalink to this headline">¶</a></h2>
-<p>If you want to add support to another theme it&#8217;s pretty easy. You just need to handle a few
-<a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> context variables:</p>
+<p>If you want to add support to another theme it&#8217;s pretty easy. The following <a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> context
+variables are exposed:</p>
 <dl class="attribute">
 <dt id="current_version">
 <code class="descname">current_version</code><a class="headerlink" href="#current_version" title="Permalink to this definition">¶</a></dt>
@@ -172,6 +172,36 @@ sidebars.</p>
 <div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="x">&lt;h3&gt;Current Version: </span><span class="cp">{{</span> <span class="nv">current_version</span> <span class="cp">}}</span><span class="x">&lt;/h3&gt;</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_branch">
+<code class="descname">scv_is_branch</code><a class="headerlink" href="#scv_is_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is from a git branch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_root_ref">
+<code class="descname">scv_is_root_ref</code><a class="headerlink" href="#scv_is_root_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is the <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_tag">
+<code class="descname">scv_is_tag</code><a class="headerlink" href="#scv_is_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is from a git tag.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_root_ref_is_branch">
+<code class="descname">scv_root_ref_is_branch</code><a class="headerlink" href="#scv_root_ref_is_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the root ref is from a git branch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_root_ref_is_tag">
+<code class="descname">scv_root_ref_is_tag</code><a class="headerlink" href="#scv_root_ref_is_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the root ref is from a git tag.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -304,10 +334,9 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="expose_more/themes.html">expose_more</a></dd>
+            <dd><a href="themes.html">master</a></dd>
             <dd><a href="wip_banner2/themes.html">wip_banner2</a></dd>
             <dd><a href="wip_banner/themes.html">wip_banner</a></dd>
-            <dd><a href="themes.html">master</a></dd>
         </dl>
     </div>
 </div>
