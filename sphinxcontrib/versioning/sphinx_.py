@@ -56,9 +56,9 @@ class EventHandlers(object):
         :param sphinx.application.Sphinx app: Sphinx application object.
         :param sphinx.environment.BuildEnvironment env: Sphinx build environment.
         """
-        assert env  # Unused, for linting.
         if cls.ABORT_AFTER_READ:
             config = dict(
+                found_docs=tuple(str(d) for d in env.found_docs),
                 master_doc=str(app.config.master_doc),
             )
             cls.ABORT_AFTER_READ.put(config)
@@ -79,7 +79,7 @@ class EventHandlers(object):
         context['current_version'] = cls.CURRENT_VERSION
         context['github_version'] = cls.CURRENT_VERSION
         context['html_theme'] = app.config.html_theme
-        context['versions'] = cls.VERSIONS.copy(pagename.count('/'))
+        context['versions'] = cls.VERSIONS.copy(pagename.count('/'), pagename)
 
 
 def setup(app):

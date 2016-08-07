@@ -105,13 +105,14 @@ class Versions(object):
         :param bool invert: Invert sorted/grouped remotes at the end of processing.
         """
         self.remotes = [dict(
-            id='/'.join(r[2:0:-1]),  # kind/name
-            sha=r[0],
-            name=r[1],
-            kind=r[2],
-            date=r[3],
-            conf_rel_path=r[4],
-            url='.',
+            id='/'.join(r[2:0:-1]),  # str; kind/name
+            sha=r[0],  # str
+            name=r[1],  # str
+            kind=r[2],  # str
+            date=r[3],  # int
+            conf_rel_path=r[4],  # str
+            found_docs=tuple(),  # tuple of str
+            url='.',  # str
         ) for r in remotes]
         self.root_remote = None
 
@@ -180,21 +181,35 @@ class Versions(object):
         """Return list of (name and urls) only tags."""
         return [(r['name'], r['url']) for r in self.remotes if r['kind'] == 'tags']
 
-    def copy(self, sub_depth=0):
+    def copy(self, sub_depth=0, pagename=None):
         """Duplicate class and self.remotes dictionaries. Prepend '../' to all URLs n times.
 
+        If current pagename is available in another version, link directly to that page instead of master_doc.
+
         :param int sub_depth: Subdirectory depth. 1 == ../, 2 == ../../,
+        :param str pagename: Name of the page being rendered (without .html or any file extension).
 
         :return: Versions
         """
         new = self.__class__([])
         for remote_old, remote_new in ((r, r.copy()) for r in self.remotes):
+            new.remotes.append(remote_new)
+
+            # Handle sub_depth URL.
             if sub_depth > 0:
                 path = '/'.join(['..'] * sub_depth + [remote_new['url']])
                 if path.endswith('/.'):
                     path = path[:-2]
                 remote_new['url'] = path
-            new.remotes.append(remote_new)
+
+            # Handle pagename URL.
+            if remote_new['url'].endswith('.html') and pagename in remote_new['found_docs']:
+                if '/' in remote_new['url']:
+                    remote_new['url'] = '{}/{}.html'.format(remote_new['url'].rsplit('/', 1)[0], pagename)
+                else:
+                    remote_new['url'] = '{}.html'.format(pagename)
+
+            # Handle root_remote.
             if self.root_remote == remote_old:
                 new.root_remote = remote_new
         return new

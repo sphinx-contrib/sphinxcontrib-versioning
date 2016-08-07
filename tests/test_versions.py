@@ -247,14 +247,17 @@ def test_copy():
         assert remote_old == remote_new  # Values.
         assert id(remote_old) != id(remote_new)
 
-    # Depth of one.
+    # Set root remote.
     versions.set_root_remote('zh-pages')
+    versions2 = versions.copy()
+    assert versions.root_remote['name'] == 'zh-pages'
+    assert versions2.root_remote['name'] == 'zh-pages'
+    assert id(versions.root_remote) != id(versions2.root_remote)
+
+    # Depth of one.
     versions2 = versions.copy(1)
     urls = dict()
     assert id(versions) != id(versions2)
-    assert id(versions.root_remote) != id(versions2.root_remote)
-    assert versions.root_remote['name'] == 'zh-pages'
-    assert versions2.root_remote['name'] == 'zh-pages'
     for remote_old, remote_new in ((r, versions2.remotes[i]) for i, r in enumerate(versions.remotes)):
         assert remote_old != remote_new
         assert id(remote_old) != id(remote_new)
@@ -283,3 +286,64 @@ def test_copy():
     actual = versions2['v1.2.0']['url']
     expected = '../../../../../../../../../../../../../../../../../../../../v1.2.0'
     assert actual == expected
+
+
+def test_copy_pagename():
+    """Test copy() method with pagename attribute."""
+    versions = Versions(REMOTES)
+    versions['master']['url'] = 'contents.html'
+    versions['master']['found_docs'] = ('contents', 'one', 'two', 'sub/three', 'sub/four')
+    versions['zh-pages']['url'] = 'zh-pages/contents.html'
+    versions['zh-pages']['found_docs'] = ('contents', 'one', 'sub/three')
+    versions['v1.2.0']['url'] = 'v1.2.0/contents.html'
+    versions['v1.2.0']['found_docs'] = ('contents', 'one', 'two', 'a', 'sub/three', 'sub/four', 'sub/b')
+
+    # Test from contents doc.
+    versions2 = versions.copy(pagename='contents')
+    assert versions2['master']['url'] == 'contents.html'
+    assert versions2['zh-pages']['url'] == 'zh-pages/contents.html'
+    assert versions2['v1.2.0']['url'] == 'v1.2.0/contents.html'
+    versions2 = versions.copy(1, pagename='contents')
+    assert versions2['master']['url'] == '../contents.html'
+    assert versions2['zh-pages']['url'] == '../zh-pages/contents.html'
+    assert versions2['v1.2.0']['url'] == '../v1.2.0/contents.html'
+
+    # Test from one doc.
+    versions2 = versions.copy(pagename='one')
+    assert versions2['master']['url'] == 'one.html'
+    assert versions2['zh-pages']['url'] == 'zh-pages/one.html'
+    assert versions2['v1.2.0']['url'] == 'v1.2.0/one.html'
+    versions2 = versions.copy(1, pagename='one')
+    assert versions2['master']['url'] == '../one.html'
+    assert versions2['zh-pages']['url'] == '../zh-pages/one.html'
+    assert versions2['v1.2.0']['url'] == '../v1.2.0/one.html'
+
+    # Test from two doc.
+    versions2 = versions.copy(pagename='two')
+    assert versions2['master']['url'] == 'two.html'
+    assert versions2['zh-pages']['url'] == 'zh-pages/contents.html'
+    assert versions2['v1.2.0']['url'] == 'v1.2.0/two.html'
+
+    # Test from a doc.
+    versions2 = versions.copy(pagename='a')
+    assert versions2['master']['url'] == 'contents.html'
+    assert versions2['zh-pages']['url'] == 'zh-pages/contents.html'
+    assert versions2['v1.2.0']['url'] == 'v1.2.0/a.html'
+
+    # Test from sub/three doc.
+    versions2 = versions.copy(pagename='sub/three')
+    assert versions2['master']['url'] == 'sub/three.html'
+    assert versions2['zh-pages']['url'] == 'zh-pages/sub/three.html'
+    assert versions2['v1.2.0']['url'] == 'v1.2.0/sub/three.html'
+
+    # Test from sub/four doc.
+    versions2 = versions.copy(pagename='sub/four')
+    assert versions2['master']['url'] == 'sub/four.html'
+    assert versions2['zh-pages']['url'] == 'zh-pages/contents.html'
+    assert versions2['v1.2.0']['url'] == 'v1.2.0/sub/four.html'
+
+    # Test from sub/b doc.
+    versions2 = versions.copy(pagename='sub/b')
+    assert versions2['master']['url'] == 'contents.html'
+    assert versions2['zh-pages']['url'] == 'zh-pages/contents.html'
+    assert versions2['v1.2.0']['url'] == 'v1.2.0/sub/b.html'

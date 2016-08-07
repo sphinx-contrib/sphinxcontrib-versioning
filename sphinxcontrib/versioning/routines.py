@@ -101,7 +101,7 @@ def pre_build(local_root, versions, overflow):
         log.debug('%s has url %s', remote['name'], remote['url'])
         existing.append(url)
 
-    # Define master_doc file paths in URLs in versions.
+    # Define master_doc file paths in URLs in versions and get found_docs for all versions.
     for remote in list(versions.remotes):
         log.debug('Partially running sphinx-build to read configuration for: %s', remote['name'])
         source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
@@ -115,6 +115,7 @@ def pre_build(local_root, versions, overflow):
         if url.startswith('./'):
             url = url[2:]
         remote['url'] = url
+        remote['found_docs'] = config['found_docs']
 
     return exported_root
 

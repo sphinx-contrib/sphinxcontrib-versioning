@@ -27,6 +27,7 @@ def test(local_docs, mode):
 
     config = read_config(str(local_docs), 'master', overflow)
     assert config['master_doc'] == expected
+    assert sorted(config['found_docs']) == [expected, 'one', 'three', 'two']
 
 
 def test_sphinx_error(local_docs):

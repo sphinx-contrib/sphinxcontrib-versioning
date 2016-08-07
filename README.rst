@@ -45,6 +45,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ----------
 
+Changed
+    * Version links point to that version of the current page if it exists there.
+
 Fixed
     * https://github.com/Robpol86/sphinxcontrib-versioning/issues/5
 
