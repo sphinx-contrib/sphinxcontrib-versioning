@@ -181,6 +181,37 @@ variables are exposed:</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="scv_is_greatest_tag">
+<code class="descname">scv_is_greatest_tag</code><a class="headerlink" href="#scv_is_greatest_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is:</p>
+<ul class="simple">
+<li>From a git tag.</li>
+<li>A valid semver-formatted name (e.g. v1.2.3).</li>
+<li>The highest version number.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_branch">
+<code class="descname">scv_is_recent_branch</code><a class="headerlink" href="#scv_is_recent_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is a git branch and is the most recent commit out of just
+git branches.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_ref">
+<code class="descname">scv_is_recent_ref</code><a class="headerlink" href="#scv_is_recent_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is the most recent git commit (branch or tag).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_tag">
+<code class="descname">scv_is_recent_tag</code><a class="headerlink" href="#scv_is_recent_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is a git tag and is the most recent commit out of just git
+tags.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="scv_is_root_ref">
 <code class="descname">scv_is_root_ref</code><a class="headerlink" href="#scv_is_root_ref" title="Permalink to this definition">¶</a></dt>
 <dd><p>A boolean set to True if the current version being built is the <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a>.</p>
