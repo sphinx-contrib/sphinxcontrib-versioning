@@ -349,7 +349,7 @@ def commit_and_push(local_root, versions):
     :raise GitError: Conflicting changes made in remote by other client and bad git config for commits.
 
     :param str local_root: Local path to git root directory.
-    :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
+    :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
 
     :return: If push succeeded.
     :rtype: bool

@@ -15,6 +15,7 @@ from sphinx.jinja2glue import SphinxFileSystemLoader
 
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.lib import HandledError, TempDir
+from sphinxcontrib.versioning.versions import Versions
 
 SC_VERSIONING_VERSIONS = list()  # Updated after forking.
 
@@ -24,7 +25,7 @@ class EventHandlers(object):
 
     :ivar multiprocessing.queues.Queue ABORT_AFTER_READ: Communication channel to parent process.
     :ivar str CURRENT_VERSION: Current version being built.
-    :ivar iter VERSIONS: List of version dicts.
+    :ivar sphinxcontrib.versioning.versions.Versions VERSIONS: Versions class instance.
     """
 
     ABORT_AFTER_READ = None
@@ -122,7 +123,7 @@ def _build(argv, versions, current_name):
     """Build Sphinx docs via multiprocessing for isolation.
 
     :param iter argv: Arguments to pass to Sphinx.
-    :param versions: Version class instance.
+    :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
     :param str current_name: The ref name of the current version being built.
     """
     # Patch.
@@ -148,7 +149,7 @@ def _read_config(argv, current_name, queue):
     EventHandlers.ABORT_AFTER_READ = queue
 
     # Run.
-    _build(argv, list(), current_name)
+    _build(argv, Versions(list()), current_name)
 
 
 def build(source, target, versions, current_name, overflow):
@@ -158,7 +159,7 @@ def build(source, target, versions, current_name, overflow):
 
     :param str source: Source directory to pass to sphinx-build.
     :param str target: Destination directory to write documentation to (passed to sphinx-build).
-    :param sphinxcontrib.versioning.versions.Versions versions: Version class instance.
+    :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
     :param str current_name: The ref name of the current version being built.
     :param list overflow: Overflow command line options to pass to sphinx-build.
     """
