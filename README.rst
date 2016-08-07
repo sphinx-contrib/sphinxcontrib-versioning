@@ -47,7 +47,8 @@ Unreleased
 
 Added
     * Exposing Jinja2 context variables: ``scv_is_branch`` ``scv_is_root_ref`` ``scv_is_tag`` ``scv_root_ref_is_branch``
-      ``scv_root_ref_is_tag``
+      ``scv_root_ref_is_tag`` ``scv_is_greatest_tag`` ``scv_is_recent_branch`` ``scv_is_recent_ref``
+      ``scv_is_recent_tag``
 
 Changed
     * Version links point to that version of the current page if it exists there.

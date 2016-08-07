@@ -25,6 +25,28 @@ variables are exposed:
 
     A boolean set to True if the current version being built is from a git branch.
 
+.. attribute:: scv_is_greatest_tag
+
+    A boolean set to True if the current version being built is:
+
+    * From a git tag.
+    * A valid semver-formatted name (e.g. v1.2.3).
+    * The highest version number.
+
+.. attribute:: scv_is_recent_branch
+
+    A boolean set to True if the current version being built is a git branch and is the most recent commit out of just
+    git branches.
+
+.. attribute:: scv_is_recent_ref
+
+    A boolean set to True if the current version being built is the most recent git commit (branch or tag).
+
+.. attribute:: scv_is_recent_tag
+
+    A boolean set to True if the current version being built is a git tag and is the most recent commit out of just git
+    tags.
+
 .. attribute:: scv_is_root_ref
 
     A boolean set to True if the current version being built is the :option:`--root-ref`.

@@ -85,6 +85,10 @@ class EventHandlers(object):
         context['github_version'] = cls.CURRENT_VERSION
         context['html_theme'] = app.config.html_theme
         context['scv_is_branch'] = this_remote['kind'] == 'heads'
+        context['scv_is_greatest_tag'] = this_remote == versions.greatest_tag_remote
+        context['scv_is_recent_branch'] = this_remote == versions.recent_branch_remote
+        context['scv_is_recent_ref'] = this_remote == versions.recent_remote
+        context['scv_is_recent_tag'] = this_remote == versions.recent_tag_remote
         context['scv_is_root_ref'] = this_remote == versions.root_remote
         context['scv_is_tag'] = this_remote['kind'] == 'tags'
         context['scv_root_ref_is_branch'] = versions.root_remote['kind'] == 'heads'

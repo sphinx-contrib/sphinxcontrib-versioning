@@ -93,6 +93,10 @@ class Versions(object):
     URLs are just '.' initially. Set after instantiation by another function elsewhere. Will be relative URL path.
 
     :ivar iter remotes: List of dicts for every branch/tag.
+    :ivar dict greatest_tag_remote: Tag with the highest version number if it's a valid semver.
+    :ivar dict recent_branch_remote: Most recently committed branch.
+    :ivar dict recent_remote: Most recently committed branch/tag.
+    :ivar dict recent_tag_remote: Most recently committed tag.
     :ivar dict root_remote: Branch/tag at the root of all HTML docs.
     """
 
@@ -114,6 +118,10 @@ class Versions(object):
             found_docs=tuple(),  # tuple of str
             url='.',  # str
         ) for r in remotes]
+        self.greatest_tag_remote = None
+        self.recent_branch_remote = None
+        self.recent_remote = None
+        self.recent_tag_remote = None
         self.root_remote = None
 
         # Sort one or more times.
@@ -129,6 +137,19 @@ class Versions(object):
         # Invert.
         if invert:
             self.remotes.reverse()
+
+        # Get significant remotes.
+        if self.remotes:
+            remotes = self.remotes[:]
+            multi_sort(remotes, ('chrono',))
+            self.recent_remote = remotes[0]
+            self.recent_branch_remote = ([r for r in remotes if r['kind'] != 'tags'] or [None])[0]
+            self.recent_tag_remote = ([r for r in remotes if r['kind'] == 'tags'] or [None])[0]
+            if self.recent_tag_remote:
+                multi_sort(remotes, ('semver',))
+                greatest_tag_remote = [r for r in remotes if r['kind'] == 'tags'][0]
+                if RE_SEMVER.search(greatest_tag_remote['name']):
+                    self.greatest_tag_remote = greatest_tag_remote
 
     def __bool__(self):
         """True if self.remotes is not empty. Python 3.x."""
@@ -209,7 +230,15 @@ class Versions(object):
                 else:
                     remote_new['url'] = '{}.html'.format(pagename)
 
-            # Handle root_remote.
+            # Handle pinned remotes.
+            if self.greatest_tag_remote == remote_old:
+                new.greatest_tag_remote = remote_new
+            if self.recent_branch_remote == remote_old:
+                new.recent_branch_remote = remote_new
+            if self.recent_remote == remote_old:
+                new.recent_remote = remote_new
+            if self.recent_tag_remote == remote_old:
+                new.recent_tag_remote = remote_new
             if self.root_remote == remote_old:
                 new.root_remote = remote_new
         return new

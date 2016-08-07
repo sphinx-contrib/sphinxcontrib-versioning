@@ -34,6 +34,10 @@ def test_no_sort(remotes):
     assert actual_all == expected_all
     assert actual_branches == expected_branches
     assert actual_tags == expected_tags
+    assert versions.greatest_tag_remote == versions['v10.0.0']
+    assert versions.recent_branch_remote == versions['zh-pages']
+    assert versions.recent_remote == versions['v2.0.0']
+    assert versions.recent_tag_remote == versions['v2.0.0']
 
 
 @pytest.mark.parametrize('sort', ['', 'alpha', 'chrono', 'semver', 'semver,alpha', 'semver,chrono'])
