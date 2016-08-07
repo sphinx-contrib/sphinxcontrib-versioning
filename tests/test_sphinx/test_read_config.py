@@ -17,9 +17,11 @@ def test(local_docs, mode):
     expected = 'contents'
 
     if mode == 'overflow':
+        local_docs.join('contents.rst').rename(local_docs.join('index.rst'))
         overflow.extend(['-D', 'master_doc=index'])
         expected = 'index'
     elif mode == 'conf.py':
+        local_docs.join('contents.rst').rename(local_docs.join('index2.rst'))
         local_docs.join('conf.py').write('master_doc = "index2"\n')
         expected = 'index2'
 

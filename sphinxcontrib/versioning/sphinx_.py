@@ -5,8 +5,9 @@ from __future__ import print_function
 import logging
 import multiprocessing
 import os
+import sys
 
-from sphinx import application, build_main, cmdline
+from sphinx import application, build_main
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import Config
 from sphinx.errors import SphinxError
@@ -21,10 +22,12 @@ SC_VERSIONING_VERSIONS = list()  # Updated after forking.
 class EventHandlers(object):
     """Hold Sphinx event handlers as static or class methods.
 
+    :ivar multiprocessing.queues.Queue ABORT_AFTER_READ: Communication channel to parent process.
     :ivar str CURRENT_VERSION: Current version being built.
     :ivar iter VERSIONS: List of version dicts.
     """
 
+    ABORT_AFTER_READ = None
     CURRENT_VERSION = None
     VERSIONS = None
 
@@ -45,6 +48,21 @@ class EventHandlers(object):
             app.config.html_sidebars['**'] = StandaloneHTMLBuilder.default_sidebars + ['versions.html']
         elif 'versions.html' not in app.config.html_sidebars['**']:
             app.config.html_sidebars['**'].append('versions.html')
+
+    @classmethod
+    def env_updated(cls, app, env):
+        """Abort Sphinx after initializing config and discovering all pages to build.
+
+        :param sphinx.application.Sphinx app: Sphinx application object.
+        :param sphinx.environment.BuildEnvironment env: Sphinx build environment.
+        """
+        assert env  # Unused, for linting.
+        if cls.ABORT_AFTER_READ:
+            config = dict(
+                master_doc=str(app.config.master_doc),
+            )
+            cls.ABORT_AFTER_READ.put(config)
+            sys.exit(0)
 
     @classmethod
     def html_page_context(cls, app, pagename, templatename, context, doctree):
@@ -77,21 +95,9 @@ def setup(app):
 
     # Event handlers.
     app.connect('builder-inited', EventHandlers.builder_inited)
+    app.connect('env-updated', EventHandlers.env_updated)
     app.connect('html-page-context', EventHandlers.html_page_context)
     return dict(version=__version__)
-
-
-class SphinxBuildAbort(application.Sphinx):
-    """Abort after initializing config and before build."""
-
-    SPECIFIC_CONFIG = None
-
-    def build(self, *_):
-        """Instead of building read the config and store it in the class variable."""
-        config = dict(
-            master_doc=str(self.config.master_doc),
-        )
-        SphinxBuildAbort.SPECIFIC_CONFIG = config
 
 
 class ConfigInject(Config):
@@ -127,16 +133,13 @@ def _read_config(argv, current_name, queue):
 
     :param iter argv: Arguments to pass to Sphinx.
     :param str current_name: The ref name of the current version being built.
-    :param multiprocessing.Queue queue: Communication channel to parent process.
+    :param multiprocessing.queues.Queue queue: Communication channel to parent process.
     """
     # Patch.
-    cmdline.Sphinx = SphinxBuildAbort
+    EventHandlers.ABORT_AFTER_READ = queue
 
     # Run.
     _build(argv, list(), current_name)
-
-    # Store.
-    queue.put(SphinxBuildAbort.SPECIFIC_CONFIG)
 
 
 def build(source, target, versions, current_name, overflow):
