@@ -1,6 +1,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -31,7 +33,7 @@
   
 
   
-    <link rel="stylesheet" href="_static/banner.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   
 
   
@@ -153,7 +155,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/github_pages.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v1.0.1/docs/github_pages.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -164,18 +166,6 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  
-
-    
-
-
-
-
-
-
-
-
-
   <div class="section" id="github-pages">
 <span id="id1"></span><h1>GitHub Pages<a class="headerlink" href="#github-pages" title="Permalink to this headline">¶</a></h1>
 <p>It&#8217;s pretty easy to use <a class="reference external" href="https://pages.github.com/">GitHub Pages</a> to host all of your versioned documentation. Before
@@ -273,12 +263,12 @@ Travis CI Deploy Key&#8221;</p>
 <div class="section" id="id3">
 <h3>travis.yml<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal"><span class="pre">travis</span> <span class="pre">encrypt-file</span></code> command should have updated your <code class="docutils literal"><span class="pre">.travis.yml</span></code> with the openssl command for you. However
-we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
-section look like this:</p>
+we still need to make one more change to the file before committing it. Update .travis.yml with these <code class="docutils literal"><span class="pre">chmod</span></code>,
+<code class="docutils literal"><span class="pre">eval</span></code>, and <code class="docutils literal"><span class="pre">git</span> <span class="pre">remote</span></code> commands. The after_success section should end up looking like this:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
-  - <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>ssh-agent -s<span class="k">)</span><span class="s2">&quot;</span><span class="p">;</span> touch docs/key<span class="p">;</span> chmod <span class="m">0600</span> docs/key
-  - openssl aes-256-cbc -d -K <span class="s2">&quot;</span><span class="nv">$encrypted_key</span><span class="s2">&quot;</span> -iv <span class="s2">&quot;</span><span class="nv">$encrypted_iv</span><span class="s2">&quot;</span> &lt; docs/key.enc &gt; docs/key
-    <span class="o">&amp;&amp;</span> ssh-add docs/key  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
+  - touch docs/key<span class="p">;</span> chmod <span class="m">600</span> docs/key  <span class="c1"># Secure before storing key data.</span>
+  - openssl aes-256-cbc ... -in docs/key.enc -out docs/key -d
+  - <span class="nb">eval</span> <span class="sb">`</span>ssh-agent -s<span class="sb">`</span><span class="p">;</span> ssh-add docs/key
   - git config --global user.email <span class="s2">&quot;builds@travis-ci.com&quot;</span>
   - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
   - git remote set-url origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
@@ -286,24 +276,11 @@ section look like this:</p>
   - sphinx-versioning push gh-pages . docs
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p>Always conditionally run ssh-add only if openssl succeeds like in the example above. Encrypted environment variables
-are not set on Travis CI and probably other CIs during pull requests for security reasons. If you always run ssh-add
-(which appears to be what everyone does) all of your pull requests will have failing tests because:</p>
-<ol class="last arabic simple">
-<li>Travis CI runs all commands in after_success even if one fails.</li>
-<li>openssl appears to copy &#8220;key.enc&#8221; to &#8220;key&#8221; when it fails to decrypt.</li>
-<li>ssh-add will prompt for a passphrase because it thinks the file is encrypted with an SSH passphrase.</li>
-<li>The Travis job will hang, timeout, and fail even if tests pass.</li>
-</ol>
-</div>
 <p>Finally commit both <strong>.travis.yml</strong> and the encrypted <strong>docs/key.enc</strong> file. Push and watch Travis update your docs
 automatically for you.</p>
 </div>
 </div>
 </div>
-
 
 
            </div>
@@ -342,19 +319,20 @@ automatically for you.</p>
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: master
+        v: v1.0.1
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="v1.0.1/github_pages.html">v1.0.1</a></dd>
+            <dd><a href="github_pages.html">v1.0.1</a></dd>
             <dd><a href="v1.0.0/github_pages.html">v1.0.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
+            <dd><a href="stage/github_pages.html">stage</a></dd>
             <dd><a href="wip_banner3/github_pages.html">wip_banner3</a></dd>
-            <dd><a href="github_pages.html">master</a></dd>
+            <dd><a href="master/github_pages.html">master</a></dd>
             <dd><a href="wip_banner2/github_pages.html">wip_banner2</a></dd>
             <dd><a href="wip_banner/github_pages.html">wip_banner</a></dd>
         </dl>
