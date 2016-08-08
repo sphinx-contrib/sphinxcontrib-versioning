@@ -42,8 +42,8 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-Unreleased
-----------
+1.1.0 - 2016-08-07
+------------------
 
 Added
     * Exposing Jinja2 context variables: ``scv_is_branch`` ``scv_is_root_ref`` ``scv_is_tag`` ``scv_root_ref_is_branch``
