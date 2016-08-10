@@ -24,7 +24,7 @@ def test_single(tmpdir, local_docs):
 
     # Run and verify directory.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, list())
+    build_all(str(exported_root), str(destination), versions, tuple())
     actual = sorted(f.relto(destination) for f in destination.visit() if f.check(dir=True))
     expected = [
         '.doctrees',
@@ -66,7 +66,7 @@ def test_multiple(tmpdir, local_docs, run, triple):
 
     # Run and verify directory.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, list())
+    build_all(str(exported_root), str(destination), versions, tuple())
     actual = sorted(f.relto(destination) for f in destination.visit() if f.check(dir=True))
     expected = [
         '.doctrees',
@@ -139,11 +139,11 @@ def test_error(tmpdir, local_docs, run):
     versions.set_root_remote('b_broken')
     destination = tmpdir.ensure_dir('destination')
     with pytest.raises(HandledError):
-        build_all(str(exported_root), str(destination), versions, list())
+        build_all(str(exported_root), str(destination), versions, tuple())
 
     # Remove bad non-root refs.
     versions.set_root_remote('master')
-    build_all(str(exported_root), str(destination), versions, list())
+    build_all(str(exported_root), str(destination), versions, tuple())
     assert [r[0] for r in versions] == ['a_good', 'c_good', 'master']
 
     # Verify root ref HTML links.
@@ -196,7 +196,7 @@ def test_all_errors(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, list())
+    build_all(str(exported_root), str(destination), versions, tuple())
     assert [r[0] for r in versions] == ['master']
 
     # Verify root ref HTML links.

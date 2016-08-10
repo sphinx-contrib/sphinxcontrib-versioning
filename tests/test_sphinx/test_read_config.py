@@ -25,7 +25,7 @@ def test(local_docs, mode):
         local_docs.join('conf.py').write('master_doc = "index2"\n')
         expected = 'index2'
 
-    config = read_config(str(local_docs), 'master', overflow)
+    config = read_config(str(local_docs), 'master', tuple(overflow))
     assert config['master_doc'] == expected
     assert sorted(config['found_docs']) == [expected, 'one', 'three', 'two']
 
@@ -37,4 +37,4 @@ def test_sphinx_error(local_docs):
     """
     local_docs.join('conf.py').write('undefined')
     with pytest.raises(HandledError):
-        read_config(str(local_docs), 'master', list())
+        read_config(str(local_docs), 'master', tuple())

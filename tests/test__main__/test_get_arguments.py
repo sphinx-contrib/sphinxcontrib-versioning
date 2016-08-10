@@ -8,13 +8,13 @@ from sphinxcontrib.versioning.__main__ import __doc__ as doc, get_arguments
 def test_overflow():
     """Test get_arguments() overflow to sphinx-build."""
     config = get_arguments([__file__, 'build', 'html', 'docs'], doc)
-    assert config['overflow'] == list()
+    assert config['overflow'] == tuple()
 
     config = get_arguments([__file__, 'build', 'html', 'docs', '--'], doc)
-    assert config['overflow'] == list()
+    assert config['overflow'] == tuple()
 
     config = get_arguments([__file__, 'build', 'html', 'docs', '--', '-D', 'setting=value'], doc)
-    assert config['overflow'] == ['-D', 'setting=value']
+    assert config['overflow'] == ('-D', 'setting=value')
 
 
 @pytest.mark.parametrize('mode', ['default', 'cli', 'cli2'])

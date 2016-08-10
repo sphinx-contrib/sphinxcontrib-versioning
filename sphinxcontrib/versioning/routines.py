@@ -70,7 +70,7 @@ def pre_build(local_root, versions, overflow):
 
     :param str local_root: Local path to git root directory.
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
-    :param list overflow: Overflow command line options to pass to sphinx-build.
+    :param tuple overflow: Overflow command line options to pass to sphinx-build.
 
     :return: Tempdir path with exported commits as subdirectories.
     :rtype: str
@@ -126,7 +126,7 @@ def build_all(exported_root, destination, versions, overflow):
     :param str exported_root: Tempdir path with exported commits as subdirectories.
     :param str destination: Destination directory to copy/overwrite built docs to. Does not delete old files.
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
-    :param list overflow: Overflow command line options to pass to sphinx-build.
+    :param tuple overflow: Overflow command line options to pass to sphinx-build.
     """
     log = logging.getLogger(__name__)
     root_remote = versions.root_remote

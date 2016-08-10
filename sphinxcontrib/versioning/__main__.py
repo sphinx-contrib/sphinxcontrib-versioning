@@ -78,9 +78,9 @@ def get_arguments(argv, doc):
     """
     if '--' in argv:
         pos = argv.index('--')
-        argv, overflow = argv[:pos], argv[pos + 1:]
+        argv, overflow = argv[:pos], tuple(argv[pos + 1:])
     else:
-        argv, overflow = argv, list()
+        argv, overflow = argv, tuple()
     docstring = doc.format(program='sphinx-versioning')
     config = docopt(docstring, argv=argv[1:], version=__version__)
     config['overflow'] = overflow
