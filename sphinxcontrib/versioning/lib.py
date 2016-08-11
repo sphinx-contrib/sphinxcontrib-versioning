@@ -7,6 +7,52 @@ import tempfile
 import weakref
 
 
+class Config(object):
+    """The global configuration for the project. Should be instantiated only at the beginning of run-time."""
+
+    def __init__(self):
+        """Constructor."""
+        # Booleans.
+        self.build = False
+        self.greatest_tag = False
+        self.invert = False
+        self.no_colors = False
+        self.recent_tag = False
+        self.verbose = False
+
+        # Strings.
+        self.chdir = None
+        self.destination = None
+        self.dst_branch = None
+        self.prioritize = None
+        self.rel_dst = None
+        self.rel_source = None
+        self.root_ref = None
+
+        # Tuples.
+        self.grm_exclude = None
+        self.overflow = None
+        self.sort = None
+
+    @classmethod
+    def from_docopt(cls, config):
+        """Docopt bridge. Reads dict from docopt, instantiates class, and copies values.
+
+        :param dict config: Docopt config.
+
+        :return: Class instance.
+        :rtype: Config
+        """
+        self = cls()
+        for key, value in config.items():
+            if not key.startswith('--'):
+                setattr(self, key.lower(), value)
+                continue
+            name = key[2:].replace('-', '_')
+            setattr(self, name, value)
+        return self
+
+
 class HandledError(Exception):
     """Generic exception used to signal raise HandledError() in scripts."""
 

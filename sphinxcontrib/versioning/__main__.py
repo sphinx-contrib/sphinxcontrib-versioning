@@ -58,7 +58,7 @@ from docopt import docopt
 
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.git import clone, commit_and_push, get_root, GitError
-from sphinxcontrib.versioning.lib import HandledError, TempDir
+from sphinxcontrib.versioning.lib import Config, HandledError, TempDir
 from sphinxcontrib.versioning.routines import build_all, gather_git_info, pre_build
 from sphinxcontrib.versioning.setup_logging import setup_logging
 from sphinxcontrib.versioning.versions import multi_sort, Versions
@@ -74,7 +74,7 @@ def get_arguments(argv, doc):
     :param str doc: Docstring to pass to docopt.
 
     :return: Parsed options with overflow options in the "overflow" key.
-    :rtype: dict
+    :rtype: sphinxcontrib.versioning.lib.Config
     """
     if '--' in argv:
         pos = argv.index('--')
@@ -84,7 +84,7 @@ def get_arguments(argv, doc):
     docstring = doc.format(program='sphinx-versioning')
     config = docopt(docstring, argv=argv[1:], version=__version__)
     config['overflow'] = overflow
-    return config
+    return Config.from_docopt(config)
 
 
 def main_build(config, root, destination):
@@ -92,9 +92,9 @@ def main_build(config, root, destination):
 
     :raise HandledError: If function fails with a handled error. Will be logged before raising.
 
-    :param dict config: Parsed command line arguments (get_arguments() output).
+    :param sphinxcontrib.versioning.lib.Config config: Parsed command line arguments (get_arguments() output).
     :param str root: Root directory of repository.
-    :param str destination: Value of config['DESTINATION'].
+    :param str destination: Value of config.destination.
 
     :return: Versions class instance.
     :rtype: sphinxcontrib.versioning.versions.Versions
@@ -103,40 +103,40 @@ def main_build(config, root, destination):
 
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
-    conf_rel_paths = [os.path.join(s, 'conf.py') for s in config['REL_SOURCE']]
+    conf_rel_paths = [os.path.join(s, 'conf.py') for s in config.rel_source]
     root, remotes = gather_git_info(root, conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError
     versions = Versions(
         remotes,
-        sort=(config['--sort'] or '').split(','),
-        prioritize=config['--prioritize'],
-        invert=config['--invert'],
+        sort=(config.sort or '').split(','),
+        prioritize=config.prioritize,
+        invert=config.invert,
     )
 
     # Get root ref.
     root_ref = None
-    if config['--greatest-tag'] or config['--recent-tag']:
+    if config.greatest_tag or config.recent_tag:
         candidates = [r for r in versions.remotes if r['kind'] == 'tags']
         if not candidates:
             log.warning('No git tags with docs found in remote. Falling back to --root-ref value.')
         else:
-            multi_sort(candidates, ['semver' if config['--greatest-tag'] else 'chrono'])
+            multi_sort(candidates, ['semver' if config.greatest_tag else 'chrono'])
             root_ref = candidates[0]['name']
     if not root_ref:
-        root_ref = config['--root-ref']
-        if config['--root-ref'] not in [r[1] for r in remotes]:
-            log.error('Root ref %s not found in: %s', config['--root-ref'], ' '.join(r[1] for r in remotes))
+        root_ref = config.root_ref
+        if config.root_ref not in [r[1] for r in remotes]:
+            log.error('Root ref %s not found in: %s', config.root_ref, ' '.join(r[1] for r in remotes))
             raise HandledError
     versions.set_root_remote(root_ref)
 
     # Pre-build.
     log.info('Pre-running Sphinx to determine URLs.')
-    exported_root = pre_build(root, versions, config['overflow'])
+    exported_root = pre_build(root, versions, config.overflow)
 
     # Build.
-    build_all(exported_root, destination, versions, config['overflow'])
+    build_all(exported_root, destination, versions, config.overflow)
 
     # Cleanup.
     log.debug('Removing: %s', exported_root)
@@ -150,7 +150,7 @@ def main_push(config, root, temp_dir):
 
     :raise HandledError: On unrecoverable errors. Will be logged before raising.
 
-    :param dict config: Parsed command line arguments (get_arguments() output).
+    :param sphinxcontrib.versioning.lib.Config config: Parsed command line arguments (get_arguments() output).
     :param str root: Root directory of repository.
     :param str temp_dir: Local path empty directory in which branch will be cloned into.
 
@@ -159,18 +159,18 @@ def main_push(config, root, temp_dir):
     """
     log = logging.getLogger(__name__)
 
-    log.info('Cloning %s into temporary directory...', config['DST_BRANCH'])
+    log.info('Cloning %s into temporary directory...', config.dst_branch)
     try:
-        clone(root, temp_dir, config['DST_BRANCH'], config['REL_DST'], config['--grm-exclude'])
+        clone(root, temp_dir, config.dst_branch, config.rel_dst, config.grm_exclude)
     except GitError as exc:
         log.error(exc.message)
         log.error(exc.output)
         raise HandledError
 
     log.info('Building docs...')
-    versions = main_build(config, root, os.path.join(temp_dir, config['REL_DST']))
+    versions = main_build(config, root, os.path.join(temp_dir, config.rel_dst))
 
-    log.info('Attempting to push to branch %s on remote repository.', config['DST_BRANCH'])
+    log.info('Attempting to push to branch %s on remote repository.', config.dst_branch)
     try:
         return commit_and_push(temp_dir, versions)
     except GitError as exc:
@@ -184,21 +184,21 @@ def main(config):
 
     :raise HandledError: If function fails with a handled error. Will be logged before raising.
 
-    :param dict config: Parsed command line arguments (get_arguments() output).
+    :param sphinxcontrib.versioning.lib.Config config: Parsed command line arguments (get_arguments() output).
     """
     log = logging.getLogger(__name__)
     log.info('Running sphinxcontrib-versioning v%s', __version__)
 
     # chdir.
-    if config['--chdir']:
+    if config.chdir:
         try:
-            os.chdir(config['--chdir'])
+            os.chdir(config.chdir)
         except OSError as exc:
             log.debug(str(exc))
             if exc.errno == 2:
-                log.error('Path not found: %s', config['--chdir'])
+                log.error('Path not found: %s', config.chdir)
             else:
-                log.error('Path not a directory: %s', config['--chdir'])
+                log.error('Path not a directory: %s', config.chdir)
             raise HandledError
     log.debug('Working directory: %s', os.getcwd())
 
@@ -212,8 +212,8 @@ def main(config):
     log.info('Working in git repository: %s', root)
 
     # Run build sub command.
-    if config['build']:
-        main_build(config, root, config['DESTINATION'])
+    if config.build:
+        main_build(config, root, config.destination)
         return
 
     # Clone, build, push.
@@ -233,7 +233,7 @@ def entry_point():
     """Entry-point from setuptools."""
     try:
         config = get_arguments(sys.argv, __doc__)
-        setup_logging(verbose=config['--verbose'], colors=not config['--no-colors'])
+        setup_logging(verbose=config.verbose, colors=not config.no_colors)
         main(config)
         logging.info('Success.')
     except HandledError:
