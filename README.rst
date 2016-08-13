@@ -52,7 +52,10 @@ Added
 
 Changed
     * Renamed command line option ``--prioritize`` to ``--priority``.
+    * Renamed command line option ``-S`` to ``-s``.
     * ``--chdir``, ``--no-colors``, and ``--verbose`` must be specified before build/push and the other after.
+    * ``--sort`` no longer takes a comma separated string. Now specify multiple times (like ``--grm-exclude``).
+    * Renamed ``--sort`` value "chrono" to "time".
 
 1.1.0 - 2016-08-07
 ------------------

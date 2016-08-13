@@ -93,14 +93,14 @@ def test_sub_command_options(push):
     assert config.invert is False
     assert config.priority is None
     assert config.root_ref == 'master'
-    assert config.sort is None
+    assert config.sort == tuple()
     assert config.greatest_tag is False
     assert config.recent_tag is False
     if push:
         assert config.grm_exclude == tuple()
 
     # Defined.
-    args = args[:1] + ['-itT', '-p', 'branches', '-r', 'feature', '-S', 'semver'] + args[1:]
+    args = args[:1] + ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver'] + args[1:]
     if push:
         args = args[:1] + ['-e' 'README.md'] + args[1:]
     result = CliRunner().invoke(cli, args)
@@ -108,7 +108,7 @@ def test_sub_command_options(push):
     assert config.invert is True
     assert config.priority == 'branches'
     assert config.root_ref == 'feature'
-    assert config.sort == 'semver'
+    assert config.sort == ('semver',)
     assert config.greatest_tag is True
     assert config.recent_tag is True
     if push:
@@ -127,12 +127,12 @@ def test_sub_command_options_other(push):
         args = ['build', 'docs/_build/html', 'docs']
 
     # Defined.
-    args = args[:1] + ['-p', 'tags', '-S', 'semver,chrono'] + args[1:]
+    args = args[:1] + ['-p', 'tags', '-s', 'semver', '-s', 'time'] + args[1:]
     if push:
         args = args[:1] + ['-e' 'one', '-e', 'two', '-e', 'three', '-e', 'four'] + args[1:]
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.priority == 'tags'
-    assert config.sort == 'semver,chrono'
+    assert config.sort == ('semver', 'time')
     if push:
         assert config.grm_exclude == ('one', 'two', 'three', 'four')

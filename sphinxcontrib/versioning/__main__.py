@@ -167,8 +167,8 @@ def build_options(func):
                         help="Group these kinds of versions at the top (for themes that don't separate them).")(func)
     func = click.option('-r', '--root-ref', default='master',
                         help='The branch/tag at the root of DESTINATION. Others are in subdirs. Default master.')(func)
-    func = click.option('-S', '--sort',
-                        help='Sort versions by one or more (comma separated): semver, alpha, chrono')(func)
+    func = click.option('-s', '--sort', multiple=True, type=click.Choice(('semver', 'alpha', 'time')),
+                        help='Sort versions. Specify multiple times to sort equal values of one kind.')(func)
     func = click.option('-t', '--greatest-tag', is_flag=True,
                         help='Override root-ref to be the tag with the highest version number.')(func)
     func = click.option('-T', '--recent-tag', is_flag=True,
@@ -216,7 +216,7 @@ def build(config, rel_source, destination, **options):
         raise HandledError
     versions = Versions(
         remotes,
-        sort=(config.sort or '').split(','),
+        sort=config.sort,
         priority=config.priority,
         invert=config.invert,
     )
@@ -228,7 +228,7 @@ def build(config, rel_source, destination, **options):
         if not candidates:
             log.warning('No git tags with docs found in remote. Falling back to --root-ref value.')
         else:
-            multi_sort(candidates, ['semver' if config.greatest_tag else 'chrono'])
+            multi_sort(candidates, ['semver' if config.greatest_tag else 'time'])
             root_ref = candidates[0]['name']
     if not root_ref:
         root_ref = config.root_ref

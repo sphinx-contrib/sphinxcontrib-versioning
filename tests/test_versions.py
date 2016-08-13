@@ -40,7 +40,7 @@ def test_no_sort(remotes):
     assert versions.recent_tag_remote == versions['v2.0.0']
 
 
-@pytest.mark.parametrize('sort', ['', 'alpha', 'chrono', 'semver', 'semver,alpha', 'semver,chrono'])
+@pytest.mark.parametrize('sort', ['', 'alpha', 'time', 'semver', 'semver,alpha', 'semver,time'])
 def test_sort_valid(sort):
     """Test sorting logic with valid versions (lifted from 2.7 distutils/version.py:LooseVersion.__doc__).
 
@@ -55,7 +55,7 @@ def test_sort_valid(sort):
     if sort == 'alpha':
         expected = ['0.960923', '1.13++', '11g', '161', '1996.07.12', '2.0b1pl0', '2.2beta29', '2g6', '3.1.1.6',
                     '3.10a', '3.2.pl0', '3.4j', '5.5.kw', '8.02', 'V1.5.1b2', 'a', 'gh-pages', 'master', 'v1.5.1', 'z']
-    elif sort == 'chrono':
+    elif sort == 'time':
         expected = list(reversed(items))
     elif sort == 'semver':
         expected = ['1996.07.12', '161', '11g', '8.02', '5.5.kw', '3.10a', '3.4j', '3.2.pl0', '3.1.1.6', '2.2beta29',
@@ -63,7 +63,7 @@ def test_sort_valid(sort):
     elif sort == 'semver,alpha':
         expected = ['1996.07.12', '161', '11g', '8.02', '5.5.kw', '3.10a', '3.4j', '3.2.pl0', '3.1.1.6', '2.2beta29',
                     '2.0b1pl0', '2g6', '1.13++', 'v1.5.1', 'V1.5.1b2', '0.960923', 'a', 'gh-pages', 'master', 'z']
-    elif sort == 'semver,chrono':
+    elif sort == 'semver,time':
         expected = ['1996.07.12', '161', '11g', '8.02', '5.5.kw', '3.10a', '3.4j', '3.2.pl0', '3.1.1.6', '2.2beta29',
                     '2.0b1pl0', '2g6', '1.13++', 'v1.5.1', 'V1.5.1b2', '0.960923', 'z', 'a', 'gh-pages', 'master']
     else:
@@ -72,7 +72,7 @@ def test_sort_valid(sort):
     assert actual == expected
 
 
-@pytest.mark.parametrize('sort', ['', 'alpha', 'chrono', 'semver', 'semver,alpha', 'semver,chrono'])
+@pytest.mark.parametrize('sort', ['', 'alpha', 'time', 'semver', 'semver,alpha', 'semver,time'])
 def test_sort_semver_invalid(sort):
     """Test sorting logic with nothing but invalid versions.
 
@@ -85,13 +85,13 @@ def test_sort_semver_invalid(sort):
 
     if sort == 'alpha':
         expected = ['a', 'gh-pages', 'master', 'z']
-    elif sort == 'chrono':
+    elif sort == 'time':
         expected = list(reversed(items))
     elif sort == 'semver':
         expected = ['master', 'gh-pages', 'a', 'z']
     elif sort == 'semver,alpha':
         expected = ['a', 'gh-pages', 'master', 'z']
-    elif sort == 'semver,chrono':
+    elif sort == 'semver,time':
         expected = ['z', 'a', 'gh-pages', 'master']
     else:
         expected = items
@@ -100,7 +100,7 @@ def test_sort_semver_invalid(sort):
 
 
 @pytest.mark.parametrize('remotes', REMOTES_SHIFTED)
-@pytest.mark.parametrize('sort', ['alpha', 'chrono', 'semver', 'semver,alpha', 'semver,chrono', 'invalid', ''])
+@pytest.mark.parametrize('sort', ['alpha', 'time', 'semver', 'semver,alpha', 'semver,time', 'invalid', ''])
 def test_sort(remotes, sort):
     """Test with sorting.
 
@@ -112,13 +112,13 @@ def test_sort(remotes, sort):
 
     if sort == 'alpha':
         expected = ['master', 'v1.2.0', 'v10.0.0', 'v2.0.0', 'v2.1.0', 'v3.0.0', 'zh-pages']
-    elif sort == 'chrono':
+    elif sort == 'time':
         expected = ['v2.0.0', 'zh-pages', 'master', 'v10.0.0', 'v3.0.0', 'v2.1.0', 'v1.2.0']
     elif sort == 'semver':
         expected = ['v10.0.0', 'v3.0.0', 'v2.1.0', 'v2.0.0', 'v1.2.0', 'zh-pages', 'master']
     elif sort == 'semver,alpha':
         expected = ['v10.0.0', 'v3.0.0', 'v2.1.0', 'v2.0.0', 'v1.2.0', 'master', 'zh-pages']
-    elif sort == 'semver,chrono':
+    elif sort == 'semver,time':
         expected = ['v10.0.0', 'v3.0.0', 'v2.1.0', 'v2.0.0', 'v1.2.0', 'zh-pages', 'master']
     else:
         expected = [i[1] for i in remotes]
@@ -127,7 +127,7 @@ def test_sort(remotes, sort):
 
 
 @pytest.mark.parametrize('remotes', REMOTES_SHIFTED)
-@pytest.mark.parametrize('sort', ['alpha', 'chrono'])
+@pytest.mark.parametrize('sort', ['alpha', 'time'])
 @pytest.mark.parametrize('priority', ['branches', 'tags'])
 @pytest.mark.parametrize('invert', [False, True])
 def test_priority(remotes, sort, priority, invert):
@@ -151,7 +151,7 @@ def test_priority(remotes, sort, priority, invert):
             expected = ['zh-pages', 'master', 'v3.0.0', 'v2.1.0', 'v2.0.0', 'v10.0.0', 'v1.2.0']
         else:
             expected = ['v1.2.0', 'v10.0.0', 'v2.0.0', 'v2.1.0', 'v3.0.0', 'master', 'zh-pages']
-    elif sort == 'chrono' and priority == 'branches':
+    elif sort == 'time' and priority == 'branches':
         if invert:
             expected = ['v1.2.0', 'v2.1.0', 'v3.0.0', 'v10.0.0', 'v2.0.0', 'master', 'zh-pages']
         else:

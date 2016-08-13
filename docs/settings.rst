@@ -58,14 +58,14 @@ These arguments/options apply to both :ref:`build <build-arguments>` and :ref:`p
     If the root-ref does not exist or does not have docs, ``sphinx-versioning`` will fail and exit. The root-ref must
     have docs.
 
-.. option:: -s <csv>, --sort <csv>
+.. option:: -s <value>, --sort <value>
 
-    Comma separated values to sort versions by. Valid values are ``semver``, ``alpha``, and ``chrono``.
+    Sort versions by one or more certain kinds of values. Valid values are ``semver``, ``alpha``, and ``time``.
 
-    You can specify just one (e.g. "semver"), or more (e.g. "semver,alpha"). The "semver" value sorts versions by
+    You can specify just one (e.g. "semver"), or more. The "semver" value sorts versions by
     `Semantic Versioning <http://semver.org/>`_, with the highest version being first (e.g. 3.0.0, 2.10.0, 1.0.0).
     Non-semver branches/tags will be sorted after all valid semver formats. This is where the multiple sort values come
-    in. You can specify "alpha" to sort the remainder alphabetically or "chrono" to sort chronologically (most recent
+    in. You can specify "alpha" to sort the remainder alphabetically or "time" to sort chronologically (most recent
     commit first).
 
 .. option:: -t, --greatest-tag

@@ -50,12 +50,12 @@ def multi_sort(remotes, sort):
     This is needed because Python 3 no longer supports sorting lists of multiple types. Sort keys must all be of the
     same type.
 
-    Problem: the user expects versions to be sorted latest first and chronological to be most recent first (when viewing
+    Problem: the user expects versions to be sorted latest first and timelogical to be most recent first (when viewing
     the HTML documentation), yet expects alphabetical sorting to be A before Z.
     Solution: invert integers (dates and parsed versions).
 
     :param iter remotes: List of dicts from Versions().remotes.
-    :param iter sort: What to sort by. May be one or more of: alpha, chrono, semver
+    :param iter sort: What to sort by. May be one or more of: alpha, time, semver
     """
     exploded_alpha = list()
     exploded_semver = list()
@@ -77,7 +77,7 @@ def multi_sort(remotes, sort):
         for sort_by in sort:
             if sort_by == 'alpha':
                 key.extend(exploded_alpha[i])
-            elif sort_by == 'chrono':
+            elif sort_by == 'time':
                 key.append(-remote['date'])
             elif sort_by == 'semver':
                 key.extend(exploded_semver[i])
@@ -104,7 +104,7 @@ class Versions(object):
         """Constructor.
 
         :param iter remotes: Output of routines.gather_git_info(). Converted to list of dicts as instance variable.
-        :param iter sort: List of strings (order matters) to sort remotes by. Strings may be: alpha, chrono, semver
+        :param iter sort: List of strings (order matters) to sort remotes by. Strings may be: alpha, time, semver
         :param str priority: May be "branches" or "tags". Groups either before the other. Maintains order otherwise.
         :param bool invert: Invert sorted/grouped remotes at the end of processing.
         """
@@ -141,7 +141,7 @@ class Versions(object):
         # Get significant remotes.
         if self.remotes:
             remotes = self.remotes[:]
-            multi_sort(remotes, ('chrono',))
+            multi_sort(remotes, ('time',))
             self.recent_remote = remotes[0]
             self.recent_branch_remote = ([r for r in remotes if r['kind'] != 'tags'] or [None])[0]
             self.recent_tag_remote = ([r for r in remotes if r['kind'] == 'tags'] or [None])[0]
