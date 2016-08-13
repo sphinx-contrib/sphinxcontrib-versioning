@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Changelog &mdash; sphinxcontrib-versioning</title>
+  <title>Installation &mdash; sphinxcontrib-versioning</title>
   
 
   
@@ -38,7 +38,8 @@
 
   
     <link rel="top" title="sphinxcontrib-versioning" href="index.html"/>
-        <link rel="prev" title="GitHub Pages" href="github_pages.html"/> 
+        <link rel="next" title="Tutorial" href="tutorial.html"/>
+        <link rel="prev" title="SCVersioning 1.1.0" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -89,8 +90,13 @@
             
             
                 <p class="caption"><span class="caption-text">General</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pip-install">Pip Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#latest-from-github">Latest from GitHub</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clone-and-install">Clone and Install</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="themes.html">Supported Themes</a></li>
@@ -100,14 +106,8 @@
 <li class="toctree-l1"><a class="reference internal" href="github_pages.html">GitHub Pages</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Appendix</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#unreleased">Unreleased</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">1.1.0 - 2016-08-07</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">1.0.1 - 2016-08-02</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">1.0.0 - 2016-07-23</a></li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
             
@@ -142,12 +142,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Changelog</li>
+    <li>Installation</li>
     <li class="wy-breadcrumbs-aside">
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/changelog.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v1.1.0/docs/install.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -158,62 +158,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="changelog">
-<span id="id1"></span><h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
-<p>This project adheres to <a class="reference external" href="http://semver.org/">Semantic Versioning</a>.</p>
-<div class="section" id="unreleased">
-<h2>Unreleased<a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
-<dl class="docutils">
-<dt>Added</dt>
-<dd><ul class="first last simple">
-<li><code class="docutils literal"><span class="pre">--git-root</span></code> command line option.</li>
-</ul>
-</dd>
-<dt>Changed</dt>
-<dd><ul class="first last simple">
-<li>Renamed command line option <code class="docutils literal"><span class="pre">--prioritize</span></code> to <code class="docutils literal"><span class="pre">--priority</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">--chdir</span></code>, <code class="docutils literal"><span class="pre">--no-colors</span></code>, and <code class="docutils literal"><span class="pre">--verbose</span></code> must be specified before build/push and the other after.</li>
-</ul>
-</dd>
-</dl>
+  <div class="section" id="installation">
+<span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Getting started is pretty simple. The first step is to install the library.</p>
+<div class="section" id="pip-install">
+<h2>Pip Install<a class="headerlink" href="#pip-install" title="Permalink to this headline">¶</a></h2>
+<p>The easiest way to get SCVersioning is to use <a class="reference external" href="https://pip.pypa.io">pip</a>. Simply run this command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install sphinxcontrib-versioning
+</pre></div>
 </div>
-<div class="section" id="id2">
-<h2>1.1.0 - 2016-08-07<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
-<dl class="docutils">
-<dt>Added</dt>
-<dd><ul class="first last simple">
-<li>Exposing Jinja2 context variables: <code class="docutils literal"><span class="pre">scv_is_branch</span></code> <code class="docutils literal"><span class="pre">scv_is_root_ref</span></code> <code class="docutils literal"><span class="pre">scv_is_tag</span></code> <code class="docutils literal"><span class="pre">scv_root_ref_is_branch</span></code>
-<code class="docutils literal"><span class="pre">scv_root_ref_is_tag</span></code> <code class="docutils literal"><span class="pre">scv_is_greatest_tag</span></code> <code class="docutils literal"><span class="pre">scv_is_recent_branch</span></code> <code class="docutils literal"><span class="pre">scv_is_recent_ref</span></code>
-<code class="docutils literal"><span class="pre">scv_is_recent_tag</span></code></li>
-</ul>
-</dd>
-<dt>Changed</dt>
-<dd><ul class="first last simple">
-<li>Version links point to that version of the current page if it exists there.</li>
-</ul>
-</dd>
-<dt>Fixed</dt>
-<dd><ul class="first last simple">
-<li><a class="reference external" href="https://github.com/Robpol86/sphinxcontrib-versioning/issues/5">https://github.com/Robpol86/sphinxcontrib-versioning/issues/5</a></li>
-</ul>
-</dd>
-</dl>
 </div>
-<div class="section" id="id3">
-<h2>1.0.1 - 2016-08-02<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<dl class="docutils">
-<dt>Fixed</dt>
-<dd><ul class="first last simple">
-<li>easy_install: <a class="reference external" href="https://github.com/Robpol86/sphinxcontrib-versioning/issues/4">https://github.com/Robpol86/sphinxcontrib-versioning/issues/4</a></li>
-</ul>
-</dd>
-</dl>
+<div class="section" id="latest-from-github">
+<h2>Latest from GitHub<a class="headerlink" href="#latest-from-github" title="Permalink to this headline">¶</a></h2>
+<p>You can also elect to install the latest bleeding-edge version by using pip to install directly from the GitHub
+repository.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install git+https://github.com/Robpol86/sphinxcontrib-versioning.git
+</pre></div>
 </div>
-<div class="section" id="id4">
-<h2>1.0.0 - 2016-07-23<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Initial release.</li>
-</ul>
+</div>
+<div class="section" id="clone-and-install">
+<h2>Clone and Install<a class="headerlink" href="#clone-and-install" title="Permalink to this headline">¶</a></h2>
+<p>Lastly you can also just clone the repo and install from it. Usually you only need to do this if you plan on
+<a class="reference external" href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/CONTRIBUTING.md">contributing</a> to the project.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git clone git@github.com:Robpol86/sphinxcontrib-versioning.git
+<span class="nb">cd</span> sphinxcontrib-versioning
+python setup.py install
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -224,8 +195,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="github_pages.html" class="btn btn-neutral" title="GitHub Pages" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="index.html" class="btn btn-neutral" title="SCVersioning 1.1.0" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -252,23 +225,23 @@
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: master
+        v: v1.1.0
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="../changelog.html">v1.1.0</a></dd>
-            <dd><a href="../v1.0.1/changelog.html">v1.0.1</a></dd>
-            <dd><a href="../v1.0.0/changelog.html">v1.0.0</a></dd>
+            <dd><a href="../v1.0.0/install.html">v1.0.0</a></dd>
+            <dd><a href="../v1.0.1/install.html">v1.0.1</a></dd>
+            <dd><a href="../v1.1.0/install.html">v1.1.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../test_arguments/changelog.html">test_arguments</a></dd>
-            <dd><a href="../master/changelog.html">master</a></dd>
-            <dd><a href="../wip_banner3/changelog.html">wip_banner3</a></dd>
-            <dd><a href="../wip_banner2/changelog.html">wip_banner2</a></dd>
-            <dd><a href="../wip_banner/changelog.html">wip_banner</a></dd>
+            <dd><a href="../install.html">master</a></dd>
+            <dd><a href="../test_arguments/install.html">test_arguments</a></dd>
+            <dd><a href="../wip_banner/install.html">wip_banner</a></dd>
+            <dd><a href="../wip_banner2/install.html">wip_banner2</a></dd>
+            <dd><a href="../wip_banner3/install.html">wip_banner3</a></dd>
         </dl>
     </div>
 </div>
