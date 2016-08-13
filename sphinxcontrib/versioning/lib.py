@@ -2,9 +2,12 @@
 
 import atexit
 import functools
+import logging
 import shutil
 import tempfile
 import weakref
+
+import click
 
 
 class Config(object):
@@ -12,10 +15,10 @@ class Config(object):
 
     def __init__(self):
         """Constructor."""
+        self._already_set = set()
         self.program_state = dict()
 
         # Booleans.
-        self.build = False
         self.greatest_tag = False
         self.invert = False
         self.no_colors = False
@@ -24,12 +27,8 @@ class Config(object):
 
         # Strings.
         self.chdir = None
-        self.destination = None
-        self.dst_branch = None
         self.git_root = None
         self.priority = None
-        self.rel_dst = None
-        self.rel_source = None
         self.root_ref = None
 
         # Tuples.
@@ -39,33 +38,45 @@ class Config(object):
 
     def __repr__(self):
         """Class representation."""
-        attributes = ('verbose', 'root_ref', 'overflow')
+        attributes = ('program_state', 'verbose', 'root_ref', 'overflow')
         key_value_attrs = ', '.join('{}={}'.format(a, repr(getattr(self, a))) for a in attributes)
         return '<{}.{} {}'.format(self.__class__.__module__, self.__class__.__name__, key_value_attrs)
 
     @classmethod
-    def from_docopt(cls, config):
-        """Docopt bridge. Reads dict from docopt, instantiates class, and copies values.
+    def pass_config(cls, **kwargs):
+        """Function decorator that retrieves this class' instance from the current Click context.
 
-        :param dict config: Docopt config.
+        :param dict kwargs: Passed to click.make_pass_decorator().
 
-        :return: Class instance.
-        :rtype: Config
+        :return: Function decorator.
+        :rtype: function
         """
-        self = cls()
-        for key, value in config.items():
-            if not key.startswith('--'):
-                setattr(self, key.lower(), value)
+        return click.make_pass_decorator(cls, **kwargs)
+
+    def update(self, params):
+        """Set instance values from dictionary.
+
+        :param dict params: Click context params.
+        """
+        for key, value in params.items():
+            if key in self._already_set:
                 continue
-            name = key[2:].replace('-', '_')
-            setattr(self, name, value)
-        return self
+            if not hasattr(self, key):
+                raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, key))
+            setattr(self, key, value)
+            self._already_set.add(key)
 
 
-class HandledError(Exception):
-    """Generic exception used to signal raise HandledError() in scripts."""
+class HandledError(click.ClickException):
+    """Abort the program."""
 
-    pass
+    def __init__(self):
+        """Constructor."""
+        super(HandledError, self).__init__(None)
+
+    def show(self, **_):
+        """Error messages should be logged before raising this exception."""
+        logging.critical('Failure.')
 
 
 class TempDir(object):

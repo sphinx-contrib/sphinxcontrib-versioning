@@ -1,62 +1,11 @@
-#!/usr/bin/env python
-"""Build versioned Sphinx docs for every branch and tag pushed to origin.
-
-DESTINATION is the path to the directory that will hold all generated docs for
-all versions.
-
-REL_SOURCE is the path to the docs directory relative to the git root. If the
-source directory has moved around between git tags you can specify additional
-directories.
-
-DST_BRANCH is the branch name where generated docs will be committed to. The
-branch will then be pushed to origin. If there is a race condition with another
-job pushing to origin the docs will be re-generated and pushed again.
-
-REL_DST is the path to the directory that will hold all generated docs for
-all versions relative to the git roof of DST_BRANCH.
-
-To pass options to sphinx-build (run for every branch/tag) use a double hyphen
-(e.g. {program} build /tmp/out docs -- -D setting=value).
-
-Usage:
-    {program} [options] build DESTINATION REL_SOURCE...
-    {program} [options] [-e F...] push DST_BRANCH REL_DST REL_SOURCE...
-    {program} -h | --help
-    {program} -V | --version
-
-Options:
-    -c DIR --chdir=DIR      cd into this directory before running.
-    -C --no-colors          Disable colors in terminal output.
-    -e F --grm-exclude=FILE Push only. If specified "git rm" will delete all
-                            files in REL_DEST except for these. Specify
-                            multiple times for more. Paths are relative to
-                            REL_DEST in DST_BRANCH.
-    -g DIR --git-root=DIR   Path to directory in the local repo. Default is
-                            CWD.
-    -h --help               Show this screen.
-    -i --invert             Invert/reverse order of versions.
-    -p K --priority=KIND    Set to "branches" or "tags" to group those kinds
-                            of versions at the top (for themes that don't
-                            separate them).
-    -r REF --root-ref=REF   The branch/tag at the root of DESTINATION. All
-                            others are in subdirectories [default: master].
-    -S OPTS --sort=OPTS     Sort versions by one or more (comma separated):
-                            semver, alpha, chrono
-    -t --greatest-tag       Override root-ref to be the tag with the highest
-                            version number.
-    -T --recent-tag         Override root-ref to be the most recent committed
-                            tag.
-    -v --verbose            Debug logging.
-    -V --version            Print sphinxcontrib-versioning version.
-"""
+"""Entry point of project via setuptools which calls cli()."""
 
 import logging
 import os
 import shutil
-import sys
 import time
 
-from docopt import docopt
+import click
 
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.git import clone, commit_and_push, get_root, GitError
@@ -65,45 +14,197 @@ from sphinxcontrib.versioning.routines import build_all, gather_git_info, pre_bu
 from sphinxcontrib.versioning.setup_logging import setup_logging
 from sphinxcontrib.versioning.versions import multi_sort, Versions
 
+IS_EXISTS_DIR = click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True)
 PUSH_RETRIES = 3
 PUSH_SLEEP = 3  # Seconds.
 
 
-def get_arguments(argv, doc):
-    """Get command line arguments.
+class ClickGroup(click.Group):
+    """Truncate docstrings at form-feed character and implement overflow arguments."""
 
-    :param iter argv: Arguments to pass (e.g. sys.argv).
-    :param str doc: Docstring to pass to docopt.
+    def __init__(self, *args, **kwargs):
+        """Constructor.
 
-    :return: Parsed options with overflow options in the "overflow" key.
-    :rtype: sphinxcontrib.versioning.lib.Config
+        :param list args: Passed to super().
+        :param dict kwargs: Passed to super().
+        """
+        self.overflow = None
+        if 'help' in kwargs and kwargs['help'] and '\f' in kwargs['help']:
+            kwargs['help'] = kwargs['help'].split('\f', 1)[0]
+        super(ClickGroup, self).__init__(*args, **kwargs)
+
+    @staticmethod
+    def custom_sort(param):
+        """Custom Click(Command|Group).params sorter.
+
+        Case insensitive sort with capitals after lowercase. --version at the end since I can't sort --help.
+
+        :param click.core.Option param: Parameter to evaluate.
+
+        :return: Sort weight.
+        :rtype: int
+        """
+        option = param.opts[0].lstrip('-')
+        return option == 'version', option.lower(), option.swapcase()
+
+    def get_params(self, ctx):
+        """Sort order of options before displaying.
+
+        :param click.core.Context ctx: Click context.
+
+        :return: super() return value.
+        """
+        self.params.sort(key=self.custom_sort)
+        return super(ClickGroup, self).get_params(ctx)
+
+    def main(self, *args, **kwargs):
+        """Main function called by setuptools.
+
+        :param list args: Passed to super().
+        :param dict kwargs: Passed to super().
+
+        :return: super() return value.
+        """
+        argv = click.get_os_args()
+        if '--' in argv:
+            pos = argv.index('--')
+            argv, self.overflow = argv[:pos], tuple(argv[pos + 1:])
+        else:
+            argv, self.overflow = argv, tuple()
+        return super(ClickGroup, self).main(args=argv, *args, **kwargs)
+
+    def invoke(self, ctx):
+        """Inject overflow arguments into context state.
+
+        :param click.core.Context ctx: Click context.
+
+        :return: super() return value.
+        """
+        ctx.ensure_object(Config).update(dict(overflow=self.overflow))
+        return super(ClickGroup, self).invoke(ctx)
+
+
+class ClickCommand(click.Command):
+    """Truncate docstrings at form-feed character for click.command()."""
+
+    def __init__(self, *args, **kwargs):
+        """Constructor."""
+        if 'help' in kwargs and kwargs['help'] and '\f' in kwargs['help']:
+            kwargs['help'] = kwargs['help'].split('\f', 1)[0]
+        super(ClickCommand, self).__init__(*args, **kwargs)
+
+    def get_params(self, ctx):
+        """Sort order of options before displaying.
+
+        :param click.core.Context ctx: Click context.
+
+        :return: super() return value.
+        """
+        self.params.sort(key=ClickGroup.custom_sort)
+        return super(ClickCommand, self).get_params(ctx)
+
+
+@click.group(cls=ClickGroup)
+@click.option('-c', '--chdir', help='Make this the current working directory before running.', type=IS_EXISTS_DIR)
+@click.option('-C', '--no-colors', help='Disable colors in the terminal output.', is_flag=True)
+@click.option('-g', '--git-root', help='Path to directory in the local repo. Default is CWD.', type=IS_EXISTS_DIR)
+@click.option('-v', '--verbose', help='Enable debug logging.', is_flag=True)
+@click.version_option(version=__version__)
+@Config.pass_config(ensure=True)
+def cli(config, **options):
+    """Build versioned Sphinx docs for every branch and tag pushed to origin.
+
+    Supports only building locally with the "build" sub command or build and push to origin with the "push" sub command.
+    For more information for either run them with their own --help.
+
+    The options below are global and must be specified before the sub command name (e.g. -C build ...).
+    \f
+
+    :param sphinxcontrib.versioning.lib.Config config: Config instance.
+    :param dict options: Additional Click options.
     """
-    if '--' in argv:
-        pos = argv.index('--')
-        argv, overflow = argv[:pos], tuple(argv[pos + 1:])
-    else:
-        argv, overflow = argv, tuple()
-    docstring = doc.format(program='sphinx-versioning')
-    config = docopt(docstring, argv=argv[1:], version=__version__)
-    config['overflow'] = overflow
-    return Config.from_docopt(config)
+    git_root = options.pop('git_root')
+
+    def pre():
+        """To be executed in a Click sub command.
+
+        Needed because if this code is in cli() it will be executed when the user runs: <command> <sub command> --help
+        """
+        # Setup logging.
+        setup_logging(verbose=config.verbose, colors=not config.no_colors)
+        log = logging.getLogger(__name__)
+
+        # Change current working directory.
+        if config.chdir:
+            os.chdir(config.chdir)
+            log.debug('Working directory: %s', os.getcwd())
+
+        # Get and verify git root.
+        try:
+            config.update(dict(git_root=get_root(git_root or os.getcwd())))
+        except GitError as exc:
+            log.error(exc.message)
+            log.error(exc.output)
+            raise HandledError
+    config.program_state['pre'] = pre  # To be called by Click sub commands.
+    config.update(options)
 
 
-def main_build(config, root, destination):
-    """Main function for build sub command.
+def build_options(func):
+    """Add "build" Click options to function.
 
-    :raise HandledError: If function fails with a handled error. Will be logged before raising.
+    :param function func: The function to wrap.
 
-    :param sphinxcontrib.versioning.lib.Config config: Parsed command line arguments (get_arguments() output).
-    :param str root: Root directory of repository.
-    :param str destination: Value of config.destination.
+    :return: The wrapped function.
+    :rtype: function
     """
+    func = click.option('-i', '--invert', help='Invert/reverse order of versions.', is_flag=True)(func)
+    func = click.option('-p', '--priority', type=click.Choice(('branches', 'tags')),
+                        help="Group these kinds of versions at the top (for themes that don't separate them).")(func)
+    func = click.option('-r', '--root-ref', default='master',
+                        help='The branch/tag at the root of DESTINATION. Others are in subdirs. Default master.')(func)
+    func = click.option('-S', '--sort',
+                        help='Sort versions by one or more (comma separated): semver, alpha, chrono')(func)
+    func = click.option('-t', '--greatest-tag', is_flag=True,
+                        help='Override root-ref to be the tag with the highest version number.')(func)
+    func = click.option('-T', '--recent-tag', is_flag=True,
+                        help='Override root-ref to be the most recent committed tag.')(func)
+    return func
+
+
+@cli.command(cls=ClickCommand)
+@build_options
+@click.argument('DESTINATION', type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.argument('REL_SOURCE', nargs=-1, required=True)
+@Config.pass_config()
+def build(config, rel_source, destination, **options):
+    """Fetch branches/tags and build all locally.
+
+    Doesn't push anything to remote. Just fetch all remote branches and tags, export them to a temporary directory, run
+    sphinx-build on each one, and then store all built documentation in DESTINATION.
+
+    REL_SOURCE is the path to the docs directory relative to the git root. If the source directory has moved around
+    between git tags you can specify additional directories.
+
+    DESTINATION is the path to the local directory that will hold all generated docs for all versions.
+
+    To pass options to sphinx-build (run for every branch/tag) use a double hyphen
+    (e.g. build docs/_build/html docs -- -D setting=value).
+    \f
+
+    :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
+    :param tuple rel_source: Possible relative paths (to git root) of Sphinx directory containing conf.py (e.g. docs).
+    :param str destination: Destination directory to copy/overwrite built docs to. Does not delete old files.
+    :param dict options: Additional Click options.
+    """
+    config.program_state.pop('pre', lambda: None)()
+    config.update(options)
     log = logging.getLogger(__name__)
 
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
-    conf_rel_paths = [os.path.join(s, 'conf.py') for s in config.rel_source]
-    remotes = gather_git_info(root, conf_rel_paths)
+    conf_rel_paths = [os.path.join(s, 'conf.py') for s in rel_source]
+    remotes = gather_git_info(config.git_root, conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError
@@ -132,7 +233,7 @@ def main_build(config, root, destination):
 
     # Pre-build.
     log.info('Pre-running Sphinx to determine URLs.')
-    exported_root = pre_build(root, versions, config.overflow)
+    exported_root = pre_build(config.git_root, versions, config.overflow)
 
     # Build.
     build_all(exported_root, destination, versions, config.overflow)
@@ -141,38 +242,66 @@ def main_build(config, root, destination):
     log.debug('Removing: %s', exported_root)
     shutil.rmtree(exported_root)
 
-    # Store versions in state for main_push().
+    # Store versions in state for push().
     config.program_state['versions'] = versions
 
 
-def main_push(config, root):
-    """Main function for push sub command.
+@cli.command(cls=ClickCommand)
+@build_options
+@click.option('-e', '--grm-exclude', multiple=True,
+              help='If specified "git rm" will delete all files in REL_DEST except for these. Specify multiple times '
+                   'for more. Paths are relative to REL_DEST in DEST_BRANCH.')
+@click.argument('DEST_BRANCH')
+@click.argument('REL_DEST')
+@click.argument('REL_SOURCE', nargs=-1, required=True)
+@Config.pass_config()
+@click.pass_context
+def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
+    """Build locally and then push to remote branch.
 
-    :raise HandledError: On unrecoverable errors. Will be logged before raising.
+    First the build sub-command is invoked which takes care of building all versions of your documentation in a
+    temporary directory. If that succeeds then all built documents will be pushed to a remote branch.
 
-    :param sphinxcontrib.versioning.lib.Config config: Parsed command line arguments (get_arguments() output).
-    :param str root: Root directory of repository.
+    REL_SOURCE is the path to the docs directory relative to the git root. If the source directory has moved around
+    between git tags you can specify additional directories.
 
-    :return: If push succeeded.
-    :rtype: bool
+    DEST_BRANCH is the branch name where generated docs will be committed to. The branch will then be pushed to origin.
+    If there is a race condition with another job pushing to origin the docs will be re-generated and pushed again.
+
+    REL_DEST is the path to the directory that will hold all generated docs for all versions relative to the git roof of
+    DST_BRANCH.
+
+    To pass options to sphinx-build (run for every branch/tag) use a double hyphen
+    (e.g. push gh-pages . docs -- -D setting=value).
+    \f
+
+    :param click.core.Context ctx: Click context.
+    :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
+    :param tuple rel_source: Possible relative paths (to git root) of Sphinx directory containing conf.py (e.g. docs).
+    :param str dest_branch: Branch to clone and push to.
+    :param str rel_dest: Relative path (to git root) to write generated docs to.
+    :param dict options: Additional Click options.
     """
+    config.program_state.pop('pre', lambda: None)()
+    config.update(options)
     log = logging.getLogger(__name__)
 
+    # Clone, build, push.
     for _ in range(PUSH_RETRIES):
         with TempDir() as temp_dir:
-            log.info('Cloning %s into temporary directory...', config.dst_branch)
+            log.info('Cloning %s into temporary directory...', dest_branch)
             try:
-                clone(root, temp_dir, config.dst_branch, config.rel_dst, config.grm_exclude)
+                clone(config.git_root, temp_dir, dest_branch, rel_dest, config.grm_exclude)
             except GitError as exc:
                 log.error(exc.message)
                 log.error(exc.output)
                 raise HandledError
 
             log.info('Building docs...')
-            main_build(config, root, os.path.join(temp_dir, config.rel_dst))
+            ctx.invoke(build, rel_source=rel_source, destination=os.path.join(temp_dir, rel_dest))
             versions = config.program_state.pop('versions')
 
-            log.info('Attempting to push to branch %s on remote repository.', config.dst_branch)
+            log.info('Attempting to push to branch %s on remote repository.', dest_branch)
             try:
                 if commit_and_push(temp_dir, versions):
                     return
@@ -186,56 +315,3 @@ def main_push(config, root):
     # Failed if this is reached.
     log.error('Ran out of retries, giving up.')
     raise HandledError
-
-
-def main(config):
-    """Main function.
-
-    :raise HandledError: If function fails with a handled error. Will be logged before raising.
-
-    :param sphinxcontrib.versioning.lib.Config config: Parsed command line arguments (get_arguments() output).
-    """
-    log = logging.getLogger(__name__)
-    log.info('Running sphinxcontrib-versioning v%s', __version__)
-
-    # chdir.
-    if config.chdir:
-        try:
-            os.chdir(config.chdir)
-        except OSError as exc:
-            log.debug(str(exc))
-            if exc.errno == 2:
-                log.error('Path not found: %s', config.chdir)
-            else:
-                log.error('Path not a directory: %s', config.chdir)
-            raise HandledError
-    log.debug('Working directory: %s', os.getcwd())
-
-    # Get root.
-    try:
-        config.git_root = get_root(config.git_root or os.getcwd())
-    except GitError as exc:
-        log.error(exc.message)
-        log.error(exc.output)
-        raise HandledError
-    log.info('Working in git repository: %s', config.git_root)
-
-    # Run build sub command.
-    if config.build:
-        main_build(config, config.git_root, config.destination)
-        return
-
-    # Clone, build, push.
-    main_push(config, config.git_root)
-
-
-def entry_point():
-    """Entry-point from setuptools."""
-    try:
-        config = get_arguments(sys.argv, __doc__)
-        setup_logging(verbose=config.verbose, colors=not config.no_colors)
-        main(config)
-        logging.info('Success.')
-    except HandledError:
-        logging.critical('Failure.')
-        sys.exit(1)

@@ -97,7 +97,7 @@ def test_race(tmpdir, local_docs_ghp, remote, run, give_up):
 
     # Prepare command.
     env = dict(os.environ, GIT_DIR=str(local_docs_ghp.join('.git')))
-    command = ['sphinx-versioning', 'push', 'gh-pages', 'html/docs', '.', '--no-colors']
+    command = ['sphinx-versioning', '--no-colors', 'push', 'gh-pages', 'html/docs', '.']
     output_lines = list()
     caused = False
 
@@ -183,7 +183,7 @@ def test_bad_git_config(local_docs_ghp, run):
     :param run: conftest fixture.
     """
     env = dict(os.environ, GIT_DIR=str(local_docs_ghp.join('.git')), HOME=str(local_docs_ghp.join('..')))
-    command = ['sphinx-versioning', 'push', 'gh-pages', '.', '.', '-v']
+    command = ['sphinx-versioning', '-v', 'push', 'gh-pages', '.', '.']
     output_lines = list()
     caused = False
 

@@ -34,6 +34,8 @@ Usage:
 .. code:: bash
 
     sphinx-versioning --help
+    sphinx-versioning build --help
+    sphinx-versioning push --help
 
 .. changelog-section-start
 
@@ -50,6 +52,7 @@ Added
 
 Changed
     * Renamed command line option ``--prioritize`` to ``--priority``.
+    * ``--chdir``, ``--no-colors``, and ``--verbose`` must be specified before build/push and the other after.
 
 1.1.0 - 2016-08-07
 ------------------

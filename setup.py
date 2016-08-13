@@ -10,7 +10,7 @@ import re
 from setuptools import Command, setup
 
 IMPORT = 'sphinxcontrib.versioning'
-INSTALL_REQUIRES = ['colorclass', 'docopt', 'sphinx']
+INSTALL_REQUIRES = ['click', 'colorclass', 'sphinx']
 LICENSE = 'MIT'
 NAME = 'sphinxcontrib-versioning'
 VERSION = '1.1.0'
@@ -94,7 +94,7 @@ setup(
     ],
     cmdclass=dict(check_version=CheckVersion),
     description='Sphinx extension that allows building versioned docs for self-hosting.',
-    entry_points={'console_scripts': ['sphinx-versioning = sphinxcontrib.versioning.__main__:entry_point']},
+    entry_points={'console_scripts': ['sphinx-versioning = sphinxcontrib.versioning.__main__:cli']},
     install_requires=INSTALL_REQUIRES,
     keywords='sphinx versioning versions version branches tags',
     license=LICENSE,
