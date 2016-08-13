@@ -14,7 +14,7 @@ from sphinxcontrib.versioning.routines import build_all, gather_git_info, pre_bu
 from sphinxcontrib.versioning.setup_logging import setup_logging
 from sphinxcontrib.versioning.versions import multi_sort, Versions
 
-IS_EXISTS_DIR = click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True)
+IS_EXISTS_DIR = click.Path(exists=True, file_okay=False, dir_okay=True)
 NO_EXECUTE = False  # Used in tests.
 PUSH_RETRIES = 3
 PUSH_SLEEP = 3  # Seconds.
@@ -178,7 +178,7 @@ def build_options(func):
 
 @cli.command(cls=ClickCommand)
 @build_options
-@click.argument('DESTINATION', type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.argument('DESTINATION', type=click.Path(file_okay=False, dir_okay=True))
 @click.argument('REL_SOURCE', nargs=-1, required=True)
 @Config.pass_config()
 def build(config, rel_source, destination, **options):
@@ -204,7 +204,7 @@ def build(config, rel_source, destination, **options):
     config.program_state.pop('pre', lambda: None)()
     config.update(options)
     if NO_EXECUTE:
-        raise RuntimeError(config)
+        raise RuntimeError(config, rel_source, destination)
     log = logging.getLogger(__name__)
 
     # Gather git data.
@@ -275,7 +275,7 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     If there is a race condition with another job pushing to origin the docs will be re-generated and pushed again.
 
     REL_DEST is the path to the directory that will hold all generated docs for all versions relative to the git roof of
-    DST_BRANCH.
+    DEST_BRANCH.
 
     To pass options to sphinx-build (run for every branch/tag) use a double hyphen
     (e.g. push gh-pages . docs -- -D setting=value).
@@ -291,7 +291,7 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     config.program_state.pop('pre', lambda: None)()
     config.update(options)
     if NO_EXECUTE:
-        raise RuntimeError(config)
+        raise RuntimeError(config, rel_source, dest_branch, rel_dest)
     log = logging.getLogger(__name__)
 
     # Clone, build, push.

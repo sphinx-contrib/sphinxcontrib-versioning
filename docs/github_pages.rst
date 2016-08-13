@@ -37,7 +37,7 @@ Sphinx uses.
     git push origin gh-pages
     git checkout master  # Or whatever branch you were in.
 
-Then navigate to https://username.github.io/repo_name/ and if you used ``.`` for your :option:`REL_DST` you should see
+Then navigate to https://username.github.io/repo_name/ and if you used ``.`` for your :option:`REL_DEST` you should see
 your HTML docs there. Otherwise if you used something like ``html/docs`` you'll need to navigate to
 https://username.github.io/repo_name/html/docs/.
 

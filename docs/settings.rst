@@ -10,7 +10,7 @@ descriptions.
 .. code-block:: bash
 
     sphinx-versioning [options] build DESTINATION REL_SOURCE...
-    sphinx-versioning [options] [-e F...] push DST_BRANCH REL_DST REL_SOURCE...
+    sphinx-versioning [options] [-e F...] push DEST_BRANCH REL_DEST REL_SOURCE...
 
 Global Arguments
 ================
@@ -117,27 +117,28 @@ Push Arguments
 three times in case of race conditions with other processes also trying to push files to the same branch (e.g. multiple
 Jenkins/Travis jobs).
 
-HTML files are committed to :option:`DST_BRANCH` and pushed to origin.
+HTML files are committed to :option:`DEST_BRANCH` and pushed to origin.
 
-.. option:: DST_BRANCH
+.. option:: DEST_BRANCH
 
     The branch name where generated docs will be committed to. The branch will then be pushed to origin. If there is a
     race condition with another job pushing to origin the docs will be re-generated and pushed again.
 
     This must be a branch and not a tag. This also must already exist in origin.
 
-.. option:: REL_DST
+.. option:: REL_DEST
 
-    The path to the directory that will hold all generated docs for all versions relative to the git roof of DST_BRANCH.
+    The path to the directory that will hold all generated docs for all versions relative to the git roof of
+    DEST_BRANCH.
 
-    If you want your generated **index.html** to be at the root of :option:`DST_BRANCH` you can just specify a period
-    (e.g. ``.``) for REL_DST. If you want HTML files to be placed in say... "<git root>/html/docs", then you specify
+    If you want your generated **index.html** to be at the root of :option:`DEST_BRANCH` you can just specify a period
+    (e.g. ``.``) for REL_DEST. If you want HTML files to be placed in say... "<git root>/html/docs", then you specify
     "html/docs".
 
 .. option:: -e <file>, --grm-exclude <file>
 
-    Causes "**git rm -rf $REL_DST**" to run after checking out :option:`DST_BRANCH` and then runs "git reset <file>" to
-    preserve it. All other files in the branch in :option:`REL_DST` will be deleted in the commit. You can specify
+    Causes "**git rm -rf $REL_DEST**" to run after checking out :option:`DEST_BRANCH` and then runs "git reset <file>"
+    to preserve it. All other files in the branch in :option:`REL_DEST` will be deleted in the commit. You can specify
     multiple files or directories to be excluded by adding more ``--grm-exclude`` arguments.
 
     If this argument is not specified then nothing will be deleted from the branch. This may cause stale/orphaned HTML

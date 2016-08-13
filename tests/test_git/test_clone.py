@@ -120,7 +120,7 @@ def test_exclude_patterns(tmpdir, local, run):
     assert status == 'D  README\nD  sub/three.txt\nD  two.txt\n'
 
 
-def test_bad_branch_rel_dst_exclude(tmpdir, local, run):
+def test_bad_branch_rel_dest_exclude(tmpdir, local, run):
     """Test bad data.
 
     :param tmpdir: pytest fixture.
@@ -137,12 +137,12 @@ def test_bad_branch_rel_dst_exclude(tmpdir, local, run):
         clone(str(local), str(tmpdir.ensure_dir('new_root')), 'light_tag', '.', None)
     assert 'fatal: ref HEAD is not a symbolic ref' in exc.value.output
 
-    # rel_dst outside of repo.
+    # rel_dest outside of repo.
     with pytest.raises(GitError) as exc:
         clone(str(local), str(tmpdir.ensure_dir('new_root2')), 'master', '..', ['README'])
     assert "'..' is outside repository" in exc.value.output
 
-    # rel_dst invalid.
+    # rel_dest invalid.
     with pytest.raises(GitError) as exc:
         clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', 'unknown', ['README'])
     assert "pathspec 'unknown' did not match any files" in exc.value.output

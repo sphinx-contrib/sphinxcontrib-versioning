@@ -39,7 +39,7 @@ def test_no_exclude(local_docs_ghp, run):
 
 
 def test_exclude(local_docs_ghp, run):
-    """Test excluding files and REL_DST. Also test changing files.
+    """Test excluding files and REL_DEST. Also test changing files.
 
     :param local_docs_ghp: conftest fixture.
     :param run: conftest fixture.
@@ -140,7 +140,7 @@ def test_race(tmpdir, local_docs_ghp, remote, run, give_up):
 
 
 def test_error_clone_failure(local_docs, run):
-    """Test DST_BRANCH doesn't exist.
+    """Test DEST_BRANCH doesn't exist.
 
     :param local_docs: conftest fixture.
     :param run: conftest fixture.

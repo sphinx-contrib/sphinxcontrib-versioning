@@ -42,6 +42,37 @@ def test_overflow(push):
 
 
 @pytest.mark.parametrize('push', [False, True])
+def test_args(push):
+    """Test positional arguments.
+
+    :param bool push: Run push sub command instead of build.
+    """
+    # Single rel_source.
+    if push:
+        result = CliRunner().invoke(cli, ['push', 'gh-pages', '.', 'docs'])
+        rel_source, dest_branch, rel_dest = result.exception.args[1:]
+        assert dest_branch == 'gh-pages'
+        assert rel_dest == '.'
+    else:
+        result = CliRunner().invoke(cli, ['build', 'docs/_build/html', 'docs'])
+        rel_source, destination = result.exception.args[1:]
+        assert destination == 'docs/_build/html'
+    assert rel_source == ('docs',)
+
+    # Multiple rel_source.
+    if push:
+        result = CliRunner().invoke(cli, ['push', 'feature', 'html', 'docs', 'docs2', 'documentation', 'dox'])
+        rel_source, dest_branch, rel_dest = result.exception.args[1:]
+        assert dest_branch == 'feature'
+        assert rel_dest == 'html'
+    else:
+        result = CliRunner().invoke(cli, ['build', 'html', 'docs', 'docs2', 'documentation', 'dox'])
+        rel_source, destination = result.exception.args[1:]
+        assert destination == 'html'
+    assert rel_source == ('docs', 'docs2', 'documentation', 'dox')
+
+
+@pytest.mark.parametrize('push', [False, True])
 def test_global_options(tmpdir, local_empty, run, push):
     """Test options that apply to all sub commands.
 

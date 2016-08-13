@@ -292,7 +292,7 @@ def export(local_root, commit, target):
                 shutil.copy(*args)
 
 
-def clone(local_root, new_root, branch, rel_dst, exclude):
+def clone(local_root, new_root, branch, rel_dest, exclude):
     """Clone "local_root" origin into a new directory and check out a specific branch. Optionally run "git rm".
 
     :raise CalledProcessError: Unhandled git command failure.
@@ -301,7 +301,7 @@ def clone(local_root, new_root, branch, rel_dst, exclude):
     :param str local_root: Local path to git root directory.
     :param str new_root: Local path empty directory in which branch will be cloned into.
     :param str branch: Checkout this branch.
-    :param str rel_dst: Run "git rm" on this directory if exclude is truthy.
+    :param str rel_dest: Run "git rm" on this directory if exclude is truthy.
     :param iter exclude: List of strings representing relative file paths to exclude from "git rm".
     """
     log = logging.getLogger(__name__)
@@ -315,7 +315,7 @@ def clone(local_root, new_root, branch, rel_dst, exclude):
     except CalledProcessError as exc:
         raise GitError('Failed to clone from remote repo URL.', exc.output)
 
-    # Make sure user didn't select a tag as their DST_BRANCH.
+    # Make sure user didn't select a tag as their DEST_BRANCH.
     try:
         run_command(new_root, ['git', 'symbolic-ref', 'HEAD'])
     except CalledProcessError as exc:
@@ -327,15 +327,15 @@ def clone(local_root, new_root, branch, rel_dst, exclude):
 
     # Resolve exclude paths.
     exclude_joined = [
-        os.path.relpath(p, new_root) for e in exclude for p in glob.glob(os.path.join(new_root, rel_dst, e))
+        os.path.relpath(p, new_root) for e in exclude for p in glob.glob(os.path.join(new_root, rel_dest, e))
     ]
     log.debug('Expanded %s to %s', repr(exclude), repr(exclude_joined))
 
     # Do "git rm".
     try:
-        run_command(new_root, ['git', 'rm', '-rf', rel_dst])
+        run_command(new_root, ['git', 'rm', '-rf', rel_dest])
     except CalledProcessError as exc:
-        raise GitError('"git rm" failed to remove ' + rel_dst, exc.output)
+        raise GitError('"git rm" failed to remove ' + rel_dest, exc.output)
 
     # Restore files in exclude.
     run_command(new_root, ['git', 'reset', 'HEAD'] + exclude_joined)
