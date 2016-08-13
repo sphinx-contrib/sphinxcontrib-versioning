@@ -128,20 +128,20 @@ def test_sort(remotes, sort):
 
 @pytest.mark.parametrize('remotes', REMOTES_SHIFTED)
 @pytest.mark.parametrize('sort', ['alpha', 'chrono'])
-@pytest.mark.parametrize('prioritize', ['branches', 'tags'])
+@pytest.mark.parametrize('priority', ['branches', 'tags'])
 @pytest.mark.parametrize('invert', [False, True])
-def test_priority(remotes, sort, prioritize, invert):
+def test_priority(remotes, sort, priority, invert):
     """Test with branches/tags being prioritized.
 
     :param iter remotes: Passed to class.
     :param str sort: Passed to class after splitting by comma.
-    :param str prioritize: Passed to class.
+    :param str priority: Passed to class.
     :param bool invert: Passed to class.
     """
-    versions = Versions(remotes, sort=sort.split(','), prioritize=prioritize, invert=invert)
+    versions = Versions(remotes, sort=sort.split(','), priority=priority, invert=invert)
     actual = [i[0] for i in versions]
 
-    if sort == 'alpha' and prioritize == 'branches':
+    if sort == 'alpha' and priority == 'branches':
         if invert:
             expected = ['v3.0.0', 'v2.1.0', 'v2.0.0', 'v10.0.0', 'v1.2.0', 'zh-pages', 'master']
         else:
@@ -151,7 +151,7 @@ def test_priority(remotes, sort, prioritize, invert):
             expected = ['zh-pages', 'master', 'v3.0.0', 'v2.1.0', 'v2.0.0', 'v10.0.0', 'v1.2.0']
         else:
             expected = ['v1.2.0', 'v10.0.0', 'v2.0.0', 'v2.1.0', 'v3.0.0', 'master', 'zh-pages']
-    elif sort == 'chrono' and prioritize == 'branches':
+    elif sort == 'chrono' and priority == 'branches':
         if invert:
             expected = ['v1.2.0', 'v2.1.0', 'v3.0.0', 'v10.0.0', 'v2.0.0', 'master', 'zh-pages']
         else:

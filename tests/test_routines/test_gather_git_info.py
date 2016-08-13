@@ -13,8 +13,7 @@ def test_working(local):
 
     :param local: conftest fixture.
     """
-    root, filtered_remotes = gather_git_info(str(local), [os.path.join('.', 'README')])
-    assert root == str(local)
+    filtered_remotes = gather_git_info(str(local), [os.path.join('.', 'README')])
     expected = [['feature', 'heads'], ['master', 'heads'], ['annotated_tag', 'tags'], ['light_tag', 'tags']]
     assert [i[1:-2] for i in filtered_remotes] == expected
 
@@ -34,8 +33,7 @@ def test_fetch(monkeypatch, caplog, local, skip_fetch):
         with pytest.raises(HandledError):
             gather_git_info(str(local), ['README'])
     else:
-        root, filtered_remotes = gather_git_info(str(local), ['README'])
-        assert root == str(local)
+        filtered_remotes = gather_git_info(str(local), ['README'])
         expected = [
             ['feature', 'heads'],
             ['master', 'heads'],

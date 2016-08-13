@@ -21,8 +21,8 @@ def gather_git_info(root, conf_rel_paths):
     :param str root: Root directory of repository.
     :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
 
-    :return: Local git root and commits with docs. Latter is a list of tuples: (sha, name, kind, date, conf_rel_path).
-    :rtype: tuple
+    :return: Commits with docs. A list of tuples: (sha, name, kind, date, conf_rel_path).
+    :rtype: list
     """
     log = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ def gather_git_info(root, conf_rel_paths):
     filtered_remotes = [[i[0], i[1], i[2], ] + dates_paths[i[0]] for i in remotes if i[0] in dates_paths]
     log.info('With docs: %s', ' '.join(i[1] for i in filtered_remotes))
 
-    return root, filtered_remotes
+    return filtered_remotes
 
 
 def pre_build(local_root, versions, overflow):

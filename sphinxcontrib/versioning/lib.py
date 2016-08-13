@@ -8,7 +8,7 @@ import weakref
 
 
 class Config(object):
-    """The global configuration for the project. Should be instantiated only at the beginning of run-time."""
+    """The global configuration and state of the running program."""
 
     def __init__(self):
         """Constructor."""
@@ -24,7 +24,7 @@ class Config(object):
         self.chdir = None
         self.destination = None
         self.dst_branch = None
-        self.prioritize = None
+        self.priority = None
         self.rel_dst = None
         self.rel_source = None
         self.root_ref = None
@@ -33,6 +33,12 @@ class Config(object):
         self.grm_exclude = None
         self.overflow = None
         self.sort = None
+
+    def __repr__(self):
+        """Class representation."""
+        attributes = ('verbose', 'root_ref', 'overflow')
+        key_value_attrs = ', '.join('{}={}'.format(a, repr(getattr(self, a))) for a in attributes)
+        return '<{}.{} {}'.format(self.__class__.__module__, self.__class__.__name__, key_value_attrs)
 
     @classmethod
     def from_docopt(cls, config):

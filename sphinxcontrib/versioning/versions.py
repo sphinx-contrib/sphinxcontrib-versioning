@@ -100,12 +100,12 @@ class Versions(object):
     :ivar dict root_remote: Branch/tag at the root of all HTML docs.
     """
 
-    def __init__(self, remotes, sort=None, prioritize=None, invert=False):
+    def __init__(self, remotes, sort=None, priority=None, invert=False):
         """Constructor.
 
         :param iter remotes: Output of routines.gather_git_info(). Converted to list of dicts as instance variable.
         :param iter sort: List of strings (order matters) to sort remotes by. Strings may be: alpha, chrono, semver
-        :param str prioritize: May be "branches" or "tags". Groups either before the other. Maintains order otherwise.
+        :param str priority: May be "branches" or "tags". Groups either before the other. Maintains order otherwise.
         :param bool invert: Invert sorted/grouped remotes at the end of processing.
         """
         self.remotes = [dict(
@@ -128,10 +128,10 @@ class Versions(object):
         if sort:
             multi_sort(self.remotes, [s.strip().lower() for s in sort])
 
-        # Prioritize.
-        if prioritize == 'branches':
+        # Priority.
+        if priority == 'branches':
             self.remotes.sort(key=lambda r: 1 if r['kind'] == 'tags' else 0)
-        elif prioritize == 'tags':
+        elif priority == 'tags':
             self.remotes.sort(key=lambda r: 0 if r['kind'] == 'tags' else 1)
 
         # Invert.

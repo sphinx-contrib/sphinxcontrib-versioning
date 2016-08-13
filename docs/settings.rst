@@ -41,7 +41,7 @@ These arguments/options apply to both :ref:`build <build-arguments>` and :ref:`p
     Invert the order of branches/tags displayed in the sidebars in generated HTML documents. The default order is
     whatever git prints when running "**git ls-remote --heads --tags**".
 
-.. option:: -p <kind>, --prioritize <kind>
+.. option:: -p <kind>, --priority <kind>
 
     ``kind`` may be either **branches** or **tags**. This argument is for themes that don't split up branches and tags
     in the generated HTML (e.g. sphinx_rtd_theme). This argument groups branches and tags together and whichever is
@@ -81,7 +81,7 @@ These arguments/options apply to both :ref:`build <build-arguments>` and :ref:`p
 Overflow/Pass Options
 ---------------------
 
-It is possible to give the underlying ``sphinx-build`` program comand line options. SCVersioning passes everything after
+It is possible to give the underlying ``sphinx-build`` program command line options. SCVersioning passes everything after
 ``--`` to it. For example if you changed the theme for your docs between versions and want docs for all versions to have
 the same theme, you can run:
 

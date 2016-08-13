@@ -33,7 +33,7 @@ Options:
                             REL_DEST in DST_BRANCH.
     -h --help               Show this screen.
     -i --invert             Invert/reverse order of versions.
-    -p K --prioritize=KIND  Set to "branches" or "tags" to group those kinds
+    -p K --priority=KIND    Set to "branches" or "tags" to group those kinds
                             of versions at the top (for themes that don't
                             separate them).
     -r REF --root-ref=REF   The branch/tag at the root of DESTINATION. All
@@ -104,14 +104,14 @@ def main_build(config, root, destination):
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
     conf_rel_paths = [os.path.join(s, 'conf.py') for s in config.rel_source]
-    root, remotes = gather_git_info(root, conf_rel_paths)
+    remotes = gather_git_info(root, conf_rel_paths)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError
     versions = Versions(
         remotes,
         sort=(config.sort or '').split(','),
-        prioritize=config.prioritize,
+        priority=config.priority,
         invert=config.invert,
     )
 

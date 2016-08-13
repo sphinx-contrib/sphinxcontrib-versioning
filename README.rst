@@ -42,6 +42,12 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+Unreleased
+----------
+
+Changed
+    * Renamed command line option ``--prioritize`` to ``--priority``.
+
 1.1.0 - 2016-08-07
 ------------------
 
