@@ -36,6 +36,10 @@ These arguments/options apply to both :ref:`build <build-arguments>` and :ref:`p
     By default INFO, WARNING, and ERROR log/print statements use console colors. Use this argument to disable colors and
     log/print plain text.
 
+.. option:: -g <directory>, --git-root <directory>
+
+    Path to directory in the local repo. Default is the current working directory.
+
 .. option:: -i, --invert
 
     Invert the order of branches/tags displayed in the sidebars in generated HTML documents. The default order is

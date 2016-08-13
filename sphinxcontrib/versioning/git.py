@@ -172,7 +172,7 @@ def get_root(directory):
     try:
         output = run_command(directory, command, env_var=False)
     except CalledProcessError as exc:
-        raise GitError('Failed to find local git repository root.', exc.output)
+        raise GitError('Failed to find local git repository root in {}.'.format(repr(directory)), exc.output)
     return output.strip()
 
 

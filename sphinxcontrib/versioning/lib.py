@@ -12,6 +12,8 @@ class Config(object):
 
     def __init__(self):
         """Constructor."""
+        self.program_state = dict()
+
         # Booleans.
         self.build = False
         self.greatest_tag = False
@@ -24,6 +26,7 @@ class Config(object):
         self.chdir = None
         self.destination = None
         self.dst_branch = None
+        self.git_root = None
         self.priority = None
         self.rel_dst = None
         self.rel_source = None

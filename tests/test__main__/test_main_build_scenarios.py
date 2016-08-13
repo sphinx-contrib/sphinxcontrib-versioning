@@ -383,7 +383,14 @@ def test_error_bad_path(tmpdir, run):
 
     with pytest.raises(CalledProcessError) as exc:
         run(tmpdir, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C'])
-    assert 'Failed to find local git repository root.' in exc.value.output
+    assert 'Failed to find local git repository root in {}.'.format(repr(str(tmpdir))) in exc.value.output
+
+    repo = tmpdir.ensure_dir('repo')
+    run(repo, ['git', 'init'])
+    empty = tmpdir.ensure_dir('empty')
+    with pytest.raises(CalledProcessError) as exc:
+        run(repo, ['sphinx-versioning', 'build', str(tmpdir), '.', '-C', '-g', str(empty)])
+    assert 'Failed to find local git repository root in {}.'.format(repr(str(empty))) in exc.value.output
 
 
 def test_error_no_docs_found(tmpdir, local, run):

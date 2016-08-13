@@ -45,6 +45,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ----------
 
+Added
+    * ``--git-root`` command line option.
+
 Changed
     * Renamed command line option ``--prioritize`` to ``--priority``.
 

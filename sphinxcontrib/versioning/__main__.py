@@ -31,6 +31,8 @@ Options:
                             files in REL_DEST except for these. Specify
                             multiple times for more. Paths are relative to
                             REL_DEST in DST_BRANCH.
+    -g DIR --git-root=DIR   Path to directory in the local repo. Default is
+                            CWD.
     -h --help               Show this screen.
     -i --invert             Invert/reverse order of versions.
     -p K --priority=KIND    Set to "branches" or "tags" to group those kinds
@@ -95,9 +97,6 @@ def main_build(config, root, destination):
     :param sphinxcontrib.versioning.lib.Config config: Parsed command line arguments (get_arguments() output).
     :param str root: Root directory of repository.
     :param str destination: Value of config.destination.
-
-    :return: Versions class instance.
-    :rtype: sphinxcontrib.versioning.versions.Versions
     """
     log = logging.getLogger(__name__)
 
@@ -142,41 +141,51 @@ def main_build(config, root, destination):
     log.debug('Removing: %s', exported_root)
     shutil.rmtree(exported_root)
 
-    return versions
+    # Store versions in state for main_push().
+    config.program_state['versions'] = versions
 
 
-def main_push(config, root, temp_dir):
+def main_push(config, root):
     """Main function for push sub command.
 
     :raise HandledError: On unrecoverable errors. Will be logged before raising.
 
     :param sphinxcontrib.versioning.lib.Config config: Parsed command line arguments (get_arguments() output).
     :param str root: Root directory of repository.
-    :param str temp_dir: Local path empty directory in which branch will be cloned into.
 
     :return: If push succeeded.
     :rtype: bool
     """
     log = logging.getLogger(__name__)
 
-    log.info('Cloning %s into temporary directory...', config.dst_branch)
-    try:
-        clone(root, temp_dir, config.dst_branch, config.rel_dst, config.grm_exclude)
-    except GitError as exc:
-        log.error(exc.message)
-        log.error(exc.output)
-        raise HandledError
+    for _ in range(PUSH_RETRIES):
+        with TempDir() as temp_dir:
+            log.info('Cloning %s into temporary directory...', config.dst_branch)
+            try:
+                clone(root, temp_dir, config.dst_branch, config.rel_dst, config.grm_exclude)
+            except GitError as exc:
+                log.error(exc.message)
+                log.error(exc.output)
+                raise HandledError
 
-    log.info('Building docs...')
-    versions = main_build(config, root, os.path.join(temp_dir, config.rel_dst))
+            log.info('Building docs...')
+            main_build(config, root, os.path.join(temp_dir, config.rel_dst))
+            versions = config.program_state.pop('versions')
 
-    log.info('Attempting to push to branch %s on remote repository.', config.dst_branch)
-    try:
-        return commit_and_push(temp_dir, versions)
-    except GitError as exc:
-        log.error(exc.message)
-        log.error(exc.output)
-        raise HandledError
+            log.info('Attempting to push to branch %s on remote repository.', config.dst_branch)
+            try:
+                if commit_and_push(temp_dir, versions):
+                    return
+            except GitError as exc:
+                log.error(exc.message)
+                log.error(exc.output)
+                raise HandledError
+        log.warning('Failed to push to remote repository. Retrying in %d seconds...', PUSH_SLEEP)
+        time.sleep(PUSH_SLEEP)
+
+    # Failed if this is reached.
+    log.error('Ran out of retries, giving up.')
+    raise HandledError
 
 
 def main(config):
@@ -204,29 +213,20 @@ def main(config):
 
     # Get root.
     try:
-        root = get_root(os.getcwd())
+        config.git_root = get_root(config.git_root or os.getcwd())
     except GitError as exc:
         log.error(exc.message)
         log.error(exc.output)
         raise HandledError
-    log.info('Working in git repository: %s', root)
+    log.info('Working in git repository: %s', config.git_root)
 
     # Run build sub command.
     if config.build:
-        main_build(config, root, config.destination)
+        main_build(config, config.git_root, config.destination)
         return
 
     # Clone, build, push.
-    for _ in range(PUSH_RETRIES):
-        with TempDir() as temp_dir:
-            if main_push(config, root, temp_dir):
-                return
-        log.warning('Failed to push to remote repository. Retrying in %d seconds...', PUSH_SLEEP)
-        time.sleep(PUSH_SLEEP)
-
-    # Failed if this is reached.
-    log.error('Ran out of retries, giving up.')
-    raise HandledError
+    main_push(config, config.git_root)
 
 
 def entry_point():
