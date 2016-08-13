@@ -227,12 +227,12 @@ have docs.</p>
 
 <dl class="option">
 <dt id="cmdoption-s">
-<span id="cmdoption--sort"></span><code class="descname">-s</code><code class="descclassname"> &lt;csv&gt;</code><code class="descclassname">, </code><code class="descname">--sort</code><code class="descclassname"> &lt;csv&gt;</code><a class="headerlink" href="#cmdoption-s" title="Permalink to this definition">¶</a></dt>
-<dd><p>Comma separated values to sort versions by. Valid values are <code class="docutils literal"><span class="pre">semver</span></code>, <code class="docutils literal"><span class="pre">alpha</span></code>, and <code class="docutils literal"><span class="pre">chrono</span></code>.</p>
-<p>You can specify just one (e.g. &#8220;semver&#8221;), or more (e.g. &#8220;semver,alpha&#8221;). The &#8220;semver&#8221; value sorts versions by
+<span id="cmdoption--sort"></span><code class="descname">-s</code><code class="descclassname"> &lt;value&gt;</code><code class="descclassname">, </code><code class="descname">--sort</code><code class="descclassname"> &lt;value&gt;</code><a class="headerlink" href="#cmdoption-s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort versions by one or more certain kinds of values. Valid values are <code class="docutils literal"><span class="pre">semver</span></code>, <code class="docutils literal"><span class="pre">alpha</span></code>, and <code class="docutils literal"><span class="pre">time</span></code>.</p>
+<p>You can specify just one (e.g. &#8220;semver&#8221;), or more. The &#8220;semver&#8221; value sorts versions by
 <a class="reference external" href="http://semver.org/">Semantic Versioning</a>, with the highest version being first (e.g. 3.0.0, 2.10.0, 1.0.0).
 Non-semver branches/tags will be sorted after all valid semver formats. This is where the multiple sort values come
-in. You can specify &#8220;alpha&#8221; to sort the remainder alphabetically or &#8220;chrono&#8221; to sort chronologically (most recent
+in. You can specify &#8220;alpha&#8221; to sort the remainder alphabetically or &#8220;time&#8221; to sort chronologically (most recent
 commit first).</p>
 </dd></dl>
 
@@ -365,7 +365,6 @@ files in the branch if a branch is deleted from the repo after SCVersioning alre
         <dl>
             <dt>Branches</dt>
             <dd><a href="settings.html">master</a></dd>
-            <dd><a href="sort_split/settings.html">sort_split</a></dd>
             <dd><a href="wip_banner/settings.html">wip_banner</a></dd>
             <dd><a href="wip_banner2/settings.html">wip_banner2</a></dd>
             <dd><a href="wip_banner3/settings.html">wip_banner3</a></dd>
