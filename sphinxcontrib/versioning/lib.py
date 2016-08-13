@@ -15,7 +15,6 @@ class Config(object):
 
     def __init__(self):
         """Constructor."""
-        self._already_set = set()
         self.program_state = dict()
 
         # Booleans.
@@ -59,12 +58,9 @@ class Config(object):
         :param dict params: Click context params.
         """
         for key, value in params.items():
-            if key in self._already_set:
-                continue
             if not hasattr(self, key):
                 raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, key))
             setattr(self, key, value)
-            self._already_set.add(key)
 
 
 class HandledError(click.ClickException):

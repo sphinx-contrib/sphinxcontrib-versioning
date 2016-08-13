@@ -15,6 +15,7 @@ from sphinxcontrib.versioning.setup_logging import setup_logging
 from sphinxcontrib.versioning.versions import multi_sort, Versions
 
 IS_EXISTS_DIR = click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True)
+NO_EXECUTE = False  # Used in tests.
 PUSH_RETRIES = 3
 PUSH_SLEEP = 3  # Seconds.
 
@@ -65,7 +66,7 @@ class ClickGroup(click.Group):
 
         :return: super() return value.
         """
-        argv = click.get_os_args()
+        argv = kwargs.pop('args', click.get_os_args())
         if '--' in argv:
             pos = argv.index('--')
             argv, self.overflow = argv[:pos], tuple(argv[pos + 1:])
@@ -131,13 +132,16 @@ def cli(config, **options):
         Needed because if this code is in cli() it will be executed when the user runs: <command> <sub command> --help
         """
         # Setup logging.
-        setup_logging(verbose=config.verbose, colors=not config.no_colors)
+        if not NO_EXECUTE:
+            setup_logging(verbose=config.verbose, colors=not config.no_colors)
         log = logging.getLogger(__name__)
 
         # Change current working directory.
         if config.chdir:
             os.chdir(config.chdir)
             log.debug('Working directory: %s', os.getcwd())
+        else:
+            config.update(dict(chdir=os.getcwd()))
 
         # Get and verify git root.
         try:
@@ -199,6 +203,8 @@ def build(config, rel_source, destination, **options):
     """
     config.program_state.pop('pre', lambda: None)()
     config.update(options)
+    if NO_EXECUTE:
+        raise RuntimeError(config)
     log = logging.getLogger(__name__)
 
     # Gather git data.
@@ -284,6 +290,8 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     """
     config.program_state.pop('pre', lambda: None)()
     config.update(options)
+    if NO_EXECUTE:
+        raise RuntimeError(config)
     log = logging.getLogger(__name__)
 
     # Clone, build, push.
