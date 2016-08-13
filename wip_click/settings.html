@@ -205,7 +205,7 @@ whatever git prints when running &#8220;<strong>git ls-remote &#8211;heads &#821
 
 <dl class="option">
 <dt id="cmdoption-p">
-<span id="cmdoption--prioritize"></span><code class="descname">-p</code><code class="descclassname"> &lt;kind&gt;</code><code class="descclassname">, </code><code class="descname">--prioritize</code><code class="descclassname"> &lt;kind&gt;</code><a class="headerlink" href="#cmdoption-p" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--priority"></span><code class="descname">-p</code><code class="descclassname"> &lt;kind&gt;</code><code class="descclassname">, </code><code class="descname">--priority</code><code class="descclassname"> &lt;kind&gt;</code><a class="headerlink" href="#cmdoption-p" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="docutils literal"><span class="pre">kind</span></code> may be either <strong>branches</strong> or <strong>tags</strong>. This argument is for themes that don&#8217;t split up branches and tags
 in the generated HTML (e.g. sphinx_rtd_theme). This argument groups branches and tags together and whichever is
 selected for <code class="docutils literal"><span class="pre">kind</span></code> will be displayed first.</p>
@@ -252,7 +252,7 @@ and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref 
 
 <div class="section" id="overflow-pass-options">
 <h3>Overflow/Pass Options<a class="headerlink" href="#overflow-pass-options" title="Permalink to this headline">¶</a></h3>
-<p>It is possible to give the underlying <code class="docutils literal"><span class="pre">sphinx-build</span></code> program comand line options. SCVersioning passes everything after
+<p>It is possible to give the underlying <code class="docutils literal"><span class="pre">sphinx-build</span></code> program command line options. SCVersioning passes everything after
 <code class="docutils literal"><span class="pre">--</span></code> to it. For example if you changed the theme for your docs between versions and want docs for all versions to have
 the same theme, you can run:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning build docs/_build/html docs -- -A <span class="nv">html_theme</span><span class="o">=</span>sphinx_rtd_theme
@@ -358,8 +358,8 @@ files in the branch if a branch is deleted from the repo after SCVersioning alre
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../master/settings.html">master</a></dd>
             <dd><a href="../wip_click/settings.html">wip_click</a></dd>
+            <dd><a href="../master/settings.html">master</a></dd>
             <dd><a href="../wip_banner3/settings.html">wip_banner3</a></dd>
             <dd><a href="../wip_banner2/settings.html">wip_banner2</a></dd>
             <dd><a href="../wip_banner/settings.html">wip_banner</a></dd>
