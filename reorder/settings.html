@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#global-options">Global Options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#global-arguments">Global Arguments</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#overflow-pass-options">Overflow/Pass Options</a></li>
 </ul>
@@ -165,24 +166,14 @@
 <span id="id1"></span><h1>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h1>
 <p>SCVersioning reads settings only from command line arguments. Here are all the options will be listed along with their
 descriptions.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning <span class="o">[</span>options<span class="o">]</span> build DESTINATION REL_SOURCE...
-sphinx-versioning <span class="o">[</span>options<span class="o">]</span> <span class="o">[</span>-e F...<span class="o">]</span> push DEST_BRANCH REL_DEST REL_SOURCE...
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning <span class="o">[</span>GLOBAL_OPTIONS<span class="o">]</span> build <span class="o">[</span>OPTIONS<span class="o">]</span> REL_SOURCE... DESTINATION
+sphinx-versioning <span class="o">[</span>GLOBAL_OPTIONS<span class="o">]</span> push <span class="o">[</span>OPTIONS<span class="o">]</span> REL_SOURCE... DEST_BRANCH REL_DEST
 </pre></div>
 </div>
-<div class="section" id="global-arguments">
-<h2>Global Arguments<a class="headerlink" href="#global-arguments" title="Permalink to this headline">¶</a></h2>
-<p>These arguments/options apply to both <a class="reference internal" href="#build-arguments"><span class="std std-ref">build</span></a> and <a class="reference internal" href="#push-arguments"><span class="std std-ref">push</span></a> sub-commands.</p>
-<dl class="option">
-<dt id="cmdoption-arg-REL_SOURCE">
-<code class="descname">REL_SOURCE</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-arg-REL_SOURCE" title="Permalink to this definition">¶</a></dt>
-<dd><p>The path to the docs directory relative to the git root. If the source directory has moved around between git tags
-you can specify additional directories.</p>
-<p>This cannot be an absolute path, it must be relative to the root of your git repository. Sometimes projects move
-files around so documentation might not always have been in one place. To mitigate this you can specify additional
-relative paths and the first one that has a <strong>conf.py</strong> will be selected for each branch/tag. Any branch/tag that
-doesn&#8217;t have a conf.py file in one of these REL_SOURCEs will be ignored.</p>
-</dd></dl>
-
+<div class="section" id="global-options">
+<h2>Global Options<a class="headerlink" href="#global-options" title="Permalink to this headline">¶</a></h2>
+<p>These options apply to to both <a class="reference internal" href="#build-arguments"><span class="std std-ref">build</span></a> and <a class="reference internal" href="#push-arguments"><span class="std std-ref">push</span></a> sub commands. They must
+be specified before the build/push command or else you&#8217;ll get an error.</p>
 <dl class="option">
 <dt id="cmdoption-c">
 <span id="cmdoption--chdir"></span><code class="descname">-c</code><code class="descclassname"> &lt;directory&gt;</code><code class="descclassname">, </code><code class="descname">--chdir</code><code class="descclassname"> &lt;directory&gt;</code><a class="headerlink" href="#cmdoption-c" title="Permalink to this definition">¶</a></dt>
@@ -200,6 +191,27 @@ log/print plain text.</p>
 <dt id="cmdoption-g">
 <span id="cmdoption--git-root"></span><code class="descname">-g</code><code class="descclassname"> &lt;directory&gt;</code><code class="descclassname">, </code><code class="descname">--git-root</code><code class="descclassname"> &lt;directory&gt;</code><a class="headerlink" href="#cmdoption-g" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to directory in the local repo. Default is the current working directory.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-v">
+<span id="cmdoption--verbose"></span><code class="descname">-v</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--verbose</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable verbose/debug logging with timestamps and git command outputs. Implies <a class="reference internal" href="#cmdoption--no-colors"><code class="xref std std-option docutils literal"><span class="pre">--no-colors</span></code></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="global-arguments">
+<h2>Global Arguments<a class="headerlink" href="#global-arguments" title="Permalink to this headline">¶</a></h2>
+<p>These arguments/options apply to both <a class="reference internal" href="#build-arguments"><span class="std std-ref">build</span></a> and <a class="reference internal" href="#push-arguments"><span class="std std-ref">push</span></a> sub-commands.</p>
+<dl class="option">
+<dt id="cmdoption-arg-REL_SOURCE">
+<code class="descname">REL_SOURCE</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-arg-REL_SOURCE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the docs directory relative to the git root. If the source directory has moved around between git tags
+you can specify additional directories.</p>
+<p>This cannot be an absolute path, it must be relative to the root of your git repository. Sometimes projects move
+files around so documentation might not always have been in one place. To mitigate this you can specify additional
+relative paths and the first one that has a <strong>conf.py</strong> will be selected for each branch/tag. Any branch/tag that
+doesn&#8217;t have a conf.py file in one of these REL_SOURCEs will be ignored.</p>
 </dd></dl>
 
 <dl class="option">
@@ -248,12 +260,6 @@ and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref 
 <span id="cmdoption--recent-tag"></span><code class="descname">-T</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--recent-tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Override root-ref to be the most recent committed tag. If no tags have docs then this option is ignored and
 <a class="reference internal" href="#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a> is used.</p>
-</dd></dl>
-
-<dl class="option">
-<dt id="cmdoption-v">
-<span id="cmdoption--verbose"></span><code class="descname">-v</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--verbose</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-v" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enable verbose/debug logging with timestamps and git command outputs. Implies <a class="reference internal" href="#cmdoption--no-colors"><code class="xref std std-option docutils literal"><span class="pre">--no-colors</span></code></a>.</p>
 </dd></dl>
 
 <div class="section" id="overflow-pass-options">
