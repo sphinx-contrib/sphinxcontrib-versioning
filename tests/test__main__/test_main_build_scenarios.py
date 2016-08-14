@@ -404,23 +404,23 @@ def test_error_bad_path(tmpdir, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', '-C', '-c', 'unknown', 'build', '.', str(tmpdir)])
+        run(tmpdir, ['sphinx-versioning', '-N', '-c', 'unknown', 'build', '.', str(tmpdir)])
     assert 'Directory "unknown" does not exist.\n' in exc.value.output
 
     tmpdir.ensure('is_file')
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', '-C', '-c', 'is_file', 'build', '.', str(tmpdir)])
+        run(tmpdir, ['sphinx-versioning', '-N', '-c', 'is_file', 'build', '.', str(tmpdir)])
     assert 'Directory "is_file" is a file.\n' in exc.value.output
 
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', '-C', 'build', '.', str(tmpdir)])
+        run(tmpdir, ['sphinx-versioning', '-N', 'build', '.', str(tmpdir)])
     assert 'Failed to find local git repository root in {}.'.format(repr(str(tmpdir))) in exc.value.output
 
     repo = tmpdir.ensure_dir('repo')
     run(repo, ['git', 'init'])
     empty = tmpdir.ensure_dir('empty')
     with pytest.raises(CalledProcessError) as exc:
-        run(repo, ['sphinx-versioning', '-C', '-g', str(empty), 'build', '.', str(tmpdir)])
+        run(repo, ['sphinx-versioning', '-N', '-g', str(empty), 'build', '.', str(tmpdir)])
     assert 'Failed to find local git repository root in {}.'.format(repr(str(empty))) in exc.value.output
 
 
@@ -432,7 +432,7 @@ def test_error_no_docs_found(tmpdir, local, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(local, ['sphinx-versioning', '-C', '-v', 'build', '.', str(tmpdir)])
+        run(local, ['sphinx-versioning', '-N', '-v', 'build', '.', str(tmpdir)])
     assert 'No docs found in any remote branch/tag. Nothing to do.\n' in exc.value.output
 
 
@@ -444,5 +444,5 @@ def test_error_bad_root_ref(tmpdir, local_docs, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(local_docs, ['sphinx-versioning', '-C', '-v', 'build', '.', str(tmpdir), '-r', 'unknown'])
+        run(local_docs, ['sphinx-versioning', '-N', '-v', 'build', '.', str(tmpdir), '-r', 'unknown'])
     assert 'Root ref unknown not found in: master\n' in exc.value.output

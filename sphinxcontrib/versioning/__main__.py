@@ -109,8 +109,8 @@ class ClickCommand(click.Command):
 
 @click.group(cls=ClickGroup)
 @click.option('-c', '--chdir', help='Make this the current working directory before running.', type=IS_EXISTS_DIR)
-@click.option('-C', '--no-colors', help='Disable colors in the terminal output.', is_flag=True)
 @click.option('-g', '--git-root', help='Path to directory in the local repo. Default is CWD.', type=IS_EXISTS_DIR)
+@click.option('-N', '--no-colors', help='Disable colors in the terminal output.', is_flag=True)
 @click.option('-v', '--verbose', help='Debug logging. Specify more than once for more logging.', count=True)
 @click.version_option(version=__version__)
 @click.make_pass_decorator(Config, ensure=True)
@@ -120,7 +120,7 @@ def cli(config, **options):
     Supports only building locally with the "build" sub command or build and push to origin with the "push" sub command.
     For more information for either run them with their own --help.
 
-    The options below are global and must be specified before the sub command name (e.g. -C build ...).
+    The options below are global and must be specified before the sub command name (e.g. -N build ...).
     \f
 
     :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.

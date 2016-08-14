@@ -57,10 +57,13 @@ Changed
     * ``--sort`` no longer takes a comma separated string. Now specify multiple times (like ``--grm-exclude``).
     * Renamed ``--sort`` value "chrono" to "time".
     * Reordered positional command line arguments. Moved ``REL_SOURCE`` before the destination arguments.
+    * Renamed command line option ``-C`` to ``-N`` for consistency with sphinx-build.
 
 Fixed
     * Exposing sphinx-build verbosity to SCVersioning. Specify one ``-v`` to make SCVersioning verbose and two or more
       to make sphinx-build verbose.
+    * Using ``--no-colors`` also turns off colors from sphinx-build.
+    * https://github.com/Robpol86/sphinxcontrib-versioning/issues/16
 
 1.1.0 - 2016-08-07
 ------------------

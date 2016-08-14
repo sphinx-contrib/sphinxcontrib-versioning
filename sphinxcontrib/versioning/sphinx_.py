@@ -140,6 +140,8 @@ def _build(argv, versions, current_name):
     config = Config.from_context()
     if config.verbose > 1:
         argv += ('-v',) * (config.verbose - 1)
+    if config.no_colors:
+        argv += ('-N',)
 
     # Build.
     result = build_main(argv)

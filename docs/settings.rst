@@ -22,14 +22,14 @@ be specified before the build/push command or else you'll get an error.
 
     Change the current working directory of the program to this path.
 
-.. option:: -C, --no-colors
-
-    By default INFO, WARNING, and ERROR log/print statements use console colors. Use this argument to disable colors and
-    log/print plain text.
-
 .. option:: -g <directory>, --git-root <directory>
 
     Path to directory in the local repo. Default is the current working directory.
+
+.. option:: -N, --no-colors
+
+    By default INFO, WARNING, and ERROR log/print statements use console colors. Use this argument to disable colors and
+    log/print plain text.
 
 .. option:: -v, --verbose
 

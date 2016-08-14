@@ -98,7 +98,7 @@ def test_global_options(tmpdir, local_empty, run, push):
     empty = tmpdir.ensure_dir('empty')
     repo = tmpdir.ensure_dir('repo')
     run(repo, ['git', 'init'])
-    args = ['-c', str(empty), '-C', '-g', str(repo), '-v', '-v'] + args
+    args = ['-c', str(empty), '-N', '-g', str(repo), '-v', '-v'] + args
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.chdir == str(empty)
