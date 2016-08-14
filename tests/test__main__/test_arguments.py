@@ -90,20 +90,20 @@ def test_global_options(tmpdir, local_empty, run, push):
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.chdir == str(local_empty)
-    assert config.no_colors is False
     assert config.git_root == str(local_empty)
+    assert config.no_colors is False
     assert config.verbose == 0
 
     # Defined.
     empty = tmpdir.ensure_dir('empty')
     repo = tmpdir.ensure_dir('repo')
     run(repo, ['git', 'init'])
-    args = ['-c', str(empty), '-N', '-g', str(repo), '-v', '-v'] + args
+    args = ['-c', str(empty), '-g', str(repo), '-N', '-v', '-v'] + args
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.chdir == str(empty)
-    assert config.no_colors is True
     assert config.git_root == str(repo)
+    assert config.no_colors is True
     assert config.verbose == 2
 
 
@@ -121,31 +121,29 @@ def test_sub_command_options(push):
     # Defaults
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
+    assert config.greatest_tag is False
     assert config.invert is False
     assert config.priority is None
+    assert config.recent_tag is False
     assert config.root_ref == 'master'
     assert config.sort == tuple()
-    assert config.greatest_tag is False
-    assert config.recent_tag is False
     assert config.whitelist_branches == tuple()
     assert config.whitelist_tags == tuple()
     if push:
         assert config.grm_exclude == tuple()
 
     # Defined.
-    args = (args[:1] +
-            ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]'] +
-            args[1:])
+    args = args[:1] + ['-itT', '-pbranches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]'] + args[1:]
     if push:
         args = args[:1] + ['-e' 'README.md'] + args[1:]
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
+    assert config.greatest_tag is True
     assert config.invert is True
     assert config.priority == 'branches'
+    assert config.recent_tag is True
     assert config.root_ref == 'feature'
     assert config.sort == ('semver',)
-    assert config.greatest_tag is True
-    assert config.recent_tag is True
     assert config.whitelist_branches == ('master',)
     assert config.whitelist_tags == ('[0-9]',)
     if push:
