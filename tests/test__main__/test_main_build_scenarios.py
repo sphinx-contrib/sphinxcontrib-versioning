@@ -397,6 +397,42 @@ def test_passing_verbose(local_docs, run, verbosity):
         assert 'docnames to write:' in output
 
 
+def test_whitelisting(local_docs, run):
+    """Test whitelist features.
+
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    """
+    run(local_docs, ['git', 'tag', 'v1.0'])
+    run(local_docs, ['git', 'tag', 'v1.0-dev'])
+    run(local_docs, ['git', 'checkout', '-b', 'included', 'master'])
+    run(local_docs, ['git', 'checkout', '-b', 'ignored', 'master'])
+    run(local_docs, ['git', 'push', 'origin', 'v1.0', 'v1.0-dev', 'included', 'ignored'])
+
+    command = [
+        'sphinx-versioning', '-N', 'build', '.', 'html', '-w', 'master', '-w', 'included', '-W', '^v[0-9]+.[0-9]+$'
+    ]
+
+    # Run.
+    output = run(local_docs, command)
+    assert 'Traceback' not in output
+
+    # Check master.
+    destination = local_docs.join('html')
+    contents = destination.join('contents.html').read()
+    lines = {l.strip() for l in contents.splitlines() if 'contents.html">' in l}
+    expected = {
+        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="included/contents.html">included</a></li>',
+        '<li><a href="v1.0/contents.html">v1.0</a></li>',
+    }
+    assert lines == expected
+
+    # Check output.
+    assert 'With docs: ignored included master v1.0 v1.0-dev\n' in output
+    assert 'Passed whitelisting: included master v1.0\n' in output
+
+
 def test_error_bad_path(tmpdir, run):
     """Test handling of bad paths.
 

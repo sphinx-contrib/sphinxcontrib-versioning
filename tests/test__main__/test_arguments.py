@@ -127,11 +127,15 @@ def test_sub_command_options(push):
     assert config.sort == tuple()
     assert config.greatest_tag is False
     assert config.recent_tag is False
+    assert config.whitelist_branches == tuple()
+    assert config.whitelist_tags == tuple()
     if push:
         assert config.grm_exclude == tuple()
 
     # Defined.
-    args = args[:1] + ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver'] + args[1:]
+    args = (args[:1] +
+            ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]'] +
+            args[1:])
     if push:
         args = args[:1] + ['-e' 'README.md'] + args[1:]
     result = CliRunner().invoke(cli, args)
@@ -142,6 +146,8 @@ def test_sub_command_options(push):
     assert config.sort == ('semver',)
     assert config.greatest_tag is True
     assert config.recent_tag is True
+    assert config.whitelist_branches == ('master',)
+    assert config.whitelist_tags == ('[0-9]',)
     if push:
         assert config.grm_exclude == ('README.md',)
 

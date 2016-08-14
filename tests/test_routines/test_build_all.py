@@ -14,7 +14,7 @@ def test_single(tmpdir, local_docs):
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
     """
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']))
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions['master']['url'] = 'contents.html'
     versions.set_root_remote('master')
 
@@ -53,7 +53,7 @@ def test_multiple(tmpdir, local_docs, run, triple):
         run(local_docs, ['git', 'tag', 'v1.0.1'])
         run(local_docs, ['git', 'push', 'origin', 'v1.0.1'])
 
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']))
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions['master']['url'] = 'contents.html'
     versions['v1.0.0']['url'] = 'v1.0.0/contents.html'
     if triple:
@@ -124,7 +124,7 @@ def test_error(tmpdir, local_docs, run):
     run(local_docs, ['git', 'checkout', '-b', 'd_broken', 'b_broken'])
     run(local_docs, ['git', 'push', 'origin', 'a_good', 'b_broken', 'c_good', 'd_broken'])
 
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']))
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions['master']['url'] = 'contents.html'
     versions['a_good']['url'] = 'a_good/contents.html'
     versions['c_good']['url'] = 'c_good/contents.html'
@@ -184,7 +184,7 @@ def test_all_errors(tmpdir, local_docs, run):
     run(local_docs, ['git', 'checkout', '-b', 'b_broken', 'a_broken'])
     run(local_docs, ['git', 'push', 'origin', 'a_broken', 'b_broken'])
 
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']))
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions['master']['url'] = 'contents.html'
     versions['a_broken']['url'] = 'a_broken/contents.html'
     versions['b_broken']['url'] = 'b_broken/contents.html'

@@ -175,6 +175,11 @@ def build_options(func):
                         help='Override root-ref to be the tag with the highest version number.')(func)
     func = click.option('-T', '--recent-tag', is_flag=True,
                         help='Override root-ref to be the most recent committed tag.')(func)
+    func = click.option('-w', '--whitelist-branches', multiple=True,
+                        help='Whitelist branches that match the pattern. Can be specified more than once.')(func)
+    func = click.option('-W', '--whitelist-tags', multiple=True,
+                        help='Whitelist tags that match the pattern. Can be specified more than once.')(func)
+
     return func
 
 
@@ -212,7 +217,7 @@ def build(config, rel_source, destination, **options):
     # Gather git data.
     log.info('Gathering info about the remote git repository...')
     conf_rel_paths = [os.path.join(s, 'conf.py') for s in rel_source]
-    remotes = gather_git_info(config.git_root, conf_rel_paths)
+    remotes = gather_git_info(config.git_root, conf_rel_paths, config.whitelist_branches, config.whitelist_tags)
     if not remotes:
         log.error('No docs found in any remote branch/tag. Nothing to do.')
         raise HandledError

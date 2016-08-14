@@ -128,6 +128,15 @@ These options are available for the build sub command:
     Override root-ref to be the most recent committed tag. If no tags have docs then this option is ignored and
     :option:`--root-ref` is used.
 
+.. option:: -w <pattern>, --whitelist-branches <pattern>
+
+    Filter out branches not matching the pattern. Can be a simple string or a regex pattern. Specify multiple times to
+    include more patterns in the whitelist.
+
+.. option:: -W <pattern>, --whitelist-tags <pattern>
+
+    Same as :option:`--whitelist-branches` but for git tags instead.
+
 .. _push-arguments:
 
 Push Arguments

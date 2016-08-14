@@ -13,7 +13,7 @@ def test_single(local_docs):
 
     :param local_docs: conftest fixture.
     """
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']))
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions.set_root_remote('master')
     assert len(versions) == 1
 
@@ -45,7 +45,7 @@ def test_dual(local_docs, run):
     run(local_docs, ['git', 'commit', '-m', 'Adding docs with master_doc'])
     run(local_docs, ['git', 'push', 'origin', 'feature'])
 
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']))
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions.set_root_remote('master')
     assert len(versions) == 2
 
@@ -69,7 +69,7 @@ def test_file_collision(local_docs, run):
     run(local_docs, ['git', 'checkout', '-b', '_static'])
     run(local_docs, ['git', 'push', 'origin', '_static'])
 
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']))
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions.set_root_remote('master')
     assert len(versions) == 2
 
@@ -88,7 +88,7 @@ def test_invalid_name(local_docs, run):
     run(local_docs, ['git', 'checkout', '-b', 'robpol86/feature'])
     run(local_docs, ['git', 'push', 'origin', 'robpol86/feature'])
 
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']))
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions.set_root_remote('master')
     assert len(versions) == 2
 
@@ -112,7 +112,7 @@ def test_error(local_docs, run):
     run(local_docs, ['git', 'checkout', '-b', 'd_broken', 'b_broken'])
     run(local_docs, ['git', 'push', 'origin', 'a_good', 'b_broken', 'c_good', 'd_broken'])
 
-    versions = Versions(gather_git_info(str(local_docs), ['conf.py']), sort=['alpha'])
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()), sort=['alpha'])
     assert [r[0] for r in versions] == ['a_good', 'b_broken', 'c_good', 'd_broken', 'master']
 
     # Bad root ref.

@@ -33,6 +33,8 @@ class Config(object):
         self.grm_exclude = None
         self.overflow = None
         self.sort = None
+        self.whitelist_branches = None
+        self.whitelist_tags = None
 
         # Integers.
         self.verbose = 0

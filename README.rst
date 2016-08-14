@@ -49,6 +49,7 @@ Unreleased
 
 Added
     * ``--git-root`` command line option.
+    * ``--whitelist-branches`` and ``--whitelist-tags`` command line options.
 
 Changed
     * Renamed command line option ``--prioritize`` to ``--priority``.

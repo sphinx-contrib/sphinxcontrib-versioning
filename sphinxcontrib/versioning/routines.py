@@ -13,13 +13,15 @@ from sphinxcontrib.versioning.sphinx_ import build, read_config
 RE_INVALID_FILENAME = re.compile(r'[^0-9A-Za-z.-]')
 
 
-def gather_git_info(root, conf_rel_paths):
+def gather_git_info(root, conf_rel_paths, whitelist_branches, whitelist_tags):
     """Gather info about the remote git repository. Get list of refs.
 
     :raise HandledError: If function fails with a handled error. Will be logged before raising.
 
     :param str root: Root directory of repository.
     :param iter conf_rel_paths: List of possible relative paths (to git root) of Sphinx conf.py (e.g. docs/conf.py).
+    :param iter whitelist_branches: Optional list of patterns to filter branches by.
+    :param iter whitelist_tags: Optional list of patterns to filter tags by.
 
     :return: Commits with docs. A list of tuples: (sha, name, kind, date, conf_rel_path).
     :rtype: list
@@ -55,8 +57,22 @@ def gather_git_info(root, conf_rel_paths):
         raise HandledError
     filtered_remotes = [[i[0], i[1], i[2], ] + dates_paths[i[0]] for i in remotes if i[0] in dates_paths]
     log.info('With docs: %s', ' '.join(i[1] for i in filtered_remotes))
+    if not whitelist_branches and not whitelist_tags:
+        return filtered_remotes
 
-    return filtered_remotes
+    # Apply whitelist.
+    whitelisted_remotes = list()
+    for remote in filtered_remotes:
+        if remote[2] == 'heads' and whitelist_branches:
+            if not any(re.search(p, remote[1]) for p in whitelist_branches):
+                continue
+        if remote[2] == 'tags' and whitelist_tags:
+            if not any(re.search(p, remote[1]) for p in whitelist_tags):
+                continue
+        whitelisted_remotes.append(remote)
+    log.info('Passed whitelisting: %s', ' '.join(i[1] for i in whitelisted_remotes))
+
+    return whitelisted_remotes
 
 
 def pre_build(local_root, versions, overflow):
