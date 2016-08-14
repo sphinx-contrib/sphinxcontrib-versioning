@@ -95,10 +95,8 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Settings</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#global-options">Global Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#global-arguments">Global Arguments</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#overflow-pass-options">Overflow/Pass Options</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#common-positional-arguments">Common Positional Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#global-arguments">Global Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#build-arguments">Build Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#push-arguments">Push Arguments</a></li>
 </ul>
@@ -200,9 +198,9 @@ log/print plain text.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="global-arguments">
-<h2>Global Arguments<a class="headerlink" href="#global-arguments" title="Permalink to this headline">¶</a></h2>
-<p>These arguments/options apply to both <a class="reference internal" href="#build-arguments"><span class="std std-ref">build</span></a> and <a class="reference internal" href="#push-arguments"><span class="std std-ref">push</span></a> sub-commands.</p>
+<div class="section" id="common-positional-arguments">
+<h2>Common Positional Arguments<a class="headerlink" href="#common-positional-arguments" title="Permalink to this headline">¶</a></h2>
+<p>Both the <a class="reference internal" href="#build-arguments"><span class="std std-ref">build</span></a> and <a class="reference internal" href="#push-arguments"><span class="std std-ref">push</span></a> sub commands use these arguments.</p>
 <dl class="option">
 <dt id="cmdoption-arg-REL_SOURCE">
 <code class="descname">REL_SOURCE</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-arg-REL_SOURCE" title="Permalink to this definition">¶</a></dt>
@@ -214,6 +212,21 @@ relative paths and the first one that has a <strong>conf.py</strong> will be sel
 doesn&#8217;t have a conf.py file in one of these REL_SOURCEs will be ignored.</p>
 </dd></dl>
 
+<dl class="option">
+<dt id="cmdoption--">
+<code class="descname">--</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--" title="Permalink to this definition">¶</a></dt>
+<dd><p>It is possible to give the underlying <code class="docutils literal"><span class="pre">sphinx-build</span></code> program command line options. SCVersioning passes everything
+after <code class="docutils literal"><span class="pre">--</span></code> to it. For example if you changed the theme for your docs between versions and want docs for all
+versions to have the same theme, you can run:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning build docs docs/_build/html -- -A <span class="nv">html_theme</span><span class="o">=</span>sphinx_rtd_theme
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="global-arguments">
+<h2>Global Arguments<a class="headerlink" href="#global-arguments" title="Permalink to this headline">¶</a></h2>
+<p>These arguments/options apply to both <a class="reference internal" href="#build-arguments"><span class="std std-ref">build</span></a> and <a class="reference internal" href="#push-arguments"><span class="std std-ref">push</span></a> sub-commands.</p>
 <dl class="option">
 <dt id="cmdoption-i">
 <span id="cmdoption--invert"></span><code class="descname">-i</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--invert</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-i" title="Permalink to this definition">¶</a></dt>
@@ -262,15 +275,6 @@ and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref 
 <a class="reference internal" href="#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a> is used.</p>
 </dd></dl>
 
-<div class="section" id="overflow-pass-options">
-<h3>Overflow/Pass Options<a class="headerlink" href="#overflow-pass-options" title="Permalink to this headline">¶</a></h3>
-<p>It is possible to give the underlying <code class="docutils literal"><span class="pre">sphinx-build</span></code> program command line options. SCVersioning passes everything after
-<code class="docutils literal"><span class="pre">--</span></code> to it. For example if you changed the theme for your docs between versions and want docs for all versions to have
-the same theme, you can run:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning build docs/_build/html docs -- -A <span class="nv">html_theme</span><span class="o">=</span>sphinx_rtd_theme
-</pre></div>
-</div>
-</div>
 </div>
 <div class="section" id="build-arguments">
 <span id="id2"></span><h2>Build Arguments<a class="headerlink" href="#build-arguments" title="Permalink to this headline">¶</a></h2>
