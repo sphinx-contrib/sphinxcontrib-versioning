@@ -15,7 +15,7 @@ def test_no_exclude(local_docs_ghp, run):
     :param run: conftest fixture.
     """
     # Run.
-    output = run(local_docs_ghp, ['sphinx-versioning', 'push', 'gh-pages', '.', '.'])
+    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
     assert 'Traceback' not in output
     assert 'Failed to push to remote repository.' not in output
 
@@ -26,7 +26,7 @@ def test_no_exclude(local_docs_ghp, run):
     assert '<li><a href="contents.html">master</a></li>' in contents
 
     # Run again.
-    output = run(local_docs_ghp, ['sphinx-versioning', 'push', 'gh-pages', '.', '.'])
+    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
     assert 'Traceback' not in output
     assert 'Failed to push to remote repository.' not in output
     assert 'No significant changes to commit.' in output
@@ -52,7 +52,7 @@ def test_exclude(local_docs_ghp, run):
     run(local_docs_ghp, ['git', 'push', 'origin', 'gh-pages'])
 
     # Run.
-    output = run(local_docs_ghp, ['sphinx-versioning', 'push', 'gh-pages', 'documentation', '.', '-e', 'keep.txt'])
+    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', 'documentation', '-e', 'keep.txt'])
     assert 'Traceback' not in output
 
     # Check files.
@@ -69,7 +69,7 @@ def test_exclude(local_docs_ghp, run):
     run(local_docs_ghp, ['git', 'push', 'origin', 'master'])
 
     # Run.
-    output = run(local_docs_ghp, ['sphinx-versioning', 'push', 'gh-pages', 'documentation', '.', '-e', 'keep.txt'])
+    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', 'documentation', '-e', 'keep.txt'])
     assert 'Traceback' not in output
 
     # Check files.
@@ -97,7 +97,7 @@ def test_race(tmpdir, local_docs_ghp, remote, run, give_up):
 
     # Prepare command.
     env = dict(os.environ, GIT_DIR=str(local_docs_ghp.join('.git')))
-    command = ['sphinx-versioning', '--no-colors', 'push', 'gh-pages', 'html/docs', '.']
+    command = ['sphinx-versioning', '--no-colors', 'push', '.', 'gh-pages', 'html/docs']
     output_lines = list()
     caused = False
 
@@ -147,7 +147,7 @@ def test_error_clone_failure(local_docs, run):
     """
     # Run.
     with pytest.raises(CalledProcessError) as exc:
-        run(local_docs, ['sphinx-versioning', 'push', 'gh-pages', '.', '.'])
+        run(local_docs, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
     assert 'Traceback' not in exc.value.output
     assert 'Cloning gh-pages into temporary directory...' in exc.value.output
     assert 'Failed to clone from remote repo URL.' in exc.value.output
@@ -166,7 +166,7 @@ def test_error_build_failure(local_docs_ghp, run):
 
     # Run.
     with pytest.raises(CalledProcessError) as exc:
-        run(local_docs_ghp, ['sphinx-versioning', 'push', 'gh-pages', '.', '.'])
+        run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
     assert exc.value.output.count('Traceback') == 1
     assert "name 'undefined' is not defined" in exc.value.output
     assert 'Building docs...' in exc.value.output
@@ -183,7 +183,7 @@ def test_bad_git_config(local_docs_ghp, run):
     :param run: conftest fixture.
     """
     env = dict(os.environ, GIT_DIR=str(local_docs_ghp.join('.git')), HOME=str(local_docs_ghp.join('..')))
-    command = ['sphinx-versioning', '-v', 'push', 'gh-pages', '.', '.']
+    command = ['sphinx-versioning', '-v', 'push', '.', 'gh-pages', '.']
     output_lines = list()
     caused = False
 

@@ -24,9 +24,9 @@ def test_overflow(push):
     :param bool push: Run push sub command instead of build.
     """
     if push:
-        args = ['push', 'gh-pages', '.', 'docs']
+        args = ['push', 'docs', 'gh-pages', '.']
     else:
-        args = ['build', 'docs/_build/html', 'docs']
+        args = ['build', 'docs', 'docs/_build/html']
 
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
@@ -49,24 +49,24 @@ def test_args(push):
     """
     # Single rel_source.
     if push:
-        result = CliRunner().invoke(cli, ['push', 'gh-pages', '.', 'docs'])
+        result = CliRunner().invoke(cli, ['push', 'docs', 'gh-pages', '.'])
         rel_source, dest_branch, rel_dest = result.exception.args[1:]
         assert dest_branch == 'gh-pages'
         assert rel_dest == '.'
     else:
-        result = CliRunner().invoke(cli, ['build', 'docs/_build/html', 'docs'])
+        result = CliRunner().invoke(cli, ['build', 'docs', 'docs/_build/html'])
         rel_source, destination = result.exception.args[1:]
         assert destination == 'docs/_build/html'
     assert rel_source == ('docs',)
 
     # Multiple rel_source.
     if push:
-        result = CliRunner().invoke(cli, ['push', 'feature', 'html', 'docs', 'docs2', 'documentation', 'dox'])
+        result = CliRunner().invoke(cli, ['push', 'docs', 'docs2', 'documentation', 'dox', 'feature', 'html'])
         rel_source, dest_branch, rel_dest = result.exception.args[1:]
         assert dest_branch == 'feature'
         assert rel_dest == 'html'
     else:
-        result = CliRunner().invoke(cli, ['build', 'html', 'docs', 'docs2', 'documentation', 'dox'])
+        result = CliRunner().invoke(cli, ['build', 'docs', 'docs2', 'documentation', 'dox', 'html'])
         rel_source, destination = result.exception.args[1:]
         assert destination == 'html'
     assert rel_source == ('docs', 'docs2', 'documentation', 'dox')
@@ -82,9 +82,9 @@ def test_global_options(tmpdir, local_empty, run, push):
     :param bool push: Run push sub command instead of build.
     """
     if push:
-        args = ['push', 'gh-pages', '.', 'docs']
+        args = ['push', 'docs', 'gh-pages', '.']
     else:
-        args = ['build', 'docs/_build/html', 'docs']
+        args = ['build', 'docs', 'docs/_build/html']
 
     # Defaults.
     result = CliRunner().invoke(cli, args)
@@ -114,9 +114,9 @@ def test_sub_command_options(push):
     :param bool push: Run push sub command instead of build.
     """
     if push:
-        args = ['push', 'gh-pages', '.', 'docs']
+        args = ['push', 'docs', 'gh-pages', '.']
     else:
-        args = ['build', 'docs/_build/html', 'docs']
+        args = ['build', 'docs', 'docs/_build/html']
 
     # Defaults
     result = CliRunner().invoke(cli, args)
@@ -153,9 +153,9 @@ def test_sub_command_options_other(push):
     :param bool push: Run push sub command instead of build.
     """
     if push:
-        args = ['push', 'gh-pages', '.', 'docs']
+        args = ['push', 'docs', 'gh-pages', '.']
     else:
-        args = ['build', 'docs/_build/html', 'docs']
+        args = ['build', 'docs', 'docs/_build/html']
 
     # Defined.
     args = args[:1] + ['-p', 'tags', '-s', 'semver', '-s', 'time'] + args[1:]

@@ -9,23 +9,14 @@ descriptions.
 
 .. code-block:: bash
 
-    sphinx-versioning [options] build DESTINATION REL_SOURCE...
-    sphinx-versioning [options] [-e F...] push DEST_BRANCH REL_DEST REL_SOURCE...
+    sphinx-versioning [GLOBAL_OPTIONS] build [OPTIONS] REL_SOURCE... DESTINATION
+    sphinx-versioning [GLOBAL_OPTIONS] push [OPTIONS] REL_SOURCE... DEST_BRANCH REL_DEST
 
-Global Arguments
-================
+Global Options
+==============
 
-These arguments/options apply to both :ref:`build <build-arguments>` and :ref:`push <push-arguments>` sub-commands.
-
-.. option:: REL_SOURCE
-
-    The path to the docs directory relative to the git root. If the source directory has moved around between git tags
-    you can specify additional directories.
-
-    This cannot be an absolute path, it must be relative to the root of your git repository. Sometimes projects move
-    files around so documentation might not always have been in one place. To mitigate this you can specify additional
-    relative paths and the first one that has a **conf.py** will be selected for each branch/tag. Any branch/tag that
-    doesn't have a conf.py file in one of these REL_SOURCEs will be ignored.
+These options apply to to both :ref:`build <build-arguments>` and :ref:`push <push-arguments>` sub commands. They must
+be specified before the build/push command or else you'll get an error.
 
 .. option:: -c <directory>, --chdir <directory>
 
@@ -39,6 +30,64 @@ These arguments/options apply to both :ref:`build <build-arguments>` and :ref:`p
 .. option:: -g <directory>, --git-root <directory>
 
     Path to directory in the local repo. Default is the current working directory.
+
+.. option:: -v, --verbose
+
+    Enable verbose/debug logging with timestamps and git command outputs. Implies :option:`--no-colors`.
+
+.. _common-positional-arguments:
+
+Common Positional Arguments
+===========================
+
+Both the :ref:`build <build-arguments>` and :ref:`push <push-arguments>` sub commands use these arguments.
+
+.. option:: REL_SOURCE
+
+    The path to the docs directory relative to the git root. If the source directory has moved around between git tags
+    you can specify additional directories.
+
+    This cannot be an absolute path, it must be relative to the root of your git repository. Sometimes projects move
+    files around so documentation might not always have been in one place. To mitigate this you can specify additional
+    relative paths and the first one that has a **conf.py** will be selected for each branch/tag. Any branch/tag that
+    doesn't have a conf.py file in one of these REL_SOURCEs will be ignored.
+
+.. option:: --
+
+    It is possible to give the underlying ``sphinx-build`` program command line options. SCVersioning passes everything
+    after ``--`` to it. For example if you changed the theme for your docs between versions and want docs for all
+    versions to have the same theme, you can run:
+
+    .. code-block:: bash
+
+        sphinx-versioning build docs docs/_build/html -- -A html_theme=sphinx_rtd_theme
+
+.. _build-arguments:
+
+Build Arguments
+===============
+
+The ``build`` sub command builds all versions locally. It always gets the latest branches and tags from origin and
+builds those doc files.
+
+Positional Arguments
+--------------------
+
+In addition to the :ref:`common arguments <common-positional-arguments>`:
+
+.. option:: DESTINATION
+
+    The path to the directory that will hold all generated docs for all versions.
+
+    This is the local path on the file sytem that will hold HTML files. It can be relative to the current working
+    directory or an absolute directory path.
+
+.. _build-options:
+
+Options
+-------
+
+These options are available for the build sub command:
 
 .. option:: -i, --invert
 
@@ -78,46 +127,21 @@ These arguments/options apply to both :ref:`build <build-arguments>` and :ref:`p
     Override root-ref to be the most recent committed tag. If no tags have docs then this option is ignored and
     :option:`--root-ref` is used.
 
-.. option:: -v, --verbose
-
-    Enable verbose/debug logging with timestamps and git command outputs. Implies :option:`--no-colors`.
-
-Overflow/Pass Options
----------------------
-
-It is possible to give the underlying ``sphinx-build`` program command line options. SCVersioning passes everything after
-``--`` to it. For example if you changed the theme for your docs between versions and want docs for all versions to have
-the same theme, you can run:
-
-.. code-block:: bash
-
-    sphinx-versioning build docs/_build/html docs -- -A html_theme=sphinx_rtd_theme
-
-.. _build-arguments:
-
-Build Arguments
-===============
-
-The ``build`` sub-command builds all versions locally. It always gets the latest branches and tags from origin and
-builds those doc files. The above global arguments work for ``build`` in addition to:
-
-.. option:: DESTINATION
-
-    The path to the directory that will hold all generated docs for all versions.
-
-    This is the local path on the file sytem that will hold HTML files. It can be relative to the current working
-    directory or an absolute directory path.
-
 .. _push-arguments:
 
 Push Arguments
 ==============
 
-``push`` does the same as push and also attempts to push generated HTML files to a remote branch. It will retry up to
+``push`` does the same as build and also attempts to push generated HTML files to a remote branch. It will retry up to
 three times in case of race conditions with other processes also trying to push files to the same branch (e.g. multiple
 Jenkins/Travis jobs).
 
 HTML files are committed to :option:`DEST_BRANCH` and pushed to origin.
+
+Positional Arguments
+--------------------
+
+In addition to the :ref:`common arguments <common-positional-arguments>`:
 
 .. option:: DEST_BRANCH
 
@@ -134,6 +158,12 @@ HTML files are committed to :option:`DEST_BRANCH` and pushed to origin.
     If you want your generated **index.html** to be at the root of :option:`DEST_BRANCH` you can just specify a period
     (e.g. ``.``) for REL_DEST. If you want HTML files to be placed in say... "<git root>/html/docs", then you specify
     "html/docs".
+
+Options
+-------
+
+All :ref:`build options <build-options>` are valid for the push sub command. Additionally these options are available
+only for the push sub command:
 
 .. option:: -e <file>, --grm-exclude <file>
 

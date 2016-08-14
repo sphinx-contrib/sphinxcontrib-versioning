@@ -29,7 +29,7 @@ def test_sub_page_and_tag(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.'])
+    output = run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)])
     assert 'Traceback' not in output
 
     # Check master.
@@ -65,7 +65,7 @@ def test_moved_docs(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.join('destination')
-    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), 'docs'])
+    output = run(local_docs, ['sphinx-versioning', 'build', 'docs', str(destination)])
     assert 'Traceback' not in output
 
     # Check master.
@@ -96,7 +96,7 @@ def test_moved_docs_many(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.join('destination')
-    output = run(tmpdir, ['sphinx-versioning', '-c', str(local_docs), 'build', str(destination), '.', 'docs', 'docs2'])
+    output = run(tmpdir, ['sphinx-versioning', '-c', str(local_docs), 'build', 'docs', 'docs2', '.', str(destination)])
     assert 'Traceback' not in output
 
     # Check master.
@@ -125,7 +125,7 @@ def test_version_change(tmpdir, local_docs, run):
     destination = tmpdir.join('destination')
 
     # Only master.
-    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.', 'docs'])
+    output = run(local_docs, ['sphinx-versioning', 'build', '.', 'docs', str(destination)])
     assert 'Traceback' not in output
     contents = destination.join('contents.html').read()
     assert '<li><a href="contents.html">master</a></li>' in contents
@@ -136,7 +136,7 @@ def test_version_change(tmpdir, local_docs, run):
     run(local_docs, ['git', 'tag', 'v1.0.0'])
     run(local_docs, ['git', 'tag', 'v2.0.0'])
     run(local_docs, ['git', 'push', 'origin', 'v1.0.0', 'v2.0.0'])
-    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.', 'docs'])
+    output = run(local_docs, ['sphinx-versioning', 'build', '.', 'docs', str(destination)])
     assert 'Traceback' not in output
     contents = destination.join('contents.html').read()
     assert '<li><a href="contents.html">master</a></li>' in contents
@@ -150,7 +150,7 @@ def test_version_change(tmpdir, local_docs, run):
 
     # Remove one tag.
     run(local_docs, ['git', 'push', 'origin', '--delete', 'v2.0.0'])
-    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.', 'docs'])
+    output = run(local_docs, ['sphinx-versioning', 'build', '.', 'docs', str(destination)])
     assert 'Traceback' not in output
     contents = destination.join('contents.html').read()
     assert '<li><a href="contents.html">master</a></li>' in contents
@@ -174,7 +174,7 @@ def test_multiple_local_repos(tmpdir, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    output = run(other, ['sphinx-versioning', '-c', '../local', '-v', 'build', str(destination), '.'])
+    output = run(other, ['sphinx-versioning', '-c', '../local', '-v', 'build', '.', str(destination)])
     assert 'Traceback' not in output
 
     # Check master.
@@ -214,7 +214,7 @@ def test_root_ref(tmpdir, local_docs, run, no_tags):
     for arg, expected in (('--root-ref=f2', 'f2'), ('--greatest-tag', 'v2.0.0'), ('--recent-tag', 'v1.0.0')):
         # Run.
         destination = tmpdir.join('destination', arg[2:])
-        output = run(tmpdir, ['sphinx-versioning', '-c', str(local_docs), 'build', str(destination), '.', arg])
+        output = run(tmpdir, ['sphinx-versioning', '-c', str(local_docs), 'build', '.', str(destination), arg])
         assert 'Traceback' not in output
         # Check root.
         contents = destination.join('contents.html').read()
@@ -281,7 +281,7 @@ def test_add_remove_docs(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    output = run(local_docs, ['sphinx-versioning', 'build', str(destination), '.'])
+    output = run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)])
     assert 'Traceback' not in output
 
     # Check master.
@@ -373,23 +373,23 @@ def test_error_bad_path(tmpdir, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', '-C', '-c', 'unknown', 'build', str(tmpdir), '.'])
+        run(tmpdir, ['sphinx-versioning', '-C', '-c', 'unknown', 'build', '.', str(tmpdir)])
     assert 'Directory "unknown" does not exist.\n' in exc.value.output
 
     tmpdir.ensure('is_file')
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', '-C', '-c', 'is_file', 'build', str(tmpdir), '.'])
+        run(tmpdir, ['sphinx-versioning', '-C', '-c', 'is_file', 'build', '.', str(tmpdir)])
     assert 'Directory "is_file" is a file.\n' in exc.value.output
 
     with pytest.raises(CalledProcessError) as exc:
-        run(tmpdir, ['sphinx-versioning', '-C', 'build', str(tmpdir), '.'])
+        run(tmpdir, ['sphinx-versioning', '-C', 'build', '.', str(tmpdir)])
     assert 'Failed to find local git repository root in {}.'.format(repr(str(tmpdir))) in exc.value.output
 
     repo = tmpdir.ensure_dir('repo')
     run(repo, ['git', 'init'])
     empty = tmpdir.ensure_dir('empty')
     with pytest.raises(CalledProcessError) as exc:
-        run(repo, ['sphinx-versioning', '-C', '-g', str(empty), 'build', str(tmpdir), '.'])
+        run(repo, ['sphinx-versioning', '-C', '-g', str(empty), 'build', '.', str(tmpdir)])
     assert 'Failed to find local git repository root in {}.'.format(repr(str(empty))) in exc.value.output
 
 
@@ -401,7 +401,7 @@ def test_error_no_docs_found(tmpdir, local, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(local, ['sphinx-versioning', '-C', '-v', 'build', str(tmpdir), '.'])
+        run(local, ['sphinx-versioning', '-C', '-v', 'build', '.', str(tmpdir)])
     assert 'No docs found in any remote branch/tag. Nothing to do.\n' in exc.value.output
 
 
@@ -413,5 +413,5 @@ def test_error_bad_root_ref(tmpdir, local_docs, run):
     :param run: conftest fixture.
     """
     with pytest.raises(CalledProcessError) as exc:
-        run(local_docs, ['sphinx-versioning', '-C', '-v', 'build', str(tmpdir), '.', '-r', 'unknown'])
+        run(local_docs, ['sphinx-versioning', '-C', '-v', 'build', '.', str(tmpdir), '-r', 'unknown'])
     assert 'Root ref unknown not found in: master\n' in exc.value.output

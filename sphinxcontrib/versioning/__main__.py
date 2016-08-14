@@ -46,7 +46,9 @@ class ClickGroup(click.Group):
         :rtype: int
         """
         option = param.opts[0].lstrip('-')
-        return option == 'version', option.lower(), option.swapcase()
+        if param.param_type_name != 'option':
+            return False,
+        return True, option == 'version', option.lower(), option.swapcase()
 
     def get_params(self, ctx):
         """Sort order of options before displaying.
@@ -178,8 +180,8 @@ def build_options(func):
 
 @cli.command(cls=ClickCommand)
 @build_options
-@click.argument('DESTINATION', type=click.Path(file_okay=False, dir_okay=True))
 @click.argument('REL_SOURCE', nargs=-1, required=True)
+@click.argument('DESTINATION', type=click.Path(file_okay=False, dir_okay=True))
 @Config.pass_config()
 def build(config, rel_source, destination, **options):
     """Fetch branches/tags and build all locally.
@@ -193,7 +195,7 @@ def build(config, rel_source, destination, **options):
     DESTINATION is the path to the local directory that will hold all generated docs for all versions.
 
     To pass options to sphinx-build (run for every branch/tag) use a double hyphen
-    (e.g. build docs/_build/html docs -- -D setting=value).
+    (e.g. build docs docs/_build/html -- -D setting=value).
     \f
 
     :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
@@ -257,15 +259,15 @@ def build(config, rel_source, destination, **options):
 @click.option('-e', '--grm-exclude', multiple=True,
               help='If specified "git rm" will delete all files in REL_DEST except for these. Specify multiple times '
                    'for more. Paths are relative to REL_DEST in DEST_BRANCH.')
+@click.argument('REL_SOURCE', nargs=-1, required=True)
 @click.argument('DEST_BRANCH')
 @click.argument('REL_DEST')
-@click.argument('REL_SOURCE', nargs=-1, required=True)
 @Config.pass_config()
 @click.pass_context
 def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     """Build locally and then push to remote branch.
 
-    First the build sub-command is invoked which takes care of building all versions of your documentation in a
+    First the build sub command is invoked which takes care of building all versions of your documentation in a
     temporary directory. If that succeeds then all built documents will be pushed to a remote branch.
 
     REL_SOURCE is the path to the docs directory relative to the git root. If the source directory has moved around
@@ -278,7 +280,7 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     DEST_BRANCH.
 
     To pass options to sphinx-build (run for every branch/tag) use a double hyphen
-    (e.g. push gh-pages . docs -- -D setting=value).
+    (e.g. push docs gh-pages . -- -D setting=value).
     \f
 
     :param click.core.Context ctx: Click context.

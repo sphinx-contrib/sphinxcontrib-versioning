@@ -56,6 +56,7 @@ Changed
     * ``--chdir``, ``--no-colors``, and ``--verbose`` must be specified before build/push and the other after.
     * ``--sort`` no longer takes a comma separated string. Now specify multiple times (like ``--grm-exclude``).
     * Renamed ``--sort`` value "chrono" to "time".
+    * Reordered positional command line arguments. Moved ``REL_SOURCE`` before the destination arguments.
 
 1.1.0 - 2016-08-07
 ------------------
