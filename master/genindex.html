@@ -141,7 +141,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v1.1.0/docs/genindex.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/genindex.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -171,23 +171,23 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
+    --
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption--">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
     -c &lt;directory&gt;, --chdir &lt;directory&gt;
   </dt>
 
       <dd><dl>
         
   <dt><a href="settings.html#cmdoption-c">command line option</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt>
-    -C, --no-colors
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="settings.html#cmdoption-C">command line option</a>
   </dt>
 
       </dl></dd>
@@ -204,6 +204,17 @@
       </dl></dd>
       
   <dt>
+    -g &lt;directory&gt;, --git-root &lt;directory&gt;
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-g">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
     -i, --invert
   </dt>
 
@@ -215,7 +226,18 @@
       </dl></dd>
       
   <dt>
-    -p &lt;kind&gt;, --prioritize &lt;kind&gt;
+    -N, --no-colors
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-N">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -p &lt;kind&gt;, --priority &lt;kind&gt;
   </dt>
 
       <dd><dl>
@@ -239,7 +261,7 @@
       </dl></dd>
       
   <dt>
-    -s &lt;csv&gt;, --sort &lt;csv&gt;
+    -s &lt;value&gt;, --sort &lt;value&gt;
   </dt>
 
       <dd><dl>
@@ -281,6 +303,28 @@
   </dt>
 
       </dl></dd>
+      
+  <dt>
+    -w &lt;pattern&gt;, --whitelist-branches &lt;pattern&gt;
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-w">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -W &lt;pattern&gt;, --whitelist-tags &lt;pattern&gt;
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-W">command line option</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -304,11 +348,19 @@
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption-C">-C, --no-colors</a>
+  <dt><a href="settings.html#cmdoption--">--</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-N">-N, --no-colors</a>
   </dt>
 
         
   <dt><a href="settings.html#cmdoption-T">-T, --recent-tag</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-W">-W &lt;pattern&gt;, --whitelist-tags &lt;pattern&gt;</a>
   </dt>
 
         
@@ -320,11 +372,15 @@
   </dt>
 
         
+  <dt><a href="settings.html#cmdoption-g">-g &lt;directory&gt;, --git-root &lt;directory&gt;</a>
+  </dt>
+
+        
   <dt><a href="settings.html#cmdoption-i">-i, --invert</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-p">-p &lt;kind&gt;, --prioritize &lt;kind&gt;</a>
+  <dt><a href="settings.html#cmdoption-p">-p &lt;kind&gt;, --priority &lt;kind&gt;</a>
   </dt>
 
         
@@ -332,7 +388,7 @@
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-s">-s &lt;csv&gt;, --sort &lt;csv&gt;</a>
+  <dt><a href="settings.html#cmdoption-s">-s &lt;value&gt;, --sort &lt;value&gt;</a>
   </dt>
 
         
@@ -344,15 +400,19 @@
   </dt>
 
         
+  <dt><a href="settings.html#cmdoption-w">-w &lt;pattern&gt;, --whitelist-branches &lt;pattern&gt;</a>
+  </dt>
+
+        
   <dt><a href="settings.html#cmdoption-arg-DESTINATION">DESTINATION</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-arg-DST_BRANCH">DST_BRANCH</a>
+  <dt><a href="settings.html#cmdoption-arg-DEST_BRANCH">DEST_BRANCH</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-arg-REL_DST">REL_DST</a>
+  <dt><a href="settings.html#cmdoption-arg-REL_DEST">REL_DEST</a>
   </dt>
 
         
@@ -374,12 +434,12 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    DESTINATION
+    DEST_BRANCH
   </dt>
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption-arg-DESTINATION">command line option</a>
+  <dt><a href="settings.html#cmdoption-arg-DEST_BRANCH">command line option</a>
   </dt>
 
       </dl></dd>
@@ -387,12 +447,12 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    DST_BRANCH
+    DESTINATION
   </dt>
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption-arg-DST_BRANCH">command line option</a>
+  <dt><a href="settings.html#cmdoption-arg-DESTINATION">command line option</a>
   </dt>
 
       </dl></dd>
@@ -404,12 +464,12 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    REL_DST
+    REL_DEST
   </dt>
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption-arg-REL_DST">command line option</a>
+  <dt><a href="settings.html#cmdoption-arg-REL_DEST">command line option</a>
   </dt>
 
       </dl></dd>
@@ -522,24 +582,24 @@
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: v1.1.0
+        v: master
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="../v1.0.0/index.html">v1.0.0</a></dd>
+            <dd><a href="../index.html">v1.1.0</a></dd>
             <dd><a href="../v1.0.1/index.html">v1.0.1</a></dd>
-            <dd><a href="../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../v1.0.0/index.html">v1.0.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../index.html">master</a></dd>
             <dd><a href="../stage/index.html">stage</a></dd>
-            <dd><a href="../wip_banner/index.html">wip_banner</a></dd>
-            <dd><a href="../wip_banner2/index.html">wip_banner2</a></dd>
-            <dd><a href="../wip_banner3/index.html">wip_banner3</a></dd>
             <dd><a href="../wip_conf_py/index.html">wip_conf_py</a></dd>
+            <dd><a href="../master/index.html">master</a></dd>
+            <dd><a href="../wip_banner3/index.html">wip_banner3</a></dd>
+            <dd><a href="../wip_banner2/index.html">wip_banner2</a></dd>
+            <dd><a href="../wip_banner/index.html">wip_banner</a></dd>
         </dl>
     </div>
 </div>
