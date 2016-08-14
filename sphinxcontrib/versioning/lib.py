@@ -44,7 +44,7 @@ class Config(object):
         """Class representation."""
         attributes = ('program_state', 'verbose', 'root_ref', 'overflow')
         key_value_attrs = ', '.join('{}={}'.format(a, repr(getattr(self, a))) for a in attributes)
-        return '<{}.{} {}'.format(self.__class__.__module__, self.__class__.__name__, key_value_attrs)
+        return '<{}.{} {}>'.format(self.__class__.__module__, self.__class__.__name__, key_value_attrs)
 
     @classmethod
     def from_context(cls):
