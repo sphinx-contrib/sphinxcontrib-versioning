@@ -192,6 +192,21 @@ be specified before the build/push command or else you&#8217;ll get an error.</p
 </dd></dl>
 
 <dl class="option">
+<dt id="cmdoption-l">
+<span id="cmdoption--local-conf"></span><code class="descname">-l</code><code class="descclassname"> &lt;file&gt;</code><code class="descclassname">, </code><code class="descname">--local-conf</code><code class="descclassname"> &lt;file&gt;</code><a class="headerlink" href="#cmdoption-l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to conf.py for SCVersioning to read its config from. Does not affect conf.py loaded by sphinx-build.</p>
+<p>If not specified the default behavior is to have SCVersioning look for a conf.py file in any <a class="reference internal" href="#cmdoption-arg-REL_SOURCE"><code class="xref std std-option docutils literal"><span class="pre">REL_SOURCE</span></code></a>
+directory within the current working directory. Stops at the first conf.py found if any.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-L">
+<span id="cmdoption--no-local-conf"></span><code class="descname">-L</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--no-local-conf</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-L" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables searching for or loading a local conf.py for SCVersioning settings. Does not affect conf.py loaded by
+sphinx-build.</p>
+</dd></dl>
+
+<dl class="option">
 <dt id="cmdoption-N">
 <span id="cmdoption--no-colors"></span><code class="descname">-N</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--no-colors</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-N" title="Permalink to this definition">¶</a></dt>
 <dd><p>By default INFO, WARNING, and ERROR log/print statements use console colors. Use this argument to disable colors and
