@@ -15,6 +15,7 @@ class Config(object):
 
     def __init__(self):
         """Constructor."""
+        self._already_set = set()
         self.program_state = dict()
 
         # Booleans.
@@ -58,15 +59,24 @@ class Config(object):
             return cls()
         return ctx.find_object(cls)
 
-    def update(self, params):
+    def update(self, params, ignore_set=False, overwrite=False):
         """Set instance values from dictionary.
 
         :param dict params: Click context params.
+        :param bool ignore_set: Skip already-set values instead of raising AttributeError.
+        :param bool overwrite: Allow overwriting already-set values.
         """
         for key, value in params.items():
             if not hasattr(self, key):
                 raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, key))
+            if key in self._already_set:
+                if ignore_set:
+                    continue
+                if not overwrite:
+                    message = "'{}' object does not support item re-assignment on '{}'"
+                    raise AttributeError(message.format(self.__class__.__name__, key))
             setattr(self, key, value)
+            self._already_set.add(key)
 
 
 class HandledError(click.ClickException):

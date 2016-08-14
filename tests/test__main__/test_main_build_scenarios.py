@@ -214,7 +214,7 @@ def test_root_ref(tmpdir, local_docs, run, no_tags):
     for arg, expected in (('--root-ref=f2', 'f2'), ('--greatest-tag', 'v2.0.0'), ('--recent-tag', 'v1.0.0')):
         # Run.
         destination = tmpdir.join('destination', arg[2:])
-        output = run(tmpdir, ['sphinx-versioning', '-c', str(local_docs), 'build', '.', str(destination), arg])
+        output = run(tmpdir, ['sphinx-versioning', '-N', '-c', str(local_docs), 'build', '.', str(destination), arg])
         assert 'Traceback' not in output
         # Check root.
         contents = destination.join('contents.html').read()
@@ -226,6 +226,8 @@ def test_root_ref(tmpdir, local_docs, run, no_tags):
             assert 'No git tags with docs found in remote. Falling back to --root-ref value.' in output
         else:
             assert 'No git tags with docs found in remote. Falling back to --root-ref value.' not in output
+        # Check output.
+        assert 'Root ref is: {}\n'.format(expected) in output
 
 
 def test_add_remove_docs(tmpdir, local_docs, run):

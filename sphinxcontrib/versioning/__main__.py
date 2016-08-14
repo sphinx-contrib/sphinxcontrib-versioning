@@ -126,8 +126,6 @@ def cli(config, **options):
     :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
     :param dict options: Additional Click options.
     """
-    git_root = options.pop('git_root')
-
     def pre():
         """To be executed in a Click sub command.
 
@@ -143,11 +141,11 @@ def cli(config, **options):
             os.chdir(config.chdir)
             log.debug('Working directory: %s', os.getcwd())
         else:
-            config.update(dict(chdir=os.getcwd()))
+            config.update(dict(chdir=os.getcwd()), overwrite=True)
 
         # Get and verify git root.
         try:
-            config.update(dict(git_root=get_root(git_root or os.getcwd())))
+            config.update(dict(git_root=get_root(config.git_root or os.getcwd())), overwrite=True)
         except GitError as exc:
             log.error(exc.message)
             log.error(exc.output)
@@ -209,7 +207,7 @@ def build(config, rel_source, destination, **options):
     :param dict options: Additional Click options.
     """
     config.program_state.pop('pre', lambda: None)()
-    config.update(options)
+    config.update(options, ignore_set=True)
     if NO_EXECUTE:
         raise RuntimeError(config, rel_source, destination)
     log = logging.getLogger(__name__)
@@ -229,20 +227,18 @@ def build(config, rel_source, destination, **options):
     )
 
     # Get root ref.
-    root_ref = None
     if config.greatest_tag or config.recent_tag:
         candidates = [r for r in versions.remotes if r['kind'] == 'tags']
-        if not candidates:
-            log.warning('No git tags with docs found in remote. Falling back to --root-ref value.')
-        else:
+        if candidates:
             multi_sort(candidates, ['semver' if config.greatest_tag else 'time'])
-            root_ref = candidates[0]['name']
-    if not root_ref:
-        root_ref = config.root_ref
-        if config.root_ref not in [r[1] for r in remotes]:
-            log.error('Root ref %s not found in: %s', config.root_ref, ' '.join(r[1] for r in remotes))
-            raise HandledError
-    versions.set_root_remote(root_ref)
+            config.update(dict(root_ref=candidates[0]['name']), overwrite=True)
+        else:
+            log.warning('No git tags with docs found in remote. Falling back to --root-ref value.')
+    if config.root_ref not in [r[1] for r in remotes]:
+        log.error('Root ref %s not found in: %s', config.root_ref, ' '.join(r[1] for r in remotes))
+        raise HandledError
+    log.info('Root ref is: %s', config.root_ref)
+    versions.set_root_remote(config.root_ref)
 
     # Pre-build.
     log.info('Pre-running Sphinx to determine URLs.')

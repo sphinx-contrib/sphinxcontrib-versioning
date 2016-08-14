@@ -82,6 +82,24 @@ def test_exclude(local_docs_ghp, run):
     assert local_docs_ghp.join('documentation', 'keep.txt').check()
 
 
+def test_root_ref(local_docs_ghp, run):
+    """Test passing root_ref value from push Click command to build Click command.
+
+    :param local_docs_ghp: conftest fixture.
+    :param run: conftest fixture.
+    """
+    run(local_docs_ghp, ['git', 'tag', 'v1.0.0'])
+    run(local_docs_ghp, ['git', 'push', 'origin', 'v1.0.0'])
+
+    # Run.
+    output = run(local_docs_ghp, ['sphinx-versioning', '-N', 'push', '-t', '.', 'gh-pages', '.'])
+    assert 'Traceback' not in output
+    assert 'Failed to push to remote repository.' not in output
+
+    # Check output.
+    assert 'Root ref is: v1.0.0\n' in output
+
+
 @pytest.mark.parametrize('give_up', [False, True])
 def test_race(tmpdir, local_docs_ghp, remote, run, give_up):
     """Test with race condition where another process pushes to gh-pages causing a retry.
