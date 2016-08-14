@@ -58,6 +58,10 @@ Changed
     * Renamed ``--sort`` value "chrono" to "time".
     * Reordered positional command line arguments. Moved ``REL_SOURCE`` before the destination arguments.
 
+Fixed
+    * Exposing sphinx-build verbosity to SCVersioning. Specify one ``-v`` to make SCVersioning verbose and two or more
+      to make sphinx-build verbose.
+
 1.1.0 - 2016-08-07
 ------------------
 

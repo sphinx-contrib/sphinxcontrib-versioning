@@ -9,12 +9,12 @@ import sys
 
 from sphinx import application, build_main
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.config import Config
+from sphinx.config import Config as SphinxConfig
 from sphinx.errors import SphinxError
 from sphinx.jinja2glue import SphinxFileSystemLoader
 
 from sphinxcontrib.versioning import __version__
-from sphinxcontrib.versioning.lib import HandledError, TempDir
+from sphinxcontrib.versioning.lib import Config, HandledError, TempDir
 from sphinxcontrib.versioning.versions import Versions
 
 SC_VERSIONING_VERSIONS = list()  # Updated after forking.
@@ -114,7 +114,7 @@ def setup(app):
     return dict(version=__version__)
 
 
-class ConfigInject(Config):
+class ConfigInject(SphinxConfig):
     """Inject this extension info self.extensions. Append after user's extensions."""
 
     def __init__(self, dirname, filename, overrides, tags):
@@ -126,7 +126,7 @@ class ConfigInject(Config):
 def _build(argv, versions, current_name):
     """Build Sphinx docs via multiprocessing for isolation.
 
-    :param iter argv: Arguments to pass to Sphinx.
+    :param tuple argv: Arguments to pass to Sphinx.
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
     :param str current_name: The ref name of the current version being built.
     """
@@ -135,6 +135,11 @@ def _build(argv, versions, current_name):
     EventHandlers.CURRENT_VERSION = current_name
     EventHandlers.VERSIONS = versions
     SC_VERSIONING_VERSIONS[:] = list(versions)
+
+    # Update argv.
+    config = Config.from_context()
+    if config.verbose > 1:
+        argv += ('-v',) * (config.verbose - 1)
 
     # Build.
     result = build_main(argv)
@@ -145,7 +150,7 @@ def _build(argv, versions, current_name):
 def _read_config(argv, current_name, queue):
     """Read the Sphinx config via multiprocessing for isolation.
 
-    :param iter argv: Arguments to pass to Sphinx.
+    :param tuple argv: Arguments to pass to Sphinx.
     :param str current_name: The ref name of the current version being built.
     :param multiprocessing.queues.Queue queue: Communication channel to parent process.
     """

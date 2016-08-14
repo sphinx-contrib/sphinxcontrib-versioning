@@ -52,16 +52,16 @@ class ColorFormatter(logging.Formatter):
         return formatted
 
 
-def setup_logging(verbose=False, colors=False, name=None):
+def setup_logging(verbose=0, colors=False, name=None):
     """Configure console logging. Info and below go to stdout, others go to stderr.
 
-    :param bool verbose: Print debug statements.
+    :param int verbose: Verbosity level. > 0 print debug statements. > 1 passed to sphinx-build.
     :param bool colors: Print color text in non-verbose mode.
     :param str name: Which logger name to set handlers to. Used for testing.
     """
     root_logger = logging.getLogger(name)
-    root_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
-    formatter = ColorFormatter(verbose, colors)
+    root_logger.setLevel(logging.DEBUG if verbose > 0 else logging.INFO)
+    formatter = ColorFormatter(verbose > 0, colors)
     if colors:
         colorclass.Windows.enable()
 

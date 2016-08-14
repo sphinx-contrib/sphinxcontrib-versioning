@@ -92,19 +92,19 @@ def test_global_options(tmpdir, local_empty, run, push):
     assert config.chdir == str(local_empty)
     assert config.no_colors is False
     assert config.git_root == str(local_empty)
-    assert config.verbose is False
+    assert config.verbose == 0
 
     # Defined.
     empty = tmpdir.ensure_dir('empty')
     repo = tmpdir.ensure_dir('repo')
     run(repo, ['git', 'init'])
-    args = ['-c', str(empty), '-C', '-g', str(repo), '-v'] + args
+    args = ['-c', str(empty), '-C', '-g', str(repo), '-v', '-v'] + args
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.chdir == str(empty)
     assert config.no_colors is True
     assert config.git_root == str(repo)
-    assert config.verbose is True
+    assert config.verbose == 2
 
 
 @pytest.mark.parametrize('push', [False, True])

@@ -33,7 +33,8 @@ be specified before the build/push command or else you'll get an error.
 
 .. option:: -v, --verbose
 
-    Enable verbose/debug logging with timestamps and git command outputs. Implies :option:`--no-colors`.
+    Enable verbose/debug logging with timestamps and git command outputs. Implies :option:`--no-colors`. If specified
+    more than once excess options (number used - 1) will be passed to sphinx-build.
 
 .. _common-positional-arguments:
 

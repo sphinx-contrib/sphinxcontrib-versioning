@@ -22,7 +22,6 @@ class Config(object):
         self.invert = False
         self.no_colors = False
         self.recent_tag = False
-        self.verbose = False
 
         # Strings.
         self.chdir = None
@@ -35,6 +34,9 @@ class Config(object):
         self.overflow = None
         self.sort = None
 
+        # Integers.
+        self.verbose = 0
+
     def __repr__(self):
         """Class representation."""
         attributes = ('program_state', 'verbose', 'root_ref', 'overflow')
@@ -42,15 +44,17 @@ class Config(object):
         return '<{}.{} {}'.format(self.__class__.__module__, self.__class__.__name__, key_value_attrs)
 
     @classmethod
-    def pass_config(cls, **kwargs):
-        """Function decorator that retrieves this class' instance from the current Click context.
+    def from_context(cls):
+        """Retrieve this class' instance from the current Click context.
 
-        :param dict kwargs: Passed to click.make_pass_decorator().
-
-        :return: Function decorator.
-        :rtype: function
+        :return: Instance of this class.
+        :rtype: Config
         """
-        return click.make_pass_decorator(cls, **kwargs)
+        try:
+            ctx = click.get_current_context()
+        except RuntimeError:
+            return cls()
+        return ctx.find_object(cls)
 
     def update(self, params):
         """Set instance values from dictionary.

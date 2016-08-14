@@ -366,6 +366,37 @@ def test_add_remove_docs(tmpdir, local_docs, run):
     assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
 
 
+@pytest.mark.parametrize('verbosity', [0, 1, 3])
+def test_passing_verbose(local_docs, run, verbosity):
+    """Test setting sphinx-build verbosity.
+
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    :param int verbosity: Number of -v to use.
+    """
+    command = ['sphinx-versioning'] + (['-v'] * verbosity) + ['build', '.', 'destination']
+
+    # Run.
+    output = run(local_docs, command)
+    assert 'Traceback' not in output
+
+    # Check master.
+    destination = local_docs.join('destination')
+    contents = destination.join('contents.html').read()
+    assert '<li><a href="contents.html">master</a></li>' in contents
+
+    # Check output.
+    if verbosity == 0:
+        assert 'INFO     sphinxcontrib.versioning.__main__' not in output
+        assert 'docnames to write:' not in output
+    elif verbosity == 1:
+        assert 'INFO     sphinxcontrib.versioning.__main__' in output
+        assert 'docnames to write:' not in output
+    else:
+        assert 'INFO     sphinxcontrib.versioning.__main__' in output
+        assert 'docnames to write:' in output
+
+
 def test_error_bad_path(tmpdir, run):
     """Test handling of bad paths.
 

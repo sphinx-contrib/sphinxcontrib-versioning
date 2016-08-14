@@ -111,9 +111,9 @@ class ClickCommand(click.Command):
 @click.option('-c', '--chdir', help='Make this the current working directory before running.', type=IS_EXISTS_DIR)
 @click.option('-C', '--no-colors', help='Disable colors in the terminal output.', is_flag=True)
 @click.option('-g', '--git-root', help='Path to directory in the local repo. Default is CWD.', type=IS_EXISTS_DIR)
-@click.option('-v', '--verbose', help='Enable debug logging.', is_flag=True)
+@click.option('-v', '--verbose', help='Debug logging. Specify more than once for more logging.', count=True)
 @click.version_option(version=__version__)
-@Config.pass_config(ensure=True)
+@click.make_pass_decorator(Config, ensure=True)
 def cli(config, **options):
     """Build versioned Sphinx docs for every branch and tag pushed to origin.
 
@@ -123,7 +123,7 @@ def cli(config, **options):
     The options below are global and must be specified before the sub command name (e.g. -C build ...).
     \f
 
-    :param sphinxcontrib.versioning.lib.Config config: Config instance.
+    :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
     :param dict options: Additional Click options.
     """
     git_root = options.pop('git_root')
@@ -182,7 +182,7 @@ def build_options(func):
 @build_options
 @click.argument('REL_SOURCE', nargs=-1, required=True)
 @click.argument('DESTINATION', type=click.Path(file_okay=False, dir_okay=True))
-@Config.pass_config()
+@click.make_pass_decorator(Config)
 def build(config, rel_source, destination, **options):
     """Fetch branches/tags and build all locally.
 
@@ -262,7 +262,7 @@ def build(config, rel_source, destination, **options):
 @click.argument('REL_SOURCE', nargs=-1, required=True)
 @click.argument('DEST_BRANCH')
 @click.argument('REL_DEST')
-@Config.pass_config()
+@click.make_pass_decorator(Config)
 @click.pass_context
 def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     """Build locally and then push to remote branch.

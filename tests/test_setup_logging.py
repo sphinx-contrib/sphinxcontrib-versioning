@@ -11,13 +11,13 @@ import pytest
 from sphinxcontrib.versioning.setup_logging import ColorFormatter, setup_logging
 
 
-@pytest.mark.parametrize('verbose', [True, False])
+@pytest.mark.parametrize('verbose', [1, 0])
 def test_stdout_stderr(capsys, request, verbose):
     """Verify proper statements go to stdout or stderr.
 
     :param capsys: pytest fixture.
     :param request: pytest fixture.
-    :param bool verbose: Verbose logging.
+    :param int verbose: Verbosity level.
     """
     name = '{}_{}'.format(request.function.__name__, verbose)
     setup_logging(verbose=verbose, name=name)
@@ -53,13 +53,13 @@ def test_stdout_stderr(capsys, request, verbose):
     assert 'Test critical.' in stderr
 
 
-@pytest.mark.parametrize('verbose', [True, False])
+@pytest.mark.parametrize('verbose', [1, 0])
 def test_arrow(tmpdir, run, verbose):
     """Test => presence.
 
     :param tmpdir: pytest fixture.
     :param run: conftest fixture.
-    :param bool verbose: Verbose logging.
+    :param int verbose: Verbosity level.
     """
     assert ColorFormatter.SPECIAL_SCOPE == 'sphinxcontrib.versioning'
 
