@@ -1,4 +1,4 @@
-"""Test function in module."""
+"""Test mixing sources of arguments/settings."""
 
 import pytest
 from click.testing import CliRunner
@@ -18,27 +18,39 @@ def setup(monkeypatch, local_empty):
 
 
 @pytest.mark.parametrize('push', [False, True])
-def test_overflow(push):
+@pytest.mark.parametrize('source_cli', [False, True])
+@pytest.mark.parametrize('source_conf', [False, True])
+def test_overflow(local_empty, push, source_cli, source_conf):
     """Test -- overflow to sphinx-build.
 
+    :param local_empty: conftest fixture.
     :param bool push: Run push sub command instead of build.
+    :param bool source_cli: Set value from command line arguments.
+    :param bool source_conf: Set value from conf.py file.
     """
     if push:
         args = ['push', 'docs', 'gh-pages', '.']
     else:
         args = ['build', 'docs', 'docs/_build/html']
 
+    # Setup source(s).
+    if source_cli:
+        args += ['--', '-D', 'setting=value']
+    if source_conf:
+        local_empty.ensure('docs', 'contents.rst')
+        local_empty.ensure('docs', 'conf.py').write('scv_overflow = ("-D", "key=value")')
+
+    # Run.
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
-    assert config.overflow == tuple()
 
-    result = CliRunner().invoke(cli, args + ['--'])
-    config = result.exception.args[0]
-    assert config.overflow == tuple()
-
-    result = CliRunner().invoke(cli, args + ['--', '-D', 'setting=value'])
-    config = result.exception.args[0]
-    assert config.overflow == ('-D', 'setting=value')
+    # Verify.
+    if source_cli:
+        assert config.overflow == ('-D', 'setting=value')
+    elif source_conf:
+        assert config.overflow == ('-D', 'key=value')
+    else:
+        assert config.overflow == tuple()
 
 
 @pytest.mark.parametrize('push', [False, True])
@@ -73,10 +85,12 @@ def test_args(push):
 
 
 @pytest.mark.parametrize('push', [False, True])
-def test_global_options(tmpdir, local_empty, run, push):
+def test_global_options(monkeypatch, tmpdir, caplog, local_empty, run, push):
     """Test options that apply to all sub commands.
 
+    :param monkeypatch: pytest fixture.
     :param tmpdir: pytest fixture.
+    :param caplog: pytest extension fixture.
     :param local_empty: conftest fixture.
     :param run: conftest fixture.
     :param bool push: Run push sub command instead of build.
@@ -91,63 +105,172 @@ def test_global_options(tmpdir, local_empty, run, push):
     config = result.exception.args[0]
     assert config.chdir == str(local_empty)
     assert config.git_root == str(local_empty)
+    assert config.local_conf is None
     assert config.no_colors is False
+    assert config.no_local_conf is False
     assert config.verbose == 0
 
     # Defined.
     empty = tmpdir.ensure_dir('empty')
     repo = tmpdir.ensure_dir('repo')
     run(repo, ['git', 'init'])
-    args = ['-c', str(empty), '-g', str(repo), '-N', '-v', '-v'] + args
+    local_empty.ensure('conf.py')
+    args = ['-L', '-l', 'conf.py', '-c', str(empty), '-g', str(repo), '-N', '-v', '-v'] + args
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.chdir == str(empty)
     assert config.git_root == str(repo)
+    assert config.local_conf is None  # Overridden by -L.
     assert config.no_colors is True
+    assert config.no_local_conf is True
     assert config.verbose == 2
+
+    # Set in conf.py. They'll be ignored.
+    monkeypatch.chdir(local_empty)
+    local_empty.ensure('docs', 'contents.rst')
+    local_empty.ensure('docs', 'conf.py').write(
+        'scv_chdir = ".."\n'
+        'scv_git_root = ".."\n'
+        'scv_no_colors = False\n'
+        'scv_verbose = 1\n'
+    )
+    args = args[7:]  # Remove -L -l -c and -g.
+    result = CliRunner().invoke(cli, args)
+    records = [(r.levelname, r.message) for r in caplog.records]
+    config = result.exception.args[0]
+    assert config.chdir == str(local_empty)
+    assert config.git_root == str(local_empty)
+    assert config.local_conf == 'docs/conf.py'
+    assert config.no_colors is True
+    assert config.no_local_conf is False
+    assert config.verbose == 2
+    assert ('DEBUG', 'chdir already set in config, skipping.') in records
+    assert ('DEBUG', 'git_root already set in config, skipping.') in records
+    assert ('DEBUG', 'no_colors already set in config, skipping.') in records
+    assert ('DEBUG', 'verbose already set in config, skipping.') in records
+
+
+@pytest.mark.parametrize('mode', ['bad filename', 'rel_source', 'override'])
+@pytest.mark.parametrize('no_local_conf', [False, True])
+@pytest.mark.parametrize('push', [False, True])
+def test_global_options_local_conf(caplog, local_empty, mode, no_local_conf, push):
+    """Test detection of local conf.py file.
+
+    :param caplog: pytest extension fixture.
+    :param local_empty: conftest fixture.
+    :param str mode: Scenario to test for.
+    :param no_local_conf: Toggle -L.
+    :param bool push: Run push sub command instead of build.
+    """
+    args = ['-L'] if no_local_conf else []
+    if push:
+        args += ['push', 'docs', 'gh-pages', '.']
+    else:
+        args += ['build', 'docs', 'docs/_build/html']
+
+    # Run.
+    if mode == 'bad filename':
+        local_empty.ensure('docs', 'config.py')
+        args = ['-l', 'docs/config.py'] + args
+    elif mode == 'rel_source':
+        local_empty.ensure('docs', 'conf.py')
+    else:
+        local_empty.ensure('other', 'conf.py')
+        args = ['-l', 'other/conf.py'] + args
+    result = CliRunner().invoke(cli, args)
+    config = result.exception.args[0]
+    records = [(r.levelname, r.message) for r in caplog.records]
+
+    # Verify.
+    if no_local_conf:
+        assert config.local_conf is None
+        assert config.no_local_conf is True
+        return
+    if mode == 'bad filename':
+        assert config == 1  # SystemExit.
+        assert records[-2] == ('ERROR', 'Path "docs/config.py" must end with conf.py.')
+    elif mode == 'rel_source':
+        assert config.local_conf == 'docs/conf.py'
+        assert config.no_local_conf is False
+    else:
+        assert config.local_conf == 'other/conf.py'
+        assert config.no_local_conf is False
 
 
 @pytest.mark.parametrize('push', [False, True])
-def test_sub_command_options(push):
+@pytest.mark.parametrize('source_cli', [False, True])
+@pytest.mark.parametrize('source_conf', [False, True])
+def test_sub_command_options(local_empty, push, source_cli, source_conf):
     """Test non-global options that apply to all sub commands.
 
+    :param local_empty: conftest fixture.
     :param bool push: Run push sub command instead of build.
+    :param bool source_cli: Set value from command line arguments.
+    :param bool source_conf: Set value from conf.py file.
     """
     if push:
         args = ['push', 'docs', 'gh-pages', '.']
     else:
         args = ['build', 'docs', 'docs/_build/html']
 
-    # Defaults
-    result = CliRunner().invoke(cli, args)
-    config = result.exception.args[0]
-    assert config.greatest_tag is False
-    assert config.invert is False
-    assert config.priority is None
-    assert config.recent_tag is False
-    assert config.root_ref == 'master'
-    assert config.sort == tuple()
-    assert config.whitelist_branches == tuple()
-    assert config.whitelist_tags == tuple()
-    if push:
-        assert config.grm_exclude == tuple()
+    # Setup source(s).
+    if source_cli:
+        args += ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]']
+        if push:
+            args += ['-e' 'README.md']
+    if source_conf:
+        local_empty.ensure('docs', 'contents.rst')
+        local_empty.ensure('docs', 'conf.py').write(
+            'import re\n\n'
+            'scv_greatest_tag = True\n'
+            'scv_invert = True\n'
+            'scv_priority = "tags"\n'
+            'scv_recent_tag = True\n'
+            'scv_root_ref = "other"\n'
+            'scv_sort = ("alpha",)\n'
+            'scv_whitelist_branches = ("other",)\n'
+            'scv_whitelist_tags = re.compile("^[0-9]$")\n'
+            'scv_grm_exclude = ("README.rst",)\n'
+        )
 
-    # Defined.
-    args += ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]']
-    if push:
-        args += ['-e' 'README.md']
+    # Run.
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
-    assert config.greatest_tag is True
-    assert config.invert is True
-    assert config.priority == 'branches'
-    assert config.recent_tag is True
-    assert config.root_ref == 'feature'
-    assert config.sort == ('semver',)
-    assert config.whitelist_branches == ('master',)
-    assert config.whitelist_tags == ('[0-9]',)
-    if push:
-        assert config.grm_exclude == ('README.md',)
+
+    # Verify.
+    if source_cli:
+        assert config.greatest_tag is True
+        assert config.invert is True
+        assert config.priority == 'branches'
+        assert config.recent_tag is True
+        assert config.root_ref == 'feature'
+        assert config.sort == ('semver',)
+        assert config.whitelist_branches == ('master',)
+        assert config.whitelist_tags == ('[0-9]',)
+        if push:
+            assert config.grm_exclude == ('README.md',)
+    elif source_conf:
+        assert config.greatest_tag is True
+        assert config.invert is True
+        assert config.priority == 'tags'
+        assert config.recent_tag is True
+        assert config.root_ref == 'other'
+        assert config.sort == ('alpha',)
+        assert config.whitelist_branches == ('other',)
+        assert config.whitelist_tags.pattern == '^[0-9]$'
+        if push:
+            assert config.grm_exclude == ('README.rst',)
+    else:
+        assert config.greatest_tag is False
+        assert config.invert is False
+        assert config.priority is None
+        assert config.recent_tag is False
+        assert config.root_ref == 'master'
+        assert config.sort == tuple()
+        assert config.whitelist_branches == tuple()
+        assert config.whitelist_tags == tuple()
+        if push:
+            assert config.grm_exclude == tuple()
 
 
 @pytest.mark.parametrize('push', [False, True])

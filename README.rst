@@ -50,6 +50,8 @@ Unreleased
 Added
     * ``--git-root`` command line option.
     * ``--whitelist-branches`` and ``--whitelist-tags`` command line options.
+    * ``--local-conf`` and ``--no-local-conf`` command line options.
+    * Load settings from **conf.py** file and command line arguments instead of just the latter.
 
 Changed
     * Renamed command line option ``--prioritize`` to ``--priority``.

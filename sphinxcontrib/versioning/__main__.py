@@ -10,11 +10,12 @@ import click
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.git import clone, commit_and_push, get_root, GitError
 from sphinxcontrib.versioning.lib import Config, HandledError, TempDir
-from sphinxcontrib.versioning.routines import build_all, gather_git_info, pre_build
+from sphinxcontrib.versioning.routines import build_all, gather_git_info, pre_build, read_local_conf
 from sphinxcontrib.versioning.setup_logging import setup_logging
 from sphinxcontrib.versioning.versions import multi_sort, Versions
 
 IS_EXISTS_DIR = click.Path(exists=True, file_okay=False, dir_okay=True)
+IS_EXISTS_FILE = click.Path(exists=True, file_okay=True, dir_okay=False)
 NO_EXECUTE = False  # Used in tests.
 PUSH_RETRIES = 3
 PUSH_SLEEP = 3  # Seconds.
@@ -111,6 +112,8 @@ class ClickCommand(click.Command):
 @click.group(cls=ClickGroup)
 @click.option('-c', '--chdir', help='Make this the current working directory before running.', type=IS_EXISTS_DIR)
 @click.option('-g', '--git-root', help='Path to directory in the local repo. Default is CWD.', type=IS_EXISTS_DIR)
+@click.option('-l', '--local-conf', help='Path to conf.py for SCVersioning to read config from.', type=IS_EXISTS_FILE)
+@click.option('-L', '--no-local-conf', help="Don't attempt to search for nor load a local conf.py file.", is_flag=True)
 @click.option('-N', '--no-colors', help='Disable colors in the terminal output.', is_flag=True)
 @click.option('-v', '--verbose', help='Debug logging. Specify more than once for more logging.', count=True)
 @click.version_option(version=__version__)
@@ -127,10 +130,12 @@ def cli(config, **options):
     :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
     :param dict options: Additional Click options.
     """
-    def pre():
+    def pre(rel_source):
         """To be executed in a Click sub command.
 
         Needed because if this code is in cli() it will be executed when the user runs: <command> <sub command> --help
+
+        :param tuple rel_source: Possible relative paths (to git root) of Sphinx directory containing conf.py.
         """
         # Setup logging.
         if not NO_EXECUTE:
@@ -150,6 +155,19 @@ def cli(config, **options):
         except GitError as exc:
             log.error(exc.message)
             log.error(exc.output)
+            raise HandledError
+
+        # Look for local config.
+        if config.no_local_conf:
+            config.update(dict(local_conf=None), overwrite=True)
+        elif not config.local_conf:
+            candidates = [p for p in (os.path.join(s, 'conf.py') for s in rel_source) if os.path.isfile(p)]
+            if candidates:
+                config.update(dict(local_conf=candidates[0]), overwrite=True)
+            else:
+                log.debug("Didn't find a conf.py in any REL_SOURCE.")
+        elif os.path.basename(config.local_conf) != 'conf.py':
+            log.error('Path "%s" must end with conf.py.', config.local_conf)
             raise HandledError
     config['pre'] = pre  # To be called by Click sub commands.
     config.update(options)
@@ -208,8 +226,10 @@ def build(config, rel_source, destination, **options):
     :param dict options: Additional Click options.
     """
     if 'pre' in config:
-        config.pop('pre')()
+        config.pop('pre')(rel_source)
         config.update({k: v for k, v in options.items() if v})
+        if config.local_conf:
+            config.update(read_local_conf(config.local_conf, config.overflow), ignore_set=True)
     if NO_EXECUTE:
         raise RuntimeError(config, rel_source, destination)
     log = logging.getLogger(__name__)
@@ -294,8 +314,10 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     :param dict options: Additional Click options.
     """
     if 'pre' in config:
-        config.pop('pre')()
+        config.pop('pre')(rel_source)
         config.update({k: v for k, v in options.items() if v})
+        if config.local_conf:
+            config.update(read_local_conf(config.local_conf, config.overflow), ignore_set=True)
     if NO_EXECUTE:
         raise RuntimeError(config, rel_source, dest_branch, rel_dest)
     log = logging.getLogger(__name__)

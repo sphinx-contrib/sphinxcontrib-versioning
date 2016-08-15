@@ -184,7 +184,7 @@ def test_error_build_failure(local_docs_ghp, run):
 
     # Run.
     with pytest.raises(CalledProcessError) as exc:
-        run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
+        run(local_docs_ghp, ['sphinx-versioning', '-L', 'push', '.', 'gh-pages', '.'])
     assert exc.value.output.count('Traceback') == 1
     assert "name 'undefined' is not defined" in exc.value.output
     assert 'Building docs...' in exc.value.output

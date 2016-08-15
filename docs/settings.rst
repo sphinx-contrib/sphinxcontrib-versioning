@@ -4,13 +4,29 @@
 Settings
 ========
 
-SCVersioning reads settings only from command line arguments. Here are all the options will be listed along with their
-descriptions.
-
 .. code-block:: bash
 
     sphinx-versioning [GLOBAL_OPTIONS] build [OPTIONS] REL_SOURCE... DESTINATION
     sphinx-versioning [GLOBAL_OPTIONS] push [OPTIONS] REL_SOURCE... DEST_BRANCH REL_DEST
+
+SCVersioning reads settings from two sources:
+
+* Your Sphinx **conf.py** file.
+* Command line arguments.
+
+Command line arguments always override anything set in conf.py. You can specify the path to conf.py with the
+:option:`--local-conf` argument or SCVersioning will look at the first conf.py it finds in your :option:`REL_SOURCE`
+directories. To completely disable using a conf.py file specify the :option:`--no-local-conf` command line argument.
+
+Below are both the command line arguments available as well as the conf.py variable names SCVersioning looks for. All
+conf.py variable names are prefixed with ``scv_``. An example:
+
+.. code-block:: python
+
+    # conf.py
+    author = 'Your Name'
+    project = 'My Project'
+    scv_greatest_tag = True
 
 Global Options
 ==============
@@ -25,6 +41,18 @@ be specified before the build/push command or else you'll get an error.
 .. option:: -g <directory>, --git-root <directory>
 
     Path to directory in the local repo. Default is the current working directory.
+
+.. option:: -l <file>, --local-conf <file>
+
+    Path to conf.py for SCVersioning to read its config from. Does not affect conf.py loaded by sphinx-build.
+
+    If not specified the default behavior is to have SCVersioning look for a conf.py file in any :option:`REL_SOURCE`
+    directory within the current working directory. Stops at the first conf.py found if any.
+
+.. option:: -L, --no-local-conf
+
+    Disables searching for or loading a local conf.py for SCVersioning settings. Does not affect conf.py loaded by
+    sphinx-build.
 
 .. option:: -N, --no-colors
 
@@ -53,7 +81,7 @@ Both the :ref:`build <build-arguments>` and :ref:`push <push-arguments>` sub com
     relative paths and the first one that has a **conf.py** will be selected for each branch/tag. Any branch/tag that
     doesn't have a conf.py file in one of these REL_SOURCEs will be ignored.
 
-.. option:: --
+.. option:: --, scv_overflow
 
     It is possible to give the underlying ``sphinx-build`` program command line options. SCVersioning passes everything
     after ``--`` to it. For example if you changed the theme for your docs between versions and want docs for all
@@ -62,6 +90,12 @@ Both the :ref:`build <build-arguments>` and :ref:`push <push-arguments>` sub com
     .. code-block:: bash
 
         sphinx-versioning build docs docs/_build/html -- -A html_theme=sphinx_rtd_theme
+
+    This setting may also be specified in your conf.py file. It must be a tuple of strings:
+
+    .. code-block:: python
+
+        scv_overflow = ("-A", "html_theme=sphinx_rtd_theme")
 
 .. _build-arguments:
 
@@ -90,25 +124,43 @@ Options
 
 These options are available for the build sub command:
 
-.. option:: -i, --invert
+.. option:: -i, --invert, scv_invert
 
     Invert the order of branches/tags displayed in the sidebars in generated HTML documents. The default order is
     whatever git prints when running "**git ls-remote --heads --tags**".
 
-.. option:: -p <kind>, --priority <kind>
+    This setting may also be specified in your conf.py file. It must be a boolean:
+
+    .. code-block:: python
+
+        scv_invert = True
+
+.. option:: -p <kind>, --priority <kind>, scv_priority
 
     ``kind`` may be either **branches** or **tags**. This argument is for themes that don't split up branches and tags
     in the generated HTML (e.g. sphinx_rtd_theme). This argument groups branches and tags together and whichever is
     selected for ``kind`` will be displayed first.
 
-.. option:: -r <ref>, --root-ref <ref>
+    This setting may also be specified in your conf.py file. It must be a string:
+
+    .. code-block:: python
+
+        scv_priority = 'branches'
+
+.. option:: -r <ref>, --root-ref <ref>, scv_root_ref
 
     The branch/tag at the root of :option:`DESTINATION`. All others are in subdirectories. Default is **master**.
 
     If the root-ref does not exist or does not have docs, ``sphinx-versioning`` will fail and exit. The root-ref must
     have docs.
 
-.. option:: -s <value>, --sort <value>
+    This setting may also be specified in your conf.py file. It must be a string:
+
+    .. code-block:: python
+
+        scv_root_ref = 'feature_branch'
+
+.. option:: -s <value>, --sort <value>, scv_sort
 
     Sort versions by one or more certain kinds of values. Valid values are ``semver``, ``alpha``, and ``time``.
 
@@ -118,24 +170,54 @@ These options are available for the build sub command:
     in. You can specify "alpha" to sort the remainder alphabetically or "time" to sort chronologically (most recent
     commit first).
 
-.. option:: -t, --greatest-tag
+    This setting may also be specified in your conf.py file. It must be a tuple of strings:
+
+    .. code-block:: python
+
+        scv_sort = ('semver',)
+
+.. option:: -t, --greatest-tag, scv_greatest_tag
 
     Override root-ref to be the tag with the highest version number. If no tags have docs then this option is ignored
     and :option:`--root-ref` is used.
 
-.. option:: -T, --recent-tag
+    This setting may also be specified in your conf.py file. It must be a boolean:
+
+    .. code-block:: python
+
+        scv_greatest_tag = True
+
+.. option:: -T, --recent-tag, scv_recent_tag
 
     Override root-ref to be the most recent committed tag. If no tags have docs then this option is ignored and
     :option:`--root-ref` is used.
 
-.. option:: -w <pattern>, --whitelist-branches <pattern>
+    This setting may also be specified in your conf.py file. It must be a boolean:
+
+    .. code-block:: python
+
+        scv_recent_tag = True
+
+.. option:: -w <pattern>, --whitelist-branches <pattern>, scv_whitelist_branches
 
     Filter out branches not matching the pattern. Can be a simple string or a regex pattern. Specify multiple times to
     include more patterns in the whitelist.
 
-.. option:: -W <pattern>, --whitelist-tags <pattern>
+    This setting may also be specified in your conf.py file. It must be either a string or an ``re.compile()`` object:
+
+    .. code-block:: python
+
+        scv_whitelist_branches = 'master'
+
+.. option:: -W <pattern>, --whitelist-tags <pattern>, scv_whitelist_tags
 
     Same as :option:`--whitelist-branches` but for git tags instead.
+
+    This setting may also be specified in your conf.py file. It must be either a string or an ``re.compile()`` object:
+
+    .. code-block:: python
+
+        scv_whitelist_tags = re.compile(r'^v\d+\.\d+\.\d+$')
 
 .. _push-arguments:
 
@@ -175,7 +257,7 @@ Options
 All :ref:`build options <build-options>` are valid for the push sub command. Additionally these options are available
 only for the push sub command:
 
-.. option:: -e <file>, --grm-exclude <file>
+.. option:: -e <file>, --grm-exclude <file>, scv_grm_exclude
 
     Causes "**git rm -rf $REL_DEST**" to run after checking out :option:`DEST_BRANCH` and then runs "git reset <file>"
     to preserve it. All other files in the branch in :option:`REL_DEST` will be deleted in the commit. You can specify
@@ -183,3 +265,9 @@ only for the push sub command:
 
     If this argument is not specified then nothing will be deleted from the branch. This may cause stale/orphaned HTML
     files in the branch if a branch is deleted from the repo after SCVersioning already created HTML files for it.
+
+    This setting may also be specified in your conf.py file. It must be a tuple of strings:
+
+    .. code-block:: python
+
+        scv_grm_exclude = ('README.md', '.gitignore')

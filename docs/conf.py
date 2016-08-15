@@ -30,3 +30,9 @@ html_copy_source = False
 html_favicon = 'favicon.ico'
 html_theme = 'sphinx_rtd_theme'
 html_title = project
+
+# SCVersioning.
+scv_greatest_tag = True
+scv_grm_exclude = ('.gitignore', '.nojekyll', 'README.rst')
+scv_overflow = ('-W',)
+scv_sort = ('semver', 'time')
