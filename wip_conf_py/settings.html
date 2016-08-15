@@ -237,11 +237,15 @@ doesn&#8217;t have a conf.py file in one of these REL_SOURCEs will be ignored.</
 
 <dl class="option">
 <dt id="cmdoption--">
-<code class="descname">--</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption-arg-scv_overflow"></span><code class="descname">--</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_overflow</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption--" title="Permalink to this definition">¶</a></dt>
 <dd><p>It is possible to give the underlying <code class="docutils literal"><span class="pre">sphinx-build</span></code> program command line options. SCVersioning passes everything
 after <code class="docutils literal"><span class="pre">--</span></code> to it. For example if you changed the theme for your docs between versions and want docs for all
 versions to have the same theme, you can run:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning build docs docs/_build/html -- -A <span class="nv">html_theme</span><span class="o">=</span>sphinx_rtd_theme
+</pre></div>
+</div>
+<p>This setting may also be specified in your conf.py file. It must be a tuple of strings:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_overflow</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-A&quot;</span><span class="p">,</span> <span class="s2">&quot;html_theme=sphinx_rtd_theme&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -268,14 +272,14 @@ directory or an absolute directory path.</p>
 <p>These options are available for the build sub command:</p>
 <dl class="option">
 <dt id="cmdoption-i">
-<span id="cmdoption--invert"></span><code class="descname">-i</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--invert</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-i" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--invert"></span><span id="cmdoption-arg-scv_invert"></span><code class="descname">-i</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--invert</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_invert</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Invert the order of branches/tags displayed in the sidebars in generated HTML documents. The default order is
 whatever git prints when running &#8220;<strong>git ls-remote &#8211;heads &#8211;tags</strong>&#8221;.</p>
 </dd></dl>
 
 <dl class="option">
 <dt id="cmdoption-p">
-<span id="cmdoption--priority"></span><code class="descname">-p</code><code class="descclassname"> &lt;kind&gt;</code><code class="descclassname">, </code><code class="descname">--priority</code><code class="descclassname"> &lt;kind&gt;</code><a class="headerlink" href="#cmdoption-p" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--priority"></span><span id="cmdoption-arg-scv_priority"></span><code class="descname">-p</code><code class="descclassname"> &lt;kind&gt;</code><code class="descclassname">, </code><code class="descname">--priority</code><code class="descclassname"> &lt;kind&gt;</code><code class="descclassname">, </code><code class="descname">scv_priority</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-p" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="docutils literal"><span class="pre">kind</span></code> may be either <strong>branches</strong> or <strong>tags</strong>. This argument is for themes that don&#8217;t split up branches and tags
 in the generated HTML (e.g. sphinx_rtd_theme). This argument groups branches and tags together and whichever is
 selected for <code class="docutils literal"><span class="pre">kind</span></code> will be displayed first.</p>
@@ -283,7 +287,7 @@ selected for <code class="docutils literal"><span class="pre">kind</span></code>
 
 <dl class="option">
 <dt id="cmdoption-r">
-<span id="cmdoption--root-ref"></span><code class="descname">-r</code><code class="descclassname"> &lt;ref&gt;</code><code class="descclassname">, </code><code class="descname">--root-ref</code><code class="descclassname"> &lt;ref&gt;</code><a class="headerlink" href="#cmdoption-r" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--root-ref"></span><span id="cmdoption-arg-scv_root_ref"></span><code class="descname">-r</code><code class="descclassname"> &lt;ref&gt;</code><code class="descclassname">, </code><code class="descname">--root-ref</code><code class="descclassname"> &lt;ref&gt;</code><code class="descclassname">, </code><code class="descname">scv_root_ref</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-r" title="Permalink to this definition">¶</a></dt>
 <dd><p>The branch/tag at the root of <a class="reference internal" href="#cmdoption-arg-DESTINATION"><code class="xref std std-option docutils literal"><span class="pre">DESTINATION</span></code></a>. All others are in subdirectories. Default is <strong>master</strong>.</p>
 <p>If the root-ref does not exist or does not have docs, <code class="docutils literal"><span class="pre">sphinx-versioning</span></code> will fail and exit. The root-ref must
 have docs.</p>
@@ -291,7 +295,7 @@ have docs.</p>
 
 <dl class="option">
 <dt id="cmdoption-s">
-<span id="cmdoption--sort"></span><code class="descname">-s</code><code class="descclassname"> &lt;value&gt;</code><code class="descclassname">, </code><code class="descname">--sort</code><code class="descclassname"> &lt;value&gt;</code><a class="headerlink" href="#cmdoption-s" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--sort"></span><span id="cmdoption-arg-scv_sort"></span><code class="descname">-s</code><code class="descclassname"> &lt;value&gt;</code><code class="descclassname">, </code><code class="descname">--sort</code><code class="descclassname"> &lt;value&gt;</code><code class="descclassname">, </code><code class="descname">scv_sort</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-s" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort versions by one or more certain kinds of values. Valid values are <code class="docutils literal"><span class="pre">semver</span></code>, <code class="docutils literal"><span class="pre">alpha</span></code>, and <code class="docutils literal"><span class="pre">time</span></code>.</p>
 <p>You can specify just one (e.g. &#8220;semver&#8221;), or more. The &#8220;semver&#8221; value sorts versions by
 <a class="reference external" href="http://semver.org/">Semantic Versioning</a>, with the highest version being first (e.g. 3.0.0, 2.10.0, 1.0.0).
@@ -302,28 +306,28 @@ commit first).</p>
 
 <dl class="option">
 <dt id="cmdoption-t">
-<span id="cmdoption--greatest-tag"></span><code class="descname">-t</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--greatest-tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-t" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--greatest-tag"></span><span id="cmdoption-arg-scv_greatest_tag"></span><code class="descname">-t</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--greatest-tag</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_greatest_tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Override root-ref to be the tag with the highest version number. If no tags have docs then this option is ignored
 and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a> is used.</p>
 </dd></dl>
 
 <dl class="option">
 <dt id="cmdoption-T">
-<span id="cmdoption--recent-tag"></span><code class="descname">-T</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--recent-tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-T" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--recent-tag"></span><span id="cmdoption-arg-scv_recent_tag"></span><code class="descname">-T</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--recent-tag</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_recent_tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Override root-ref to be the most recent committed tag. If no tags have docs then this option is ignored and
 <a class="reference internal" href="#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a> is used.</p>
 </dd></dl>
 
 <dl class="option">
 <dt id="cmdoption-w">
-<span id="cmdoption--whitelist-branches"></span><code class="descname">-w</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-branches</code><code class="descclassname"> &lt;pattern&gt;</code><a class="headerlink" href="#cmdoption-w" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--whitelist-branches"></span><span id="cmdoption-arg-scv_whitelist_branches"></span><code class="descname">-w</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-branches</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">scv_whitelist_branches</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-w" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out branches not matching the pattern. Can be a simple string or a regex pattern. Specify multiple times to
 include more patterns in the whitelist.</p>
 </dd></dl>
 
 <dl class="option">
 <dt id="cmdoption-W">
-<span id="cmdoption--whitelist-tags"></span><code class="descname">-W</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-tags</code><code class="descclassname"> &lt;pattern&gt;</code><a class="headerlink" href="#cmdoption-W" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--whitelist-tags"></span><span id="cmdoption-arg-scv_whitelist_tags"></span><code class="descname">-W</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-tags</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">scv_whitelist_tags</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-W" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <a class="reference internal" href="#cmdoption--whitelist-branches"><code class="xref std std-option docutils literal"><span class="pre">--whitelist-branches</span></code></a> but for git tags instead.</p>
 </dd></dl>
 
@@ -363,7 +367,7 @@ DEST_BRANCH.</p>
 only for the push sub command:</p>
 <dl class="option">
 <dt id="cmdoption-e">
-<span id="cmdoption--grm-exclude"></span><code class="descname">-e</code><code class="descclassname"> &lt;file&gt;</code><code class="descclassname">, </code><code class="descname">--grm-exclude</code><code class="descclassname"> &lt;file&gt;</code><a class="headerlink" href="#cmdoption-e" title="Permalink to this definition">¶</a></dt>
+<span id="cmdoption--grm-exclude"></span><span id="cmdoption-arg-scv_grm_exclude"></span><code class="descname">-e</code><code class="descclassname"> &lt;file&gt;</code><code class="descclassname">, </code><code class="descname">--grm-exclude</code><code class="descclassname"> &lt;file&gt;</code><code class="descclassname">, </code><code class="descname">scv_grm_exclude</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-e" title="Permalink to this definition">¶</a></dt>
 <dd><p>Causes &#8220;<strong>git rm -rf $REL_DEST</strong>&#8221; to run after checking out <a class="reference internal" href="#cmdoption-arg-DEST_BRANCH"><code class="xref std std-option docutils literal"><span class="pre">DEST_BRANCH</span></code></a> and then runs &#8220;git reset &lt;file&gt;&#8221;
 to preserve it. All other files in the branch in <a class="reference internal" href="#cmdoption-arg-REL_DEST"><code class="xref std std-option docutils literal"><span class="pre">REL_DEST</span></code></a> will be deleted in the commit. You can specify
 multiple files or directories to be excluded by adding more <code class="docutils literal"><span class="pre">--grm-exclude</span></code> arguments.</p>
