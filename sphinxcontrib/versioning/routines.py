@@ -13,6 +13,29 @@ from sphinxcontrib.versioning.sphinx_ import build, read_config
 RE_INVALID_FILENAME = re.compile(r'[^0-9A-Za-z.-]')
 
 
+def read_local_conf(local_conf, overflow):
+    """Search for conf.py in any rel_source directory in CWD and if found read it and return.
+
+    :param str local_conf: Path to conf.py to read.
+    :param tuple overflow: Overflow command line options to pass to sphinx-build.
+
+    :return: Loaded conf.py.
+    :rtype: dict
+    """
+    log = logging.getLogger(__name__)
+
+    # Attempt to read.
+    log.info('Reading config from %s...', local_conf)
+    try:
+        config = read_config(os.path.dirname(local_conf), '<local>', overflow)
+    except HandledError:
+        log.warning('Unable to read file, continuing with only CLI args.')
+        return dict()
+
+    # Filter and return.
+    return {k[4:]: v for k, v in config.items() if k.startswith('scv_') and not k[4:].startswith('_')}
+
+
 def gather_git_info(root, conf_rel_paths, whitelist_branches, whitelist_tags):
     """Gather info about the remote git repository. Get list of refs.
 

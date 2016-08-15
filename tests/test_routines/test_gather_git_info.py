@@ -1,6 +1,7 @@
 """Test function in module."""
 
 import os
+import re
 
 import pytest
 
@@ -39,7 +40,7 @@ def test_whitelisting(local, wlb, wlt):
 
     expected.append(['annotated_tag', 'tags'])
     if wlt:
-        whitelist_tags = ('annotated',)
+        whitelist_tags = (re.compile('annotated'),)
     else:
         expected.append(['light_tag', 'tags'])
 

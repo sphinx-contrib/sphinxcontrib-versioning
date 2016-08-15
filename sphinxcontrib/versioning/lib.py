@@ -22,11 +22,13 @@ class Config(object):
         self.greatest_tag = False
         self.invert = False
         self.no_colors = False
+        self.no_local_conf = False
         self.recent_tag = False
 
         # Strings.
         self.chdir = None
         self.git_root = None
+        self.local_conf = None
         self.priority = None
         self.root_ref = 'master'
 

@@ -58,10 +58,9 @@ class EventHandlers(object):
         :param sphinx.environment.BuildEnvironment env: Sphinx build environment.
         """
         if cls.ABORT_AFTER_READ:
-            config = dict(
-                found_docs=tuple(str(d) for d in env.found_docs),
-                master_doc=str(app.config.master_doc),
-            )
+            config = {n: getattr(app.config, n) for n in (a for a in dir(app.config) if a.startswith('scv_'))}
+            config['found_docs'] = tuple(str(d) for d in env.found_docs)
+            config['master_doc'] = str(app.config.master_doc)
             cls.ABORT_AFTER_READ.put(config)
             sys.exit(0)
 
@@ -106,6 +105,10 @@ def setup(app):
     """
     # Used internally. For rebuilding all pages when one or more non-root-ref fails.
     app.add_config_value('sphinxcontrib_versioning_versions', SC_VERSIONING_VERSIONS, 'html')
+
+    # Tell Sphinx which config values can be set by the user.
+    for name, default in Config():
+        app.add_config_value('scv_{}'.format(name), default, 'html')
 
     # Event handlers.
     app.connect('builder-inited', EventHandlers.builder_inited)
