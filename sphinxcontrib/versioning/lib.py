@@ -16,7 +16,7 @@ class Config(object):
     def __init__(self):
         """Constructor."""
         self._already_set = set()
-        self.program_state = dict()
+        self._program_state = dict()
 
         # Booleans.
         self.greatest_tag = False
@@ -28,23 +28,46 @@ class Config(object):
         self.chdir = None
         self.git_root = None
         self.priority = None
-        self.root_ref = None
+        self.root_ref = 'master'
 
         # Tuples.
-        self.grm_exclude = None
-        self.overflow = None
-        self.sort = None
-        self.whitelist_branches = None
-        self.whitelist_tags = None
+        self.grm_exclude = tuple()
+        self.overflow = tuple()
+        self.sort = tuple()
+        self.whitelist_branches = tuple()
+        self.whitelist_tags = tuple()
 
         # Integers.
         self.verbose = 0
 
+    def __contains__(self, item):
+        """Implement 'key in Config'.
+
+        :param str item: Key to search for.
+
+        :return: If item in self._program_state.
+        :rtype: bool
+        """
+        return item in self._program_state
+
+    def __iter__(self):
+        """Yield names and current values of attributes that can be set from Sphinx config files."""
+        for name in (n for n in dir(self) if not n.startswith('_') and not callable(getattr(self, n))):
+            yield name, getattr(self, name)
+
     def __repr__(self):
         """Class representation."""
-        attributes = ('program_state', 'verbose', 'root_ref', 'overflow')
+        attributes = ('_program_state', 'verbose', 'root_ref', 'overflow')
         key_value_attrs = ', '.join('{}={}'.format(a, repr(getattr(self, a))) for a in attributes)
         return '<{}.{} {}>'.format(self.__class__.__module__, self.__class__.__name__, key_value_attrs)
+
+    def __setitem__(self, key, value):
+        """Implement Config[key] = value, updates self._program_state.
+
+        :param str key: Key to set in self._program_state.
+        :param value: Value to set in self._program_state.
+        """
+        self._program_state[key] = value
 
     @classmethod
     def from_context(cls):
@@ -59,6 +82,15 @@ class Config(object):
             return cls()
         return ctx.find_object(cls)
 
+    def pop(self, *args):
+        """Pop item from self._program_state.
+
+        :param iter args: Passed to self._program_state.
+
+        :return: Object from self._program_state.pop().
+        """
+        return self._program_state.pop(*args)
+
     def update(self, params, ignore_set=False, overwrite=False):
         """Set instance values from dictionary.
 
@@ -66,11 +98,17 @@ class Config(object):
         :param bool ignore_set: Skip already-set values instead of raising AttributeError.
         :param bool overwrite: Allow overwriting already-set values.
         """
+        log = logging.getLogger(__name__)
+        valid = {i[0] for i in self}
         for key, value in params.items():
             if not hasattr(self, key):
                 raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, key))
+            if key not in valid:
+                message = "'{}' object does not support item assignment on '{}'"
+                raise AttributeError(message.format(self.__class__.__name__, key))
             if key in self._already_set:
                 if ignore_set:
+                    log.debug('%s already set in config, skipping.', key)
                     continue
                 if not overwrite:
                     message = "'{}' object does not support item re-assignment on '{}'"

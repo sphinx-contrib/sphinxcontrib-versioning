@@ -133,9 +133,9 @@ def test_sub_command_options(push):
         assert config.grm_exclude == tuple()
 
     # Defined.
-    args = args[:1] + ['-itT', '-pbranches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]'] + args[1:]
+    args += ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]']
     if push:
-        args = args[:1] + ['-e' 'README.md'] + args[1:]
+        args += ['-e' 'README.md']
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.greatest_tag is True
@@ -162,9 +162,9 @@ def test_sub_command_options_other(push):
         args = ['build', 'docs', 'docs/_build/html']
 
     # Defined.
-    args = args[:1] + ['-p', 'tags', '-s', 'semver', '-s', 'time'] + args[1:]
+    args += ['-p', 'tags', '-s', 'semver', '-s', 'time']
     if push:
-        args = args[:1] + ['-e' 'one', '-e', 'two', '-e', 'three', '-e', 'four'] + args[1:]
+        args += ['-e' 'one', '-e', 'two', '-e', 'three', '-e', 'four']
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.priority == 'tags'

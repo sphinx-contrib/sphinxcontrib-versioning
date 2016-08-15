@@ -83,7 +83,8 @@ class ClickGroup(click.Group):
 
         :return: super() return value.
         """
-        ctx.ensure_object(Config).update(dict(overflow=self.overflow))
+        if self.overflow:
+            ctx.ensure_object(Config).update(dict(overflow=self.overflow))
         return super(ClickGroup, self).invoke(ctx)
 
 
@@ -150,7 +151,7 @@ def cli(config, **options):
             log.error(exc.message)
             log.error(exc.output)
             raise HandledError
-    config.program_state['pre'] = pre  # To be called by Click sub commands.
+    config['pre'] = pre  # To be called by Click sub commands.
     config.update(options)
 
 
@@ -165,7 +166,7 @@ def build_options(func):
     func = click.option('-i', '--invert', help='Invert/reverse order of versions.', is_flag=True)(func)
     func = click.option('-p', '--priority', type=click.Choice(('branches', 'tags')),
                         help="Group these kinds of versions at the top (for themes that don't separate them).")(func)
-    func = click.option('-r', '--root-ref', default='master',
+    func = click.option('-r', '--root-ref',
                         help='The branch/tag at the root of DESTINATION. Others are in subdirs. Default master.')(func)
     func = click.option('-s', '--sort', multiple=True, type=click.Choice(('semver', 'alpha', 'time')),
                         help='Sort versions. Specify multiple times to sort equal values of one kind.')(func)
@@ -206,8 +207,9 @@ def build(config, rel_source, destination, **options):
     :param str destination: Destination directory to copy/overwrite built docs to. Does not delete old files.
     :param dict options: Additional Click options.
     """
-    config.program_state.pop('pre', lambda: None)()
-    config.update(options, ignore_set=True)
+    if 'pre' in config:
+        config.pop('pre')()
+        config.update({k: v for k, v in options.items() if v})
     if NO_EXECUTE:
         raise RuntimeError(config, rel_source, destination)
     log = logging.getLogger(__name__)
@@ -252,7 +254,7 @@ def build(config, rel_source, destination, **options):
     shutil.rmtree(exported_root)
 
     # Store versions in state for push().
-    config.program_state['versions'] = versions
+    config['versions'] = versions
 
 
 @cli.command(cls=ClickCommand)
@@ -291,8 +293,9 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     :param str rel_dest: Relative path (to git root) to write generated docs to.
     :param dict options: Additional Click options.
     """
-    config.program_state.pop('pre', lambda: None)()
-    config.update(options)
+    if 'pre' in config:
+        config.pop('pre')()
+        config.update({k: v for k, v in options.items() if v})
     if NO_EXECUTE:
         raise RuntimeError(config, rel_source, dest_branch, rel_dest)
     log = logging.getLogger(__name__)
@@ -310,7 +313,7 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
 
             log.info('Building docs...')
             ctx.invoke(build, rel_source=rel_source, destination=os.path.join(temp_dir, rel_dest))
-            versions = config.program_state.pop('versions')
+            versions = config.pop('versions')
 
             log.info('Attempting to push to branch %s on remote repository.', dest_branch)
             try:

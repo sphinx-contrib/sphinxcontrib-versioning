@@ -16,14 +16,49 @@ def test_config():
     assert config.overflow == ('-D', 'key=value')
     assert config.root_ref == 'master'
     assert config.verbose == 1
-    expected = ("<sphinxcontrib.versioning.lib.Config "
-                "program_state={}, verbose=1, root_ref='master', overflow=('-D', 'key=value')>")
-    assert repr(config) == expected
+    assert repr(config) == ("<sphinxcontrib.versioning.lib.Config "
+                            "_program_state={}, verbose=1, root_ref='master', overflow=('-D', 'key=value')>")
+
+    # Verify iter.
+    actual = sorted(config)
+    expected = [
+        ('chdir', None),
+        ('git_root', None),
+        ('greatest_tag', False),
+        ('grm_exclude', tuple()),
+        ('invert', True),
+        ('no_colors', False),
+        ('overflow', ('-D', 'key=value')),
+        ('priority', None),
+        ('recent_tag', False),
+        ('root_ref', 'master'),
+        ('sort', tuple()),
+        ('verbose', 1),
+        ('whitelist_branches', tuple()),
+        ('whitelist_tags', tuple()),
+    ]
+    assert actual == expected
+
+    # Verify contains, setitem, and pop.
+    assert getattr(config, '_program_state') == dict()
+    assert 'key' not in config
+    config['key'] = 'value'
+    assert getattr(config, '_program_state') == dict(key='value')
+    assert 'key' in config
+    assert config.pop('key') == 'value'
+    assert getattr(config, '_program_state') == dict()
+    assert 'key' not in config
+    assert config.pop('key', 'nope') == 'nope'
+    assert getattr(config, '_program_state') == dict()
+    assert 'key' not in config
 
     # Test exceptions.
     with pytest.raises(AttributeError) as exc:
         config.update(dict(unknown=True))
     assert exc.value.args[0] == "'Config' object has no attribute 'unknown'"
+    with pytest.raises(AttributeError) as exc:
+        config.update(dict(_program_state=dict(key=True)))
+    assert exc.value.args[0] == "'Config' object does not support item assignment on '_program_state'"
     with pytest.raises(AttributeError) as exc:
         config.update(dict(invert=False))
     assert exc.value.args[0] == "'Config' object does not support item re-assignment on 'invert'"
