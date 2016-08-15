@@ -171,7 +171,7 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    --
+    --, scv_overflow
   </dt>
 
       <dd><dl>
@@ -193,7 +193,7 @@
       </dl></dd>
       
   <dt>
-    -e &lt;file&gt;, --grm-exclude &lt;file&gt;
+    -e &lt;file&gt;, --grm-exclude &lt;file&gt;, scv_grm_exclude
   </dt>
 
       <dd><dl>
@@ -215,12 +215,34 @@
       </dl></dd>
       
   <dt>
-    -i, --invert
+    -i, --invert, scv_invert
   </dt>
 
       <dd><dl>
         
   <dt><a href="settings.html#cmdoption-i">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -l &lt;file&gt;, --local-conf &lt;file&gt;
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-l">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -L, --no-local-conf
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-L">command line option</a>
   </dt>
 
       </dl></dd>
@@ -235,9 +257,11 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    -p &lt;kind&gt;, --priority &lt;kind&gt;
+    -p &lt;kind&gt;, --priority &lt;kind&gt;, scv_priority
   </dt>
 
       <dd><dl>
@@ -246,11 +270,9 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    -r &lt;ref&gt;, --root-ref &lt;ref&gt;
+    -r &lt;ref&gt;, --root-ref &lt;ref&gt;, scv_root_ref
   </dt>
 
       <dd><dl>
@@ -261,7 +283,7 @@
       </dl></dd>
       
   <dt>
-    -s &lt;value&gt;, --sort &lt;value&gt;
+    -s &lt;value&gt;, --sort &lt;value&gt;, scv_sort
   </dt>
 
       <dd><dl>
@@ -272,7 +294,7 @@
       </dl></dd>
       
   <dt>
-    -t, --greatest-tag
+    -t, --greatest-tag, scv_greatest_tag
   </dt>
 
       <dd><dl>
@@ -283,7 +305,7 @@
       </dl></dd>
       
   <dt>
-    -T, --recent-tag
+    -T, --recent-tag, scv_recent_tag
   </dt>
 
       <dd><dl>
@@ -305,7 +327,7 @@
       </dl></dd>
       
   <dt>
-    -w &lt;pattern&gt;, --whitelist-branches &lt;pattern&gt;
+    -w &lt;pattern&gt;, --whitelist-branches &lt;pattern&gt;, scv_whitelist_branches
   </dt>
 
       <dd><dl>
@@ -316,7 +338,7 @@
       </dl></dd>
       
   <dt>
-    -W &lt;pattern&gt;, --whitelist-tags &lt;pattern&gt;
+    -W &lt;pattern&gt;, --whitelist-tags &lt;pattern&gt;, scv_whitelist_tags
   </dt>
 
       <dd><dl>
@@ -348,7 +370,11 @@
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption--">--</a>
+  <dt><a href="settings.html#cmdoption--">--, scv_overflow</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-L">-L, --no-local-conf</a>
   </dt>
 
         
@@ -356,11 +382,11 @@
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-T">-T, --recent-tag</a>
+  <dt><a href="settings.html#cmdoption-T">-T, --recent-tag, scv_recent_tag</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-W">-W &lt;pattern&gt;, --whitelist-tags &lt;pattern&gt;</a>
+  <dt><a href="settings.html#cmdoption-W">-W &lt;pattern&gt;, --whitelist-tags &lt;pattern&gt;, scv_whitelist_tags</a>
   </dt>
 
         
@@ -368,7 +394,7 @@
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-e">-e &lt;file&gt;, --grm-exclude &lt;file&gt;</a>
+  <dt><a href="settings.html#cmdoption-e">-e &lt;file&gt;, --grm-exclude &lt;file&gt;, scv_grm_exclude</a>
   </dt>
 
         
@@ -376,23 +402,27 @@
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-i">-i, --invert</a>
+  <dt><a href="settings.html#cmdoption-i">-i, --invert, scv_invert</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-p">-p &lt;kind&gt;, --priority &lt;kind&gt;</a>
+  <dt><a href="settings.html#cmdoption-l">-l &lt;file&gt;, --local-conf &lt;file&gt;</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-r">-r &lt;ref&gt;, --root-ref &lt;ref&gt;</a>
+  <dt><a href="settings.html#cmdoption-p">-p &lt;kind&gt;, --priority &lt;kind&gt;, scv_priority</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-s">-s &lt;value&gt;, --sort &lt;value&gt;</a>
+  <dt><a href="settings.html#cmdoption-r">-r &lt;ref&gt;, --root-ref &lt;ref&gt;, scv_root_ref</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-t">-t, --greatest-tag</a>
+  <dt><a href="settings.html#cmdoption-s">-s &lt;value&gt;, --sort &lt;value&gt;, scv_sort</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-t">-t, --greatest-tag, scv_greatest_tag</a>
   </dt>
 
         
@@ -400,7 +430,7 @@
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-w">-w &lt;pattern&gt;, --whitelist-branches &lt;pattern&gt;</a>
+  <dt><a href="settings.html#cmdoption-w">-w &lt;pattern&gt;, --whitelist-branches &lt;pattern&gt;, scv_whitelist_branches</a>
   </dt>
 
         
@@ -594,9 +624,7 @@
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../stage/index.html">stage</a></dd>
             <dd><a href="../master/index.html">master</a></dd>
-            <dd><a href="../wip_conf_py/index.html">wip_conf_py</a></dd>
             <dd><a href="../wip_banner3/index.html">wip_banner3</a></dd>
             <dd><a href="../wip_banner2/index.html">wip_banner2</a></dd>
             <dd><a href="../wip_banner/index.html">wip_banner</a></dd>
