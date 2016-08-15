@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.1.0
+                2.0.0
               </div>
             
           
@@ -141,7 +141,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v1.1.0/docs/genindex.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v2.0.0/docs/genindex.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -171,6 +171,17 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
+    --, scv_overflow
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption--">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
     -c &lt;directory&gt;, --chdir &lt;directory&gt;
   </dt>
 
@@ -182,18 +193,7 @@
       </dl></dd>
       
   <dt>
-    -C, --no-colors
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="settings.html#cmdoption-C">command line option</a>
-  </dt>
-
-      </dl></dd>
-      
-  <dt>
-    -e &lt;file&gt;, --grm-exclude &lt;file&gt;
+    -e &lt;file&gt;, --grm-exclude &lt;file&gt;, scv_grm_exclude
   </dt>
 
       <dd><dl>
@@ -204,7 +204,18 @@
       </dl></dd>
       
   <dt>
-    -i, --invert
+    -g &lt;directory&gt;, --git-root &lt;directory&gt;
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-g">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -i, --invert, scv_invert
   </dt>
 
       <dd><dl>
@@ -215,7 +226,42 @@
       </dl></dd>
       
   <dt>
-    -p &lt;kind&gt;, --prioritize &lt;kind&gt;
+    -l &lt;file&gt;, --local-conf &lt;file&gt;
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-l">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -L, --no-local-conf
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-L">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -N, --no-colors
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-N">command line option</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt>
+    -p &lt;kind&gt;, --priority &lt;kind&gt;, scv_priority
   </dt>
 
       <dd><dl>
@@ -224,11 +270,9 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    -r &lt;ref&gt;, --root-ref &lt;ref&gt;
+    -r &lt;ref&gt;, --root-ref &lt;ref&gt;, scv_root_ref
   </dt>
 
       <dd><dl>
@@ -239,7 +283,7 @@
       </dl></dd>
       
   <dt>
-    -s &lt;csv&gt;, --sort &lt;csv&gt;
+    -s &lt;value&gt;, --sort &lt;value&gt;, scv_sort
   </dt>
 
       <dd><dl>
@@ -250,7 +294,7 @@
       </dl></dd>
       
   <dt>
-    -t, --greatest-tag
+    -t, --greatest-tag, scv_greatest_tag
   </dt>
 
       <dd><dl>
@@ -261,7 +305,7 @@
       </dl></dd>
       
   <dt>
-    -T, --recent-tag
+    -T, --recent-tag, scv_recent_tag
   </dt>
 
       <dd><dl>
@@ -278,6 +322,28 @@
       <dd><dl>
         
   <dt><a href="settings.html#cmdoption-v">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -w &lt;pattern&gt;, --whitelist-branches &lt;pattern&gt;, scv_whitelist_branches
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-w">command line option</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt>
+    -W &lt;pattern&gt;, --whitelist-tags &lt;pattern&gt;, scv_whitelist_tags
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="settings.html#cmdoption-W">command line option</a>
   </dt>
 
       </dl></dd>
@@ -304,11 +370,23 @@
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption-C">-C, --no-colors</a>
+  <dt><a href="settings.html#cmdoption--">--, scv_overflow</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-T">-T, --recent-tag</a>
+  <dt><a href="settings.html#cmdoption-L">-L, --no-local-conf</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-N">-N, --no-colors</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-T">-T, --recent-tag, scv_recent_tag</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-W">-W &lt;pattern&gt;, --whitelist-tags &lt;pattern&gt;, scv_whitelist_tags</a>
   </dt>
 
         
@@ -316,27 +394,35 @@
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-e">-e &lt;file&gt;, --grm-exclude &lt;file&gt;</a>
+  <dt><a href="settings.html#cmdoption-e">-e &lt;file&gt;, --grm-exclude &lt;file&gt;, scv_grm_exclude</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-i">-i, --invert</a>
+  <dt><a href="settings.html#cmdoption-g">-g &lt;directory&gt;, --git-root &lt;directory&gt;</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-p">-p &lt;kind&gt;, --prioritize &lt;kind&gt;</a>
+  <dt><a href="settings.html#cmdoption-i">-i, --invert, scv_invert</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-r">-r &lt;ref&gt;, --root-ref &lt;ref&gt;</a>
+  <dt><a href="settings.html#cmdoption-l">-l &lt;file&gt;, --local-conf &lt;file&gt;</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-s">-s &lt;csv&gt;, --sort &lt;csv&gt;</a>
+  <dt><a href="settings.html#cmdoption-p">-p &lt;kind&gt;, --priority &lt;kind&gt;, scv_priority</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-t">-t, --greatest-tag</a>
+  <dt><a href="settings.html#cmdoption-r">-r &lt;ref&gt;, --root-ref &lt;ref&gt;, scv_root_ref</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-s">-s &lt;value&gt;, --sort &lt;value&gt;, scv_sort</a>
+  </dt>
+
+        
+  <dt><a href="settings.html#cmdoption-t">-t, --greatest-tag, scv_greatest_tag</a>
   </dt>
 
         
@@ -344,15 +430,19 @@
   </dt>
 
         
+  <dt><a href="settings.html#cmdoption-w">-w &lt;pattern&gt;, --whitelist-branches &lt;pattern&gt;, scv_whitelist_branches</a>
+  </dt>
+
+        
   <dt><a href="settings.html#cmdoption-arg-DESTINATION">DESTINATION</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-arg-DST_BRANCH">DST_BRANCH</a>
+  <dt><a href="settings.html#cmdoption-arg-DEST_BRANCH">DEST_BRANCH</a>
   </dt>
 
         
-  <dt><a href="settings.html#cmdoption-arg-REL_DST">REL_DST</a>
+  <dt><a href="settings.html#cmdoption-arg-REL_DEST">REL_DEST</a>
   </dt>
 
         
@@ -374,12 +464,12 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    DESTINATION
+    DEST_BRANCH
   </dt>
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption-arg-DESTINATION">command line option</a>
+  <dt><a href="settings.html#cmdoption-arg-DEST_BRANCH">command line option</a>
   </dt>
 
       </dl></dd>
@@ -387,12 +477,12 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    DST_BRANCH
+    DESTINATION
   </dt>
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption-arg-DST_BRANCH">command line option</a>
+  <dt><a href="settings.html#cmdoption-arg-DESTINATION">command line option</a>
   </dt>
 
       </dl></dd>
@@ -404,12 +494,12 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt>
-    REL_DST
+    REL_DEST
   </dt>
 
       <dd><dl>
         
-  <dt><a href="settings.html#cmdoption-arg-REL_DST">command line option</a>
+  <dt><a href="settings.html#cmdoption-arg-REL_DEST">command line option</a>
   </dt>
 
       </dl></dd>
@@ -522,13 +612,14 @@
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: v1.1.0
+        v: v2.0.0
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="index.html">v1.1.0</a></dd>
+            <dd><a href="index.html">v2.0.0</a></dd>
+            <dd><a href="v1.1.0/index.html">v1.1.0</a></dd>
             <dd><a href="v1.0.1/index.html">v1.0.1</a></dd>
             <dd><a href="v1.0.0/index.html">v1.0.0</a></dd>
         </dl>
@@ -548,7 +639,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.1.0',
+            VERSION:'2.0.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  false
