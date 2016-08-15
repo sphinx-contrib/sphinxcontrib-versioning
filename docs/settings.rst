@@ -203,21 +203,23 @@ These options are available for the build sub command:
     Filter out branches not matching the pattern. Can be a simple string or a regex pattern. Specify multiple times to
     include more patterns in the whitelist.
 
-    This setting may also be specified in your conf.py file. It must be either a string or an ``re.compile()`` object:
+    This setting may also be specified in your conf.py file. It must be a tuple of either strings or ``re.compile()``
+    objects:
 
     .. code-block:: python
 
-        scv_whitelist_branches = 'master'
+        scv_whitelist_branches = ('master', 'latest')
 
 .. option:: -W <pattern>, --whitelist-tags <pattern>, scv_whitelist_tags
 
     Same as :option:`--whitelist-branches` but for git tags instead.
 
-    This setting may also be specified in your conf.py file. It must be either a string or an ``re.compile()`` object:
+    This setting may also be specified in your conf.py file. It must be a tuple of either strings or ``re.compile()``
+    objects:
 
     .. code-block:: python
 
-        scv_whitelist_tags = re.compile(r'^v\d+\.\d+\.\d+$')
+        scv_whitelist_tags = (re.compile(r'^v\d+\.\d+\.\d+$'),)
 
 .. _push-arguments:
 
