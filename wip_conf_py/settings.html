@@ -169,10 +169,24 @@
             
   <div class="section" id="settings">
 <span id="id1"></span><h1>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h1>
-<p>SCVersioning reads settings only from command line arguments. Here are all the options will be listed along with their
-descriptions.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning <span class="o">[</span>GLOBAL_OPTIONS<span class="o">]</span> build <span class="o">[</span>OPTIONS<span class="o">]</span> REL_SOURCE... DESTINATION
 sphinx-versioning <span class="o">[</span>GLOBAL_OPTIONS<span class="o">]</span> push <span class="o">[</span>OPTIONS<span class="o">]</span> REL_SOURCE... DEST_BRANCH REL_DEST
+</pre></div>
+</div>
+<p>SCVersioning reads settings from two sources:</p>
+<ul class="simple">
+<li>Your Sphinx <strong>conf.py</strong> file.</li>
+<li>Command line arguments.</li>
+</ul>
+<p>Command line arguments always override anything set in conf.py. You can specify the path to conf.py with the
+<a class="reference internal" href="#cmdoption--local-conf"><code class="xref std std-option docutils literal"><span class="pre">--local-conf</span></code></a> argument or SCVersioning will look at the first conf.py it finds in your <a class="reference internal" href="#cmdoption-arg-REL_SOURCE"><code class="xref std std-option docutils literal"><span class="pre">REL_SOURCE</span></code></a>
+directories. To completely disable using a conf.py file specify the <a class="reference internal" href="#cmdoption--no-local-conf"><code class="xref std std-option docutils literal"><span class="pre">--no-local-conf</span></code></a> command line argument.</p>
+<p>Below are both the command line arguments available as well as the conf.py variable names SCVersioning looks for. All
+conf.py variable names are prefixed with <code class="docutils literal"><span class="pre">scv_</span></code>. An example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># conf.py</span>
+<span class="n">author</span> <span class="o">=</span> <span class="s1">&#39;Your Name&#39;</span>
+<span class="n">project</span> <span class="o">=</span> <span class="s1">&#39;My Project&#39;</span>
+<span class="n">scv_greatest_tag</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
 </div>
 <div class="section" id="global-options">
@@ -428,8 +442,8 @@ files in the branch if a branch is deleted from the repo after SCVersioning alre
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../master/settings.html">master</a></dd>
             <dd><a href="../wip_conf_py/settings.html">wip_conf_py</a></dd>
+            <dd><a href="../master/settings.html">master</a></dd>
             <dd><a href="../wip_banner3/settings.html">wip_banner3</a></dd>
             <dd><a href="../wip_banner2/settings.html">wip_banner2</a></dd>
             <dd><a href="../wip_banner/settings.html">wip_banner</a></dd>
