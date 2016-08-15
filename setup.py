@@ -13,7 +13,7 @@ IMPORT = 'sphinxcontrib.versioning'
 INSTALL_REQUIRES = ['click', 'colorclass', 'sphinx']
 LICENSE = 'MIT'
 NAME = 'sphinxcontrib-versioning'
-VERSION = '1.1.0'
+VERSION = '2.0.0'
 
 
 def readme(path='README.rst'):
