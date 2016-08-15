@@ -289,6 +289,10 @@ directory or an absolute directory path.</p>
 <span id="cmdoption--invert"></span><span id="cmdoption-arg-scv_invert"></span><code class="descname">-i</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--invert</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_invert</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Invert the order of branches/tags displayed in the sidebars in generated HTML documents. The default order is
 whatever git prints when running &#8220;<strong>git ls-remote &#8211;heads &#8211;tags</strong>&#8221;.</p>
+<p>This setting may also be specified in your conf.py file. It must be a boolean:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_invert</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="option">
@@ -297,6 +301,10 @@ whatever git prints when running &#8220;<strong>git ls-remote &#8211;heads &#821
 <dd><p><code class="docutils literal"><span class="pre">kind</span></code> may be either <strong>branches</strong> or <strong>tags</strong>. This argument is for themes that don&#8217;t split up branches and tags
 in the generated HTML (e.g. sphinx_rtd_theme). This argument groups branches and tags together and whichever is
 selected for <code class="docutils literal"><span class="pre">kind</span></code> will be displayed first.</p>
+<p>This setting may also be specified in your conf.py file. It must be a string:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_priority</span> <span class="o">=</span> <span class="s1">&#39;branches&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="option">
@@ -305,6 +313,10 @@ selected for <code class="docutils literal"><span class="pre">kind</span></code>
 <dd><p>The branch/tag at the root of <a class="reference internal" href="#cmdoption-arg-DESTINATION"><code class="xref std std-option docutils literal"><span class="pre">DESTINATION</span></code></a>. All others are in subdirectories. Default is <strong>master</strong>.</p>
 <p>If the root-ref does not exist or does not have docs, <code class="docutils literal"><span class="pre">sphinx-versioning</span></code> will fail and exit. The root-ref must
 have docs.</p>
+<p>This setting may also be specified in your conf.py file. It must be a string:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_root_ref</span> <span class="o">=</span> <span class="s1">&#39;feature_branch&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="option">
@@ -316,6 +328,10 @@ have docs.</p>
 Non-semver branches/tags will be sorted after all valid semver formats. This is where the multiple sort values come
 in. You can specify &#8220;alpha&#8221; to sort the remainder alphabetically or &#8220;time&#8221; to sort chronologically (most recent
 commit first).</p>
+<p>This setting may also be specified in your conf.py file. It must be a tuple of strings:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_sort</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;semver&#39;</span><span class="p">,)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="option">
@@ -323,6 +339,10 @@ commit first).</p>
 <span id="cmdoption--greatest-tag"></span><span id="cmdoption-arg-scv_greatest_tag"></span><code class="descname">-t</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--greatest-tag</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_greatest_tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Override root-ref to be the tag with the highest version number. If no tags have docs then this option is ignored
 and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a> is used.</p>
+<p>This setting may also be specified in your conf.py file. It must be a boolean:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_greatest_tag</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="option">
@@ -330,6 +350,10 @@ and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref 
 <span id="cmdoption--recent-tag"></span><span id="cmdoption-arg-scv_recent_tag"></span><code class="descname">-T</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--recent-tag</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_recent_tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Override root-ref to be the most recent committed tag. If no tags have docs then this option is ignored and
 <a class="reference internal" href="#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a> is used.</p>
+<p>This setting may also be specified in your conf.py file. It must be a boolean:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_recent_tag</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="option">
@@ -337,12 +361,20 @@ and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref 
 <span id="cmdoption--whitelist-branches"></span><span id="cmdoption-arg-scv_whitelist_branches"></span><code class="descname">-w</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-branches</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">scv_whitelist_branches</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-w" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out branches not matching the pattern. Can be a simple string or a regex pattern. Specify multiple times to
 include more patterns in the whitelist.</p>
+<p>This setting may also be specified in your conf.py file. It must be either a string or an <code class="docutils literal"><span class="pre">re.compile()</span></code> object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_branches</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="option">
 <dt id="cmdoption-W">
 <span id="cmdoption--whitelist-tags"></span><span id="cmdoption-arg-scv_whitelist_tags"></span><code class="descname">-W</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-tags</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">scv_whitelist_tags</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-W" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <a class="reference internal" href="#cmdoption--whitelist-branches"><code class="xref std std-option docutils literal"><span class="pre">--whitelist-branches</span></code></a> but for git tags instead.</p>
+<p>This setting may also be specified in your conf.py file. It must be either a string or an <code class="docutils literal"><span class="pre">re.compile()</span></code> object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_tags</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;^v\d+\.\d+\.\d+$&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -387,6 +419,10 @@ to preserve it. All other files in the branch in <a class="reference internal" h
 multiple files or directories to be excluded by adding more <code class="docutils literal"><span class="pre">--grm-exclude</span></code> arguments.</p>
 <p>If this argument is not specified then nothing will be deleted from the branch. This may cause stale/orphaned HTML
 files in the branch if a branch is deleted from the repo after SCVersioning already created HTML files for it.</p>
+<p>This setting may also be specified in your conf.py file. It must be a tuple of strings:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_grm_exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;README.md&#39;</span><span class="p">,</span> <span class="s1">&#39;.gitignore&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
