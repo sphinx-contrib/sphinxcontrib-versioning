@@ -1,0 +1,413 @@
+
+
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Supported Themes &mdash; sphinxcontrib-versioning</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="sphinxcontrib-versioning" href="index.html"/>
+        <link rel="next" title="GitHub Pages" href="github_pages.html"/>
+        <link rel="prev" title="Settings" href="settings.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> sphinxcontrib-versioning
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">General</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Themes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#html-context-variables-api">HTML Context Variables (API)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#screen-shots">Screen Shots</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Web Hosting</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="github_pages.html">GitHub Pages</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">sphinxcontrib-versioning</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Supported Themes</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+          
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/wip_pathto/docs/themes.rst" class="fa fa-github"> Edit on GitHub</a>
+          
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="supported-themes">
+<span id="themes"></span><h1>Supported Themes<a class="headerlink" href="#supported-themes" title="Permalink to this headline">¶</a></h1>
+<p>Below are screen shots of the supported built-in Sphinx themes. You can the &#8220;Versions&#8221; section in each screen shot on
+sidebars.</p>
+<div class="section" id="html-context-variables-api">
+<h2>HTML Context Variables (API)<a class="headerlink" href="#html-context-variables-api" title="Permalink to this headline">¶</a></h2>
+<p>If you want to add support to another theme it&#8217;s pretty easy. The following <a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> context
+variables are exposed:</p>
+<dl class="attribute">
+<dt id="current_version">
+<code class="descname">current_version</code><a class="headerlink" href="#current_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string of the current version being built. This will be the git ref name (e.g. a branch name or tag name).</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="x">&lt;h3&gt;Current Version: </span><span class="cp">{{</span> <span class="nv">current_version</span> <span class="cp">}}</span><span class="x">&lt;/h3&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_branch">
+<code class="descname">scv_is_branch</code><a class="headerlink" href="#scv_is_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is from a git branch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_greatest_tag">
+<code class="descname">scv_is_greatest_tag</code><a class="headerlink" href="#scv_is_greatest_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is:</p>
+<ul class="simple">
+<li>From a git tag.</li>
+<li>A valid semver-formatted name (e.g. v1.2.3).</li>
+<li>The highest version number.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_branch">
+<code class="descname">scv_is_recent_branch</code><a class="headerlink" href="#scv_is_recent_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is a git branch and is the most recent commit out of just
+git branches.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_ref">
+<code class="descname">scv_is_recent_ref</code><a class="headerlink" href="#scv_is_recent_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is the most recent git commit (branch or tag).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_tag">
+<code class="descname">scv_is_recent_tag</code><a class="headerlink" href="#scv_is_recent_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is a git tag and is the most recent commit out of just git
+tags.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_root_ref">
+<code class="descname">scv_is_root_ref</code><a class="headerlink" href="#scv_is_root_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is the <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_tag">
+<code class="descname">scv_is_tag</code><a class="headerlink" href="#scv_is_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is from a git tag.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_root_ref_is_branch">
+<code class="descname">scv_root_ref_is_branch</code><a class="headerlink" href="#scv_root_ref_is_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the root ref is from a git branch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_root_ref_is_tag">
+<code class="descname">scv_root_ref_is_tag</code><a class="headerlink" href="#scv_root_ref_is_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the root ref is from a git tag.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="versions">
+<code class="descname">versions</code><a class="headerlink" href="#versions" title="Permalink to this definition">¶</a></dt>
+<dd><p>An iterable that yields 2-item tuples of strings. The first item is the version (branch/tag) name while the second
+item is the relative path to the documentation for that version. The path is URL safe and takes into account HTML
+pages in sub directories.</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="cp">{%</span>- <span class="k">for</span> <span class="nv">name</span><span class="o">,</span> <span class="nv">url</span> <span class="k">in</span> <span class="nv">versions</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">    &lt;li&gt;&lt;a href=&quot;</span><span class="cp">{{</span> <span class="nv">url</span> <span class="cp">}}</span><span class="x">&quot;&gt;</span><span class="cp">{{</span> <span class="nv">name</span> <span class="cp">}}</span><span class="x">&lt;/a&gt;&lt;/li&gt;</span>
+<span class="cp">{%</span>- <span class="k">endfor</span> <span class="cp">%}</span><span class="x"></span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="versions.branches">
+<code class="descclassname">versions.</code><code class="descname">branches</code><a class="headerlink" href="#versions.branches" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="docutils literal"><span class="pre">versions</span></code> iterable has a <strong>branches</strong> property that itself yields versions in branches (filtering out git
+tags). The order is the same and it yields the same tuples.</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="x">&lt;dl&gt;</span>
+<span class="x">    &lt;dt&gt;Branches&lt;/dt&gt;</span>
+<span class="x">    </span><span class="cp">{%</span>- <span class="k">for</span> <span class="nv">name</span><span class="o">,</span> <span class="nv">url</span> <span class="k">in</span> <span class="nv">versions.branches</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">    &lt;dd&gt;&lt;a href=&quot;</span><span class="cp">{{</span> <span class="nv">url</span> <span class="cp">}}</span><span class="x">&quot;&gt;</span><span class="cp">{{</span> <span class="nv">name</span> <span class="cp">}}</span><span class="x">&lt;/a&gt;&lt;/dd&gt;</span>
+<span class="x">    </span><span class="cp">{%</span>- <span class="k">endfor</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">&lt;/dl&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="versions.tags">
+<code class="descclassname">versions.</code><code class="descname">tags</code><a class="headerlink" href="#versions.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <code class="docutils literal"><span class="pre">versions</span></code> iterable also has a <strong>tags</strong> property that itself yields versions in tags (filtering out git
+branches). Just as the <strong>branches</strong> property the order is maintained and the yielded tuples are the same.</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="x">&lt;dl&gt;</span>
+<span class="x">    &lt;dt&gt;Tags&lt;/dt&gt;</span>
+<span class="x">    </span><span class="cp">{%</span>- <span class="k">for</span> <span class="nv">name</span><span class="o">,</span> <span class="nv">url</span> <span class="k">in</span> <span class="nv">versions.tags</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">    &lt;dd&gt;&lt;a href=&quot;</span><span class="cp">{{</span> <span class="nv">url</span> <span class="cp">}}</span><span class="x">&quot;&gt;</span><span class="cp">{{</span> <span class="nv">name</span> <span class="cp">}}</span><span class="x">&lt;/a&gt;&lt;/dd&gt;</span>
+<span class="x">    </span><span class="cp">{%</span>- <span class="k">endfor</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">&lt;/dl&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="screen-shots">
+<h2>Screen Shots<a class="headerlink" href="#screen-shots" title="Permalink to this headline">¶</a></h2>
+<p>Below are screen shots of the supported built-in themes.</p>
+<div class="figure" id="id1">
+<a class="reference external image-reference" href="_images/sphinx_rtd_theme.png"><img alt="_images/sphinx_rtd_theme.png" src="_images/sphinx_rtd_theme.png" /></a>
+<p class="caption"><span class="caption-text">sphinx_rtd_theme</span></p>
+</div>
+<div class="figure" id="id2">
+<a class="reference external image-reference" href="_images/alabaster.png"><img alt="_images/alabaster.png" src="_images/alabaster.png" /></a>
+<p class="caption"><span class="caption-text">alabaster</span></p>
+</div>
+<div class="figure" id="id3">
+<a class="reference external image-reference" href="_images/classic.png"><img alt="_images/classic.png" src="_images/classic.png" /></a>
+<p class="caption"><span class="caption-text">classic</span></p>
+</div>
+<div class="figure" id="id4">
+<a class="reference external image-reference" href="_images/nature.png"><img alt="_images/nature.png" src="_images/nature.png" /></a>
+<p class="caption"><span class="caption-text">nature</span></p>
+</div>
+<div class="figure" id="id5">
+<a class="reference external image-reference" href="_images/sphinxdoc.png"><img alt="_images/sphinxdoc.png" src="_images/sphinxdoc.png" /></a>
+<p class="caption"><span class="caption-text">sphinxdoc</span></p>
+</div>
+<div class="figure" id="id6">
+<a class="reference external image-reference" href="_images/bizstyle.png"><img alt="_images/bizstyle.png" src="_images/bizstyle.png" /></a>
+<p class="caption"><span class="caption-text">bizstyle</span></p>
+</div>
+<div class="figure" id="id7">
+<a class="reference external image-reference" href="_images/pyramid.png"><img alt="_images/pyramid.png" src="_images/pyramid.png" /></a>
+<p class="caption"><span class="caption-text">pyramid</span></p>
+</div>
+<div class="figure" id="id8">
+<a class="reference external image-reference" href="_images/traditional.png"><img alt="_images/traditional.png" src="_images/traditional.png" /></a>
+<p class="caption"><span class="caption-text">traditional</span></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="github_pages.html" class="btn btn-neutral float-right" title="GitHub Pages" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="settings.html" class="btn btn-neutral" title="Settings" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, @Robpol86.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: wip_pathto
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../themes.html">v2.0.0</a></dd>
+            <dd><a href="../v1.1.0/themes.html">v1.1.0</a></dd>
+            <dd><a href="../v1.0.1/themes.html">v1.0.1</a></dd>
+            <dd><a href="../v1.0.0/themes.html">v1.0.0</a></dd>
+        </dl>
+        <dl>
+            <dt>Branches</dt>
+            <dd><a href="../wip_pathto/themes.html">wip_pathto</a></dd>
+            <dd><a href="../wip_double_root_ref/themes.html">wip_double_root_ref</a></dd>
+            <dd><a href="../master/themes.html">master</a></dd>
+            <dd><a href="../wip_banner3/themes.html">wip_banner3</a></dd>
+            <dd><a href="../wip_banner2/themes.html">wip_banner2</a></dd>
+            <dd><a href="../wip_banner/themes.html">wip_banner</a></dd>
+        </dl>
+    </div>
+</div>
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
