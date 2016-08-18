@@ -230,12 +230,14 @@ def test_root_ref(tmpdir, local_docs, run, no_tags):
         assert 'Root ref is: {}\n'.format(expected) in output
 
 
-def test_add_remove_docs(tmpdir, local_docs, run):
+@pytest.mark.parametrize('parallel', [False, True])
+def test_add_remove_docs(tmpdir, local_docs, run, parallel):
     """Test URLs to other versions of current page with docs that are added/removed between versions.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
+    :param bool parallel: Run sphinx-build with -j option.
     """
     run(local_docs, ['git', 'tag', 'v1.0.0'])
 
@@ -283,8 +285,15 @@ def test_add_remove_docs(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    output = run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)])
+    overflow = ['--', '-j', '2'] if parallel else []
+    output = run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)] + overflow)
     assert 'Traceback' not in output
+
+    # Check parallel.
+    if parallel:
+        assert 'waiting for workers' in output
+    else:
+        assert 'waiting for workers' not in output
 
     # Check master.
     contents = destination.join('contents.html').read()

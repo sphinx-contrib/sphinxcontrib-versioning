@@ -137,7 +137,7 @@ def _build(argv, versions, current_name):
     application.Config = ConfigInject
     EventHandlers.CURRENT_VERSION = current_name
     EventHandlers.VERSIONS = versions
-    SC_VERSIONING_VERSIONS[:] = list(versions)
+    SC_VERSIONING_VERSIONS[:] = [p for r in versions.remotes for p in sorted(r.items()) if p[0] not in ('sha', 'date')]
 
     # Update argv.
     config = Config.from_context()

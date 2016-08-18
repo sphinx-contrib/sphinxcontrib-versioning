@@ -38,14 +38,16 @@ def test_single(tmpdir, local_docs):
     assert '<li><a href="contents.html">master</a></li>' in contents
 
 
+@pytest.mark.parametrize('parallel', [False, True])
 @pytest.mark.parametrize('triple', [False, True])
-def test_multiple(tmpdir, local_docs, run, triple):
+def test_multiple(tmpdir, local_docs, run, triple, parallel):
     """With two or three versions.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
     :param bool triple: With three versions (including master) instead of two.
+    :param bool parallel: Run sphinx-build with -j option.
     """
     run(local_docs, ['git', 'tag', 'v1.0.0'])
     run(local_docs, ['git', 'push', 'origin', 'v1.0.0'])
@@ -66,7 +68,7 @@ def test_multiple(tmpdir, local_docs, run, triple):
 
     # Run and verify directory.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, tuple())
+    build_all(str(exported_root), str(destination), versions, ('-j', '2') if parallel else tuple())
     actual = sorted(f.relto(destination) for f in destination.visit() if f.check(dir=True))
     expected = [
         '.doctrees',
@@ -109,12 +111,14 @@ def test_multiple(tmpdir, local_docs, run, triple):
     assert '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>' in contents
 
 
-def test_error(tmpdir, local_docs, run):
+@pytest.mark.parametrize('parallel', [False, True])
+def test_error(tmpdir, local_docs, run, parallel):
     """Test with a bad root ref. Also test skipping bad non-root refs.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
+    :param bool parallel: Run sphinx-build with -j option.
     """
     run(local_docs, ['git', 'checkout', '-b', 'a_good', 'master'])
     run(local_docs, ['git', 'checkout', '-b', 'c_good', 'master'])
@@ -135,15 +139,17 @@ def test_error(tmpdir, local_docs, run):
     export(str(local_docs), versions['master']['sha'], str(exported_root.join(versions['master']['sha'])))
     export(str(local_docs), versions['b_broken']['sha'], str(exported_root.join(versions['b_broken']['sha'])))
 
+    overflow = ('-j', '2') if parallel else tuple()
+
     # Bad root ref.
     versions.set_root_remote('b_broken')
     destination = tmpdir.ensure_dir('destination')
     with pytest.raises(HandledError):
-        build_all(str(exported_root), str(destination), versions, tuple())
+        build_all(str(exported_root), str(destination), versions, overflow)
 
     # Remove bad non-root refs.
     versions.set_root_remote('master')
-    build_all(str(exported_root), str(destination), versions, tuple())
+    build_all(str(exported_root), str(destination), versions, overflow)
     assert [r[0] for r in versions] == ['a_good', 'c_good', 'master']
 
     # Verify root ref HTML links.
