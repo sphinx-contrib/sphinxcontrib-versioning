@@ -64,7 +64,7 @@ def test_supported(tmpdir, local_docs, run, theme):
         assert not line.startswith('-')
 
     # Verify added.
-    for name, _ in versions:
+    for name in (r['name'] for r in versions.remotes):
         assert any(name in line for line in diff if line.startswith('+'))
 
 

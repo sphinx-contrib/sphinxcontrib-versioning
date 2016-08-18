@@ -150,7 +150,7 @@ def test_error(tmpdir, local_docs, run, parallel):
     # Remove bad non-root refs.
     versions.set_root_remote('master')
     build_all(str(exported_root), str(destination), versions, overflow)
-    assert [r[0] for r in versions] == ['a_good', 'c_good', 'master']
+    assert [r['name'] for r in versions.remotes] == ['a_good', 'c_good', 'master']
 
     # Verify root ref HTML links.
     contents = destination.join('contents.html').read()
@@ -203,7 +203,7 @@ def test_all_errors(tmpdir, local_docs, run):
     # Run.
     destination = tmpdir.ensure_dir('destination')
     build_all(str(exported_root), str(destination), versions, tuple())
-    assert [r[0] for r in versions] == ['master']
+    assert [r['name'] for r in versions.remotes] == ['master']
 
     # Verify root ref HTML links.
     contents = destination.join('contents.html').read()

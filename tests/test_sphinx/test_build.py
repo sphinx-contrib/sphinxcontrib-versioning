@@ -26,7 +26,7 @@ def test_simple(tmpdir, local_docs, no_feature):
     contents = target.join('contents.html').read()
     assert '<a href=".">master</a></li>' in contents
     if no_feature:
-        assert '<li><a href=".">feature</a></li>' not in contents
+        assert 'feature</a></li>' not in contents
     else:
         assert '<li><a href=".">feature</a></li>' in contents
 

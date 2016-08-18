@@ -133,12 +133,12 @@ def pre_build(local_root, versions, overflow):
 
     # Define directory paths in URLs in versions. Skip the root ref (will remain '.').
     for remote in (r for r in versions.remotes if r != root_remote):
-        url = RE_INVALID_FILENAME.sub('_', remote['name'])
-        while url in existing:
-            url += '_'
-        remote['url'] = url
-        log.debug('%s has url %s', remote['name'], remote['url'])
-        existing.append(url)
+        root_dir = RE_INVALID_FILENAME.sub('_', remote['name'])
+        while root_dir in existing:
+            root_dir += '_'
+        remote['url'] = root_dir
+        log.debug('%s root directory is %s', remote['name'], root_dir)
+        existing.append(root_dir)
 
     # Define master_doc file paths in URLs in versions and get found_docs for all versions.
     for remote in list(versions.remotes):

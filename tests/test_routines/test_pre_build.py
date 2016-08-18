@@ -113,7 +113,7 @@ def test_error(local_docs, run):
     run(local_docs, ['git', 'push', 'origin', 'a_good', 'b_broken', 'c_good', 'd_broken'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()), sort=['alpha'])
-    assert [r[0] for r in versions] == ['a_good', 'b_broken', 'c_good', 'd_broken', 'master']
+    assert [r['name'] for r in versions.remotes] == ['a_good', 'b_broken', 'c_good', 'd_broken', 'master']
 
     # Bad root ref.
     versions.set_root_remote('b_broken')
@@ -123,4 +123,4 @@ def test_error(local_docs, run):
     # Remove bad non-root refs.
     versions.set_root_remote('master')
     pre_build(str(local_docs), versions, tuple())
-    assert [r[0] for r in versions] == ['a_good', 'c_good', 'master']
+    assert [r['name'] for r in versions.remotes] == ['a_good', 'c_good', 'master']
