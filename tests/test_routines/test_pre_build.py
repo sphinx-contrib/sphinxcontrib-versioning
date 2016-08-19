@@ -20,7 +20,7 @@ def test_single(local_docs):
     assert len(versions) == 1
 
     # Run and verify directory.
-    exported_root = py.path.local(pre_build(str(local_docs), versions, tuple()))
+    exported_root = py.path.local(pre_build(str(local_docs), versions))
     assert len(exported_root.listdir()) == 1
     assert exported_root.join(versions['master']['sha'], 'conf.py').read() == ''
 
@@ -52,7 +52,7 @@ def test_dual(local_docs, run):
     assert len(versions) == 2
 
     # Run and verify directory.
-    exported_root = py.path.local(pre_build(str(local_docs), versions, tuple()))
+    exported_root = py.path.local(pre_build(str(local_docs), versions))
     assert len(exported_root.listdir()) == 2
     assert exported_root.join(versions['master']['sha'], 'conf.py').read() == ''
     assert exported_root.join(versions['feature']['sha'], 'conf.py').read() == 'master_doc = "index"\n'
@@ -76,7 +76,7 @@ def test_file_collision(local_docs, run):
     assert len(versions) == 2
 
     # Verify versions root_dirs and master_docs.
-    pre_build(str(local_docs), versions, tuple())
+    pre_build(str(local_docs), versions)
     expected = ['_static_/contents', 'contents']
     assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
@@ -95,7 +95,7 @@ def test_invalid_name(local_docs, run):
     assert len(versions) == 2
 
     # Verify versions root_dirs and master_docs.
-    pre_build(str(local_docs), versions, tuple())
+    pre_build(str(local_docs), versions)
     expected = ['contents', 'robpol86_feature/contents']
     assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
@@ -120,9 +120,9 @@ def test_error(local_docs, run):
     # Bad root ref.
     versions.set_root_remote('b_broken')
     with pytest.raises(HandledError):
-        pre_build(str(local_docs), versions, tuple())
+        pre_build(str(local_docs), versions)
 
     # Remove bad non-root refs.
     versions.set_root_remote('master')
-    pre_build(str(local_docs), versions, tuple())
+    pre_build(str(local_docs), versions)
     assert [r['name'] for r in versions.remotes] == ['a_good', 'c_good', 'master']

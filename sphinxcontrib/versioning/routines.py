@@ -13,11 +13,10 @@ from sphinxcontrib.versioning.sphinx_ import build, read_config
 RE_INVALID_FILENAME = re.compile(r'[^0-9A-Za-z.-]')
 
 
-def read_local_conf(local_conf, overflow):
+def read_local_conf(local_conf):
     """Search for conf.py in any rel_source directory in CWD and if found read it and return.
 
     :param str local_conf: Path to conf.py to read.
-    :param tuple overflow: Overflow command line options to pass to sphinx-build.
 
     :return: Loaded conf.py.
     :rtype: dict
@@ -27,7 +26,7 @@ def read_local_conf(local_conf, overflow):
     # Attempt to read.
     log.info('Reading config from %s...', local_conf)
     try:
-        config = read_config(os.path.dirname(local_conf), '<local>', overflow)
+        config = read_config(os.path.dirname(local_conf), '<local>')
     except HandledError:
         log.warning('Unable to read file, continuing with only CLI args.')
         return dict()
@@ -98,7 +97,7 @@ def gather_git_info(root, conf_rel_paths, whitelist_branches, whitelist_tags):
     return whitelisted_remotes
 
 
-def pre_build(local_root, versions, overflow):
+def pre_build(local_root, versions):
     """Build docs for all versions to determine root directory and master_doc names.
 
     Need to build docs to (a) avoid filename collision with files from root_ref and branch/tag names and (b) determine
@@ -109,7 +108,6 @@ def pre_build(local_root, versions, overflow):
 
     :param str local_root: Local path to git root directory.
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
-    :param tuple overflow: Overflow command line options to pass to sphinx-build.
 
     :return: Tempdir path with exported commits as subdirectories.
     :rtype: str
@@ -128,7 +126,7 @@ def pre_build(local_root, versions, overflow):
     with TempDir() as temp_dir:
         log.debug('Building root ref (before setting root_dirs) in temporary directory: %s', temp_dir)
         source = os.path.dirname(os.path.join(exported_root, root_remote['sha'], root_remote['conf_rel_path']))
-        build(source, temp_dir, versions, root_remote['name'], overflow)
+        build(source, temp_dir, versions, root_remote['name'])
         existing = os.listdir(temp_dir)
 
     # Define root_dir versions. Skip the root ref (will remain '').
@@ -145,7 +143,7 @@ def pre_build(local_root, versions, overflow):
         log.debug('Partially running sphinx-build to read configuration for: %s', remote['name'])
         source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
         try:
-            config = read_config(source, remote['name'], overflow)
+            config = read_config(source, remote['name'])
         except HandledError:
             log.warning('Skipping. Will not be building: %s', remote['name'])
             versions.remotes.pop(versions.remotes.index(remote))
@@ -156,13 +154,12 @@ def pre_build(local_root, versions, overflow):
     return exported_root
 
 
-def build_all(exported_root, destination, versions, overflow):
+def build_all(exported_root, destination, versions):
     """Build all versions.
 
     :param str exported_root: Tempdir path with exported commits as subdirectories.
     :param str destination: Destination directory to copy/overwrite built docs to. Does not delete old files.
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
-    :param tuple overflow: Overflow command line options to pass to sphinx-build.
     """
     log = logging.getLogger(__name__)
     root_remote = versions.root_remote
@@ -171,7 +168,7 @@ def build_all(exported_root, destination, versions, overflow):
         # Build root ref.
         log.info('Building root ref: %s', root_remote['name'])
         source = os.path.dirname(os.path.join(exported_root, root_remote['sha'], root_remote['conf_rel_path']))
-        build(source, destination, versions, root_remote['name'], overflow)
+        build(source, destination, versions, root_remote['name'])
 
         # Build other refs.
         for remote in list(r for r in versions.remotes if r != root_remote):
@@ -179,7 +176,7 @@ def build_all(exported_root, destination, versions, overflow):
             source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
             target = os.path.join(destination, remote['root_dir'])
             try:
-                build(source, target, versions, remote['name'], overflow)
+                build(source, target, versions, remote['name'])
             except HandledError:
                 log.warning('Skipping. Will not be building %s. Rebuilding everything.', remote['name'])
                 versions.remotes.pop(versions.remotes.index(remote))

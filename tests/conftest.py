@@ -3,6 +3,22 @@
 import pytest
 
 from sphinxcontrib.versioning.git import run_command
+from sphinxcontrib.versioning.lib import Config
+
+
+@pytest.fixture
+def config(monkeypatch):
+    """Mock config from Click context.
+
+    :param monkeypatch: pytest fixture.
+
+    :return: Config instance.
+    :rtype: sphinxcontrib.versioning.lib.Config
+    """
+    instance = Config()
+    ctx = type('', (), {'find_object': staticmethod(lambda _: instance)})
+    monkeypatch.setattr('click.get_current_context', lambda: ctx)
+    return instance
 
 
 @pytest.fixture

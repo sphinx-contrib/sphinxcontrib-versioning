@@ -146,6 +146,8 @@ def _build(argv, versions, current_name):
         argv += ('-v',) * (config.verbose - 1)
     if config.no_colors:
         argv += ('-N',)
+    if config.overflow:
+        argv += config.overflow
 
     # Build.
     result = build_main(argv)
@@ -167,7 +169,7 @@ def _read_config(argv, current_name, queue):
     _build(argv, Versions(list()), current_name)
 
 
-def build(source, target, versions, current_name, overflow):
+def build(source, target, versions, current_name):
     """Build Sphinx docs for one version. Includes Versions class instance with names/urls in the HTML context.
 
     :raise HandledError: If sphinx-build fails. Will be logged before raising.
@@ -176,10 +178,9 @@ def build(source, target, versions, current_name, overflow):
     :param str target: Destination directory to write documentation to (passed to sphinx-build).
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
     :param str current_name: The ref name of the current version being built.
-    :param tuple overflow: Overflow command line options to pass to sphinx-build.
     """
     log = logging.getLogger(__name__)
-    argv = ('sphinx-build', source, target) + overflow
+    argv = ('sphinx-build', source, target)
     log.debug('Running sphinx-build for %s with args: %s', current_name, str(argv))
     child = multiprocessing.Process(target=_build, args=(argv, versions, current_name))
     child.start()
@@ -189,14 +190,13 @@ def build(source, target, versions, current_name, overflow):
         raise HandledError
 
 
-def read_config(source, current_name, overflow):
+def read_config(source, current_name):
     """Read the Sphinx config for one version.
 
     :raise HandledError: If sphinx-build fails. Will be logged before raising.
 
     :param str source: Source directory to pass to sphinx-build.
     :param str current_name: The ref name of the current version being built.
-    :param tuple overflow: Overflow command line options to pass to sphinx-build.
 
     :return: Specific Sphinx config values.
     :rtype: dict
@@ -205,7 +205,7 @@ def read_config(source, current_name, overflow):
     queue = multiprocessing.Queue()
 
     with TempDir() as temp_dir:
-        argv = ('sphinx-build', source, temp_dir) + overflow
+        argv = ('sphinx-build', source, temp_dir)
         log.debug('Running sphinx-build for config values with args: %s', str(argv))
         child = multiprocessing.Process(target=_read_config, args=(argv, current_name, queue))
         child.start()

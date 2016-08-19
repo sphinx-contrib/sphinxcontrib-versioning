@@ -23,7 +23,7 @@ def test_single(tmpdir, local_docs):
 
     # Run and verify directory.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, tuple())
+    build_all(str(exported_root), str(destination), versions)
     actual = sorted(f.relto(destination) for f in destination.visit() if f.check(dir=True))
     expected = [
         '.doctrees',
@@ -39,15 +39,17 @@ def test_single(tmpdir, local_docs):
 
 @pytest.mark.parametrize('parallel', [False, True])
 @pytest.mark.parametrize('triple', [False, True])
-def test_multiple(tmpdir, local_docs, run, triple, parallel):
+def test_multiple(tmpdir, config, local_docs, run, triple, parallel):
     """With two or three versions.
 
     :param tmpdir: pytest fixture.
+    :param sphinxcontrib.versioning.lib.Config config: conftest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
     :param bool triple: With three versions (including master) instead of two.
     :param bool parallel: Run sphinx-build with -j option.
     """
+    config.overflow = ('-j', '2') if parallel else tuple()
     run(local_docs, ['git', 'tag', 'v1.0.0'])
     run(local_docs, ['git', 'push', 'origin', 'v1.0.0'])
     if triple:
@@ -63,7 +65,7 @@ def test_multiple(tmpdir, local_docs, run, triple, parallel):
 
     # Run and verify directory.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, ('-j', '2') if parallel else tuple())
+    build_all(str(exported_root), str(destination), versions)
     actual = sorted(f.relto(destination) for f in destination.visit() if f.check(dir=True))
     expected = [
         '.doctrees',
@@ -107,14 +109,16 @@ def test_multiple(tmpdir, local_docs, run, triple, parallel):
 
 
 @pytest.mark.parametrize('parallel', [False, True])
-def test_error(tmpdir, local_docs, run, parallel):
+def test_error(tmpdir, config, local_docs, run, parallel):
     """Test with a bad root ref. Also test skipping bad non-root refs.
 
     :param tmpdir: pytest fixture.
+    :param sphinxcontrib.versioning.lib.Config config: conftest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
     :param bool parallel: Run sphinx-build with -j option.
     """
+    config.overflow = ('-j', '2') if parallel else tuple()
     run(local_docs, ['git', 'checkout', '-b', 'a_good', 'master'])
     run(local_docs, ['git', 'checkout', '-b', 'c_good', 'master'])
     run(local_docs, ['git', 'checkout', '-b', 'b_broken', 'master'])
@@ -129,17 +133,15 @@ def test_error(tmpdir, local_docs, run, parallel):
     export(str(local_docs), versions['master']['sha'], str(exported_root.join(versions['master']['sha'])))
     export(str(local_docs), versions['b_broken']['sha'], str(exported_root.join(versions['b_broken']['sha'])))
 
-    overflow = ('-j', '2') if parallel else tuple()
-
     # Bad root ref.
     versions.set_root_remote('b_broken')
     destination = tmpdir.ensure_dir('destination')
     with pytest.raises(HandledError):
-        build_all(str(exported_root), str(destination), versions, overflow)
+        build_all(str(exported_root), str(destination), versions)
 
     # Remove bad non-root refs.
     versions.set_root_remote('master')
-    build_all(str(exported_root), str(destination), versions, overflow)
+    build_all(str(exported_root), str(destination), versions)
     assert [r['name'] for r in versions.remotes] == ['a_good', 'c_good', 'master']
 
     # Verify root ref HTML links.
@@ -189,7 +191,7 @@ def test_all_errors(tmpdir, local_docs, run):
 
     # Run.
     destination = tmpdir.ensure_dir('destination')
-    build_all(str(exported_root), str(destination), versions, tuple())
+    build_all(str(exported_root), str(destination), versions)
     assert [r['name'] for r in versions.remotes] == ['master']
 
     # Verify root ref HTML links.

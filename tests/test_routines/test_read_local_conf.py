@@ -21,7 +21,7 @@ def test_empty(tmpdir, caplog, error):
         local_conf.write('project = "MyProject"')
 
     # Run.
-    config = read_local_conf(str(local_conf), tuple())
+    config = read_local_conf(str(local_conf))
     records = [(r.levelname, r.message) for r in caplog.records]
 
     # Verify.
@@ -50,7 +50,7 @@ def test_settings(tmpdir):
     )
 
     # Run.
-    config = read_local_conf(str(local_conf), tuple())
+    config = read_local_conf(str(local_conf))
 
     # Verify.
     assert config == dict(root_ref='feature')

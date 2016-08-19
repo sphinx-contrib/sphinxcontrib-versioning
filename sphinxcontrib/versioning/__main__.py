@@ -229,7 +229,7 @@ def build(config, rel_source, destination, **options):
         config.pop('pre')(rel_source)
         config.update({k: v for k, v in options.items() if v})
         if config.local_conf:
-            config.update(read_local_conf(config.local_conf, config.overflow), ignore_set=True)
+            config.update(read_local_conf(config.local_conf), ignore_set=True)
     if NO_EXECUTE:
         raise RuntimeError(config, rel_source, destination)
     log = logging.getLogger(__name__)
@@ -264,10 +264,10 @@ def build(config, rel_source, destination, **options):
 
     # Pre-build.
     log.info("Pre-running Sphinx to collect versions' master_doc and other info.")
-    exported_root = pre_build(config.git_root, versions, config.overflow)
+    exported_root = pre_build(config.git_root, versions)
 
     # Build.
-    build_all(exported_root, destination, versions, config.overflow)
+    build_all(exported_root, destination, versions)
 
     # Cleanup.
     log.debug('Removing: %s', exported_root)
@@ -317,7 +317,7 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
         config.pop('pre')(rel_source)
         config.update({k: v for k, v in options.items() if v})
         if config.local_conf:
-            config.update(read_local_conf(config.local_conf, config.overflow), ignore_set=True)
+            config.update(read_local_conf(config.local_conf), ignore_set=True)
     if NO_EXECUTE:
         raise RuntimeError(config, rel_source, dest_branch, rel_dest)
     log = logging.getLogger(__name__)
