@@ -91,19 +91,19 @@ def test_multiple(tmpdir, local_docs, run, triple, parallel):
         assert '<li><a href="v1.0.1/contents.html">v1.0.1</a></li>' in contents
 
     # Verify v1.0.0 links.
-    contents = destination.join('v1.0.0/contents.html').read()
+    contents = destination.join('v1.0.0', 'contents.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.0</a></li>' in contents
     if triple:
         assert '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>' in contents
     else:
         return
 
     # Verify v1.0.1 links.
-    contents = destination.join('v1.0.1/contents.html').read()
+    contents = destination.join('v1.0.1', 'contents.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
     assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
-    assert '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.1</a></li>' in contents
 
 
 @pytest.mark.parametrize('parallel', [False, True])
@@ -151,18 +151,18 @@ def test_error(tmpdir, local_docs, run, parallel):
     assert 'd_broken' not in contents
 
     # Verify a_good links.
-    contents = destination.join('a_good/contents.html').read()
+    contents = destination.join('a_good', 'contents.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../a_good/contents.html">a_good</a></li>' in contents
+    assert '<li><a href="contents.html">a_good</a></li>' in contents
     assert '<li><a href="../c_good/contents.html">c_good</a></li>' in contents
     assert 'b_broken' not in contents
     assert 'd_broken' not in contents
 
     # Verify c_good links.
-    contents = destination.join('c_good/contents.html').read()
+    contents = destination.join('c_good', 'contents.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
     assert '<li><a href="../a_good/contents.html">a_good</a></li>' in contents
-    assert '<li><a href="../c_good/contents.html">c_good</a></li>' in contents
+    assert '<li><a href="contents.html">c_good</a></li>' in contents
     assert 'b_broken' not in contents
     assert 'd_broken' not in contents
 

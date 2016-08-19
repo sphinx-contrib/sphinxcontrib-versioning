@@ -185,17 +185,17 @@ def test_subdirs(tmpdir, local_docs):
     assert '<li><a href="feature/contents.html">feature</a></li>' in contents
 
     page = target.join('subdir', 'sub.html').read()
-    assert '<li><a href="../subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="sub.html">master</a></li>' in page
     assert '<li><a href="../feature/subdir/sub.html">feature</a></li>' in page
     page = target.join('subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="../../subdir/subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="sub.html">master</a></li>' in page
     assert '<li><a href="../../feature/subdir/subdir/sub.html">feature</a></li>' in page
     page = target.join('subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="../../../subdir/subdir/subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="sub.html">master</a></li>' in page
     assert '<li><a href="../../../feature/subdir/subdir/subdir/sub.html">feature</a></li>' in page
     page = target.join('subdir', 'subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="../../../../subdir/subdir/subdir/subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="sub.html">master</a></li>' in page
     assert '<li><a href="../../../../feature/subdir/subdir/subdir/subdir/sub.html">feature</a></li>' in page
     page = target.join('subdir', 'subdir', 'subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="../../../../../subdir/subdir/subdir/subdir/subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="sub.html">master</a></li>' in page
     assert '<li><a href="../../../../../feature/subdir/subdir/subdir/subdir/subdir/sub.html">feature</a></li>' in page

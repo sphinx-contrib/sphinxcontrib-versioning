@@ -37,16 +37,16 @@ def test_sub_page_and_tag(tmpdir, local_docs, run):
     assert '<li><a href="contents.html">master</a></li>' in contents
     assert '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>' in contents
     contents = destination.join('subdir', 'sub.html').read()
-    assert '<li><a href="../subdir/sub.html">master</a></li>' in contents
+    assert '<li><a href="sub.html">master</a></li>' in contents
     assert '<li><a href="../v1.0.0/subdir/sub.html">v1.0.0</a></li>' in contents
 
     # Check v1.0.0.
     contents = destination.join('v1.0.0', 'contents.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.0</a></li>' in contents
     contents = destination.join('v1.0.0', 'subdir', 'sub.html').read()
     assert '<li><a href="../../subdir/sub.html">master</a></li>' in contents
-    assert '<li><a href="../../v1.0.0/subdir/sub.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="sub.html">v1.0.0</a></li>' in contents
 
 
 def test_moved_docs(tmpdir, local_docs, run):
@@ -107,12 +107,21 @@ def test_moved_docs_many(tmpdir, local_docs, run):
     assert '<li><a href="v1.0.2/contents.html">v1.0.2</a></li>' in contents
 
     # Check v1.0.0, v1.0.1, v1.0.2.
-    for version in ('v1.0.0', 'v1.0.1', 'v1.0.2'):
-        contents = destination.join(version, 'contents.html').read()
-        assert '<li><a href="../contents.html">master</a></li>' in contents
-        assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
-        assert '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>' in contents
-        assert '<li><a href="../v1.0.2/contents.html">v1.0.2</a></li>' in contents
+    contents = destination.join('v1.0.0', 'contents.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>' in contents
+    assert '<li><a href="../v1.0.2/contents.html">v1.0.2</a></li>' in contents
+    contents = destination.join('v1.0.1', 'contents.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.1</a></li>' in contents
+    assert '<li><a href="../v1.0.2/contents.html">v1.0.2</a></li>' in contents
+    contents = destination.join('v1.0.2', 'contents.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.2</a></li>' in contents
 
 
 def test_version_change(tmpdir, local_docs, run):
@@ -142,11 +151,14 @@ def test_version_change(tmpdir, local_docs, run):
     assert '<li><a href="contents.html">master</a></li>' in contents
     assert '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>' in contents
     assert '<li><a href="v2.0.0/contents.html">v2.0.0</a></li>' in contents
-    for name in ('v1.0.0', 'v2.0.0'):
-        contents = destination.join(name, 'contents.html').read()
-        assert '<li><a href="../contents.html">master</a></li>' in contents
-        assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
-        assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    contents = destination.join('v1.0.0', 'contents.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    contents = destination.join('v2.0.0', 'contents.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="contents.html">v2.0.0</a></li>' in contents
 
     # Remove one tag.
     run(local_docs, ['git', 'push', 'origin', '--delete', 'v2.0.0'])
@@ -158,7 +170,7 @@ def test_version_change(tmpdir, local_docs, run):
     assert '<li><a href="v2.0.0/contents.html">v2.0.0</a></li>' not in contents
     contents = destination.join('v1.0.0', 'contents.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.0</a></li>' in contents
     assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' not in contents
 
 
@@ -315,63 +327,88 @@ def test_add_remove_docs(tmpdir, local_docs, run, parallel):
     assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
     assert '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>' in contents
     assert '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>' in contents
-    assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    assert '<li><a href="contents.html">v2.0.0</a></li>' in contents
     contents = destination.join('v2.0.0', 'one.html').read()
     assert '<li><a href="../one.html">master</a></li>' in contents
     assert '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>' in contents
     assert '<li><a href="../v1.1.0/one.html">v1.1.0</a></li>' in contents
     assert '<li><a href="../v1.1.1/one.html">v1.1.1</a></li>' in contents
-    assert '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>' in contents
+    assert '<li><a href="one.html">v2.0.0</a></li>' in contents
 
-    # Check v1.1.1 and v1.1.0.
-    for ref in ('v1.1.1', 'v1.1.0'):
-        contents = destination.join(ref, 'contents.html').read()
-        assert '<li><a href="../contents.html">master</a></li>' in contents
-        assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
-        assert '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>' in contents
-        assert '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>' in contents
-        assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
-        contents = destination.join(ref, 'one.html').read()
-        assert '<li><a href="../one.html">master</a></li>' in contents
-        assert '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>' in contents
-        assert '<li><a href="../v1.1.0/one.html">v1.1.0</a></li>' in contents
-        assert '<li><a href="../v1.1.1/one.html">v1.1.1</a></li>' in contents
-        assert '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>' in contents
-        contents = destination.join(ref, 'too.html').read()
-        assert '<li><a href="../contents.html">master</a></li>' in contents
-        assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
-        assert '<li><a href="../v1.1.0/too.html">v1.1.0</a></li>' in contents
-        assert '<li><a href="../v1.1.1/too.html">v1.1.1</a></li>' in contents
-        assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
-        contents = destination.join(ref, 'sub', 'three.html').read()
-        assert '<li><a href="../../contents.html">master</a></li>' in contents
-        assert '<li><a href="../../v1.0.0/contents.html">v1.0.0</a></li>' in contents
-        assert '<li><a href="../../v1.1.0/sub/three.html">v1.1.0</a></li>' in contents
-        assert '<li><a href="../../v1.1.1/sub/three.html">v1.1.1</a></li>' in contents
-        assert '<li><a href="../../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    # Check v1.1.1.
+    contents = destination.join('v1.1.1', 'contents.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>' in contents
+    assert '<li><a href="contents.html">v1.1.1</a></li>' in contents
+    assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    contents = destination.join('v1.1.1', 'one.html').read()
+    assert '<li><a href="../one.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="../v1.1.0/one.html">v1.1.0</a></li>' in contents
+    assert '<li><a href="one.html">v1.1.1</a></li>' in contents
+    assert '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>' in contents
+    contents = destination.join('v1.1.1', 'too.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="../v1.1.0/too.html">v1.1.0</a></li>' in contents
+    assert '<li><a href="too.html">v1.1.1</a></li>' in contents
+    assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    contents = destination.join('v1.1.1', 'sub', 'three.html').read()
+    assert '<li><a href="../../contents.html">master</a></li>' in contents
+    assert '<li><a href="../../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="../../v1.1.0/sub/three.html">v1.1.0</a></li>' in contents
+    assert '<li><a href="three.html">v1.1.1</a></li>' in contents
+    assert '<li><a href="../../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+
+    # Check v1.1.0.
+    contents = destination.join('v1.1.0', 'contents.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="contents.html">v1.1.0</a></li>' in contents
+    assert '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>' in contents
+    assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    contents = destination.join('v1.1.0', 'one.html').read()
+    assert '<li><a href="../one.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="one.html">v1.1.0</a></li>' in contents
+    assert '<li><a href="../v1.1.1/one.html">v1.1.1</a></li>' in contents
+    assert '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>' in contents
+    contents = destination.join('v1.1.0', 'too.html').read()
+    assert '<li><a href="../contents.html">master</a></li>' in contents
+    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="too.html">v1.1.0</a></li>' in contents
+    assert '<li><a href="../v1.1.1/too.html">v1.1.1</a></li>' in contents
+    assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
+    contents = destination.join('v1.1.0', 'sub', 'three.html').read()
+    assert '<li><a href="../../contents.html">master</a></li>' in contents
+    assert '<li><a href="../../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="three.html">v1.1.0</a></li>' in contents
+    assert '<li><a href="../../v1.1.1/sub/three.html">v1.1.1</a></li>' in contents
+    assert '<li><a href="../../v2.0.0/contents.html">v2.0.0</a></li>' in contents
 
     # Check v1.0.0.
     contents = destination.join('v1.0.0', 'contents.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="contents.html">v1.0.0</a></li>' in contents
     assert '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>' in contents
     assert '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>' in contents
     assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
     contents = destination.join('v1.0.0', 'one.html').read()
     assert '<li><a href="../one.html">master</a></li>' in contents
-    assert '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="one.html">v1.0.0</a></li>' in contents
     assert '<li><a href="../v1.1.0/one.html">v1.1.0</a></li>' in contents
     assert '<li><a href="../v1.1.1/one.html">v1.1.1</a></li>' in contents
     assert '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>' in contents
     contents = destination.join('v1.0.0', 'two.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../v1.0.0/two.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="two.html">v1.0.0</a></li>' in contents
     assert '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>' in contents
     assert '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>' in contents
     assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents
     contents = destination.join('v1.0.0', 'three.html').read()
     assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../v1.0.0/three.html">v1.0.0</a></li>' in contents
+    assert '<li><a href="three.html">v1.0.0</a></li>' in contents
     assert '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>' in contents
     assert '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>' in contents
     assert '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>' in contents

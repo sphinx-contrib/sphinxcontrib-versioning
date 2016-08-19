@@ -23,14 +23,14 @@ def test_no_sort(remotes):
     :param iter remotes: Passed to class.
     """
     versions = Versions(remotes)
-    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=False, current_version='other'))
     actual_all = [i for i in versions]
     actual_branches = [i for i in versions.branches]
     actual_tags = [i for i in versions.tags]
 
-    expected_all = [(r[1], r[1] + '/contents.html') for r in remotes]
-    expected_branches = [(r[1], r[1] + '/contents.html') for r in remotes if r[2] == 'heads']
-    expected_tags = [(r[1], r[1] + '/contents.html') for r in remotes if r[2] == 'tags']
+    expected_all = [(r[1], '../{}/contents.html'.format(r[1])) for r in remotes]
+    expected_branches = [(r[1], '../{}/contents.html'.format(r[1])) for r in remotes if r[2] == 'heads']
+    expected_tags = [(r[1], '../{}/contents.html'.format(r[1])) for r in remotes if r[2] == 'tags']
 
     assert actual_all == expected_all
     assert actual_branches == expected_branches

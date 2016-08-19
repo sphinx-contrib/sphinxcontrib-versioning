@@ -240,6 +240,9 @@ class Versions(object):
         :rtype: str
         """
         pagename = self.context['pagename']
+        if self.context['current_version'] == other_version:
+            return '{}.html'.format(pagename.split('/')[-1])
+
         other_remote = self[other_version]
         other_root_dir = other_remote['root_dir']
         components = ['..'] * pagename.count('/')
