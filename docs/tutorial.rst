@@ -39,7 +39,7 @@ SCVersioning:
 
 .. code-block:: bash
 
-    sphinx-versioning -r feature_branch build docs/_build/html docs
+    sphinx-versioning -r feature_branch build docs docs/_build/html
     open docs/_build/html/index.html
 
 More information about all of the options can be found at :ref:`settings` or by running with ``-help`` but just for
