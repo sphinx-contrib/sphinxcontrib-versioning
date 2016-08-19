@@ -191,7 +191,7 @@ eliminates race conditions when multiple CI jobs are building docs at the same t
 <h3>Build All Versions<a class="headerlink" href="#build-all-versions" title="Permalink to this headline">¶</a></h3>
 <p>Now that you&#8217;ve got docs pushed to origin and they build fine with <code class="docutils literal"><span class="pre">sphinx-build</span></code> let&#8217;s try building them with
 SCVersioning:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch build docs/_build/html docs
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch build docs docs/_build/html
 open docs/_build/html/index.html
 </pre></div>
 </div>
@@ -305,8 +305,8 @@ delete feature use one or more <code class="docutils literal"><span class="pre">
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../is_root/tutorial.html">is_root</a></dd>
             <dd><a href="tutorial.html">master</a></dd>
+            <dd><a href="../is_root/tutorial.html">is_root</a></dd>
             <dd><a href="../wip_banner3/tutorial.html">wip_banner3</a></dd>
             <dd><a href="../wip_banner2/tutorial.html">wip_banner2</a></dd>
             <dd><a href="../wip_banner/tutorial.html">wip_banner</a></dd>
