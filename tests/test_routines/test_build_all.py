@@ -15,7 +15,6 @@ def test_single(tmpdir, local_docs):
     :param local_docs: conftest fixture.
     """
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions['master']['url'] = 'contents.html'
     versions.set_root_remote('master')
 
     # Export.
@@ -56,10 +55,6 @@ def test_multiple(tmpdir, local_docs, run, triple, parallel):
         run(local_docs, ['git', 'push', 'origin', 'v1.0.1'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions['master']['url'] = 'contents.html'
-    versions['v1.0.0']['url'] = 'v1.0.0/contents.html'
-    if triple:
-        versions['v1.0.1']['url'] = 'v1.0.1/contents.html'
     versions.set_root_remote('master')
 
     # Export (git tags point to same master sha).
@@ -129,11 +124,6 @@ def test_error(tmpdir, local_docs, run, parallel):
     run(local_docs, ['git', 'push', 'origin', 'a_good', 'b_broken', 'c_good', 'd_broken'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions['master']['url'] = 'contents.html'
-    versions['a_good']['url'] = 'a_good/contents.html'
-    versions['c_good']['url'] = 'c_good/contents.html'
-    versions['b_broken']['url'] = 'b_broken/contents.html'
-    versions['d_broken']['url'] = 'd_broken/contents.html'
 
     exported_root = tmpdir.ensure_dir('exported_root')
     export(str(local_docs), versions['master']['sha'], str(exported_root.join(versions['master']['sha'])))
@@ -191,9 +181,6 @@ def test_all_errors(tmpdir, local_docs, run):
     run(local_docs, ['git', 'push', 'origin', 'a_broken', 'b_broken'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions['master']['url'] = 'contents.html'
-    versions['a_broken']['url'] = 'a_broken/contents.html'
-    versions['b_broken']['url'] = 'b_broken/contents.html'
     versions.set_root_remote('master')
 
     exported_root = tmpdir.ensure_dir('exported_root')

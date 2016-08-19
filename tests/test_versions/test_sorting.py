@@ -23,13 +23,14 @@ def test_no_sort(remotes):
     :param iter remotes: Passed to class.
     """
     versions = Versions(remotes)
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
     actual_all = [i for i in versions]
     actual_branches = [i for i in versions.branches]
     actual_tags = [i for i in versions.tags]
 
-    expected_all = [(r[1], '.') for r in remotes]
-    expected_branches = [(r[1], '.') for r in remotes if r[2] == 'heads']
-    expected_tags = [(r[1], '.') for r in remotes if r[2] == 'tags']
+    expected_all = [(r[1], r[1] + '/contents.html') for r in remotes]
+    expected_branches = [(r[1], r[1] + '/contents.html') for r in remotes if r[2] == 'heads']
+    expected_tags = [(r[1], r[1] + '/contents.html') for r in remotes if r[2] == 'tags']
 
     assert actual_all == expected_all
     assert actual_branches == expected_branches
@@ -50,6 +51,7 @@ def test_sort_valid(sort):
              '0.960923', '2.2beta29', '1.13++', '5.5.kw', '2.0b1pl0', 'master', 'gh-pages', 'a', 'z']
     remotes = [('', item, 'tags', i, 'README') for i, item in enumerate(items)]
     versions = Versions(remotes, sort=sort.split(','))
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
     actual = [i[0] for i in versions]
 
     if sort == 'alpha':
@@ -81,6 +83,7 @@ def test_sort_semver_invalid(sort):
     items = ['master', 'gh-pages', 'a', 'z']
     remotes = [('', item, 'tags', i, 'README') for i, item in enumerate(items)]
     versions = Versions(remotes, sort=sort.split(','))
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
     actual = [i[0] for i in versions]
 
     if sort == 'alpha':
@@ -108,6 +111,7 @@ def test_sort(remotes, sort):
     :param str sort: Passed to class after splitting by comma.
     """
     versions = Versions(remotes, sort=sort.split(','))
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
     actual = [i[0] for i in versions]
 
     if sort == 'alpha':

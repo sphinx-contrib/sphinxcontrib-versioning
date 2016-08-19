@@ -74,8 +74,9 @@ class EventHandlers(object):
         :param dict context: Jinja2 HTML context.
         :param docutils.nodes.document doctree: Tree of docutils nodes.
         """
-        assert templatename or doctree  # Unused, for linting.
-        versions = cls.VERSIONS.copy(pagename.count('/'), pagename)
+        assert pagename or templatename or doctree  # Unused, for linting.
+        cls.VERSIONS.context = context
+        versions = cls.VERSIONS
         this_remote = versions[cls.CURRENT_VERSION]
 
         # Update Jinja2 context.

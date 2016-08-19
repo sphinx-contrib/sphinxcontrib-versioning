@@ -24,11 +24,11 @@ def test_simple(tmpdir, local_docs, no_feature):
     build(str(local_docs), str(target), versions, 'master', tuple())
 
     contents = target.join('contents.html').read()
-    assert '<a href=".">master</a></li>' in contents
+    assert '<a href="contents.html">master</a></li>' in contents
     if no_feature:
         assert 'feature</a></li>' not in contents
     else:
-        assert '<li><a href=".">feature</a></li>' in contents
+        assert '<li><a href="feature/contents.html">feature</a></li>' in contents
 
 
 @pytest.mark.parametrize('project', [True, False, True, False])
@@ -113,7 +113,7 @@ def test_custom_sidebar(tmpdir, local_docs, pre_existing_versions):
     build(str(local_docs), str(target), versions, 'master', tuple())
 
     contents = target.join('contents.html').read()
-    assert '<li><a href=".">master</a></li>' in contents
+    assert '<li><a href="contents.html">master</a></li>' in contents
     assert '<h3>Custom Sidebar</h3>' in contents
 
 
@@ -161,10 +161,13 @@ def test_subdirs(tmpdir, local_docs):
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
     versions.set_root_remote('master')
-    versions['feature']['url'] = 'feature'
+    versions['master']['found_docs'] = ('contents',)
+    versions['master']['found_docs'] = ('contents',)
 
     for i in range(1, 6):
         path = ['subdir'] * i + ['sub.rst']
+        versions['master']['found_docs'] += ('/'.join(path)[:-4],)
+        versions['feature']['found_docs'] += ('/'.join(path)[:-4],)
         local_docs.join('contents.rst').write('    ' + '/'.join(path)[:-4] + '\n', mode='a')
         local_docs.ensure(*path).write(
             '.. _sub:\n'
@@ -178,21 +181,21 @@ def test_subdirs(tmpdir, local_docs):
     build(str(local_docs), str(target), versions, 'master', tuple())
 
     contents = target.join('contents.html').read()
-    assert '<li><a href=".">master</a></li>' in contents
-    assert '<li><a href="feature">feature</a></li>' in contents
+    assert '<li><a href="contents.html">master</a></li>' in contents
+    assert '<li><a href="feature/contents.html">feature</a></li>' in contents
 
     page = target.join('subdir', 'sub.html').read()
-    assert '<li><a href="..">master</a></li>' in page
-    assert '<li><a href="../feature">feature</a></li>' in page
+    assert '<li><a href="../subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="../feature/subdir/sub.html">feature</a></li>' in page
     page = target.join('subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="../..">master</a></li>' in page
-    assert '<li><a href="../../feature">feature</a></li>' in page
+    assert '<li><a href="../../subdir/subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="../../feature/subdir/subdir/sub.html">feature</a></li>' in page
     page = target.join('subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="../../..">master</a></li>' in page
-    assert '<li><a href="../../../feature">feature</a></li>' in page
+    assert '<li><a href="../../../subdir/subdir/subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="../../../feature/subdir/subdir/subdir/sub.html">feature</a></li>' in page
     page = target.join('subdir', 'subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="../../../..">master</a></li>' in page
-    assert '<li><a href="../../../../feature">feature</a></li>' in page
+    assert '<li><a href="../../../../subdir/subdir/subdir/subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="../../../../feature/subdir/subdir/subdir/subdir/sub.html">feature</a></li>' in page
     page = target.join('subdir', 'subdir', 'subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="../../../../..">master</a></li>' in page
-    assert '<li><a href="../../../../../feature">feature</a></li>' in page
+    assert '<li><a href="../../../../../subdir/subdir/subdir/subdir/subdir/sub.html">master</a></li>' in page
+    assert '<li><a href="../../../../../feature/subdir/subdir/subdir/subdir/subdir/sub.html">feature</a></li>' in page

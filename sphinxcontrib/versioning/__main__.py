@@ -263,7 +263,7 @@ def build(config, rel_source, destination, **options):
     versions.set_root_remote(config.root_ref)
 
     # Pre-build.
-    log.info('Pre-running Sphinx to determine URLs.')
+    log.info("Pre-running Sphinx to collect versions' master_doc and other info.")
     exported_root = pre_build(config.git_root, versions, config.overflow)
 
     # Build.

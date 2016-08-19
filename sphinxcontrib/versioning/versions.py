@@ -1,5 +1,6 @@
 """Collect and sort version strings."""
 
+import posixpath
 import re
 
 RE_SEMVER = re.compile(r'^v?V?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?([\w.+-]*)$')
@@ -90,9 +91,8 @@ def multi_sort(remotes, sort):
 class Versions(object):
     """Iterable class that holds all versions and handles sorting and filtering. To be fed into Sphinx's Jinja2 env.
 
-    URLs are just '.' initially. Set after instantiation by another function elsewhere. Will be relative URL path.
-
     :ivar iter remotes: List of dicts for every branch/tag.
+    :ivar dict context: Current Jinja2 context, provided by Sphinx's html-page-context API hook.
     :ivar dict greatest_tag_remote: Tag with the highest version number if it's a valid semver.
     :ivar dict recent_branch_remote: Most recently committed branch.
     :ivar dict recent_remote: Most recently committed branch/tag.
@@ -116,8 +116,10 @@ class Versions(object):
             date=r[3],  # int
             conf_rel_path=r[4],  # str
             found_docs=tuple(),  # tuple of str
-            url='.',  # str
+            master_doc='contents',  # str
+            root_dir=r[1],  # str
         ) for r in remotes]
+        self.context = dict()
         self.greatest_tag_remote = None
         self.recent_branch_remote = None
         self.recent_remote = None
@@ -166,7 +168,7 @@ class Versions(object):
     def __getitem__(self, item):
         """Retrieve a version dict from self.remotes by any of its attributes."""
         # First assume item is an attribute.
-        for key in ('id', 'sha', 'name', 'date', 'url'):
+        for key in ('id', 'sha', 'name', 'date'):
             for remote in self.remotes:
                 if remote[key] == item:
                     return remote
@@ -190,58 +192,18 @@ class Versions(object):
     def __iter__(self):
         """Yield name and urls of branches and tags."""
         for remote in self.remotes:
-            yield remote['name'], remote['url']
+            name = remote['name']
+            yield name, self.vpathto(name)
 
     @property
     def branches(self):
         """Return list of (name and urls) only branches."""
-        return [(r['name'], r['url']) for r in self.remotes if r['kind'] == 'heads']
+        return [(r['name'], self.vpathto(r['name'])) for r in self.remotes if r['kind'] == 'heads']
 
     @property
     def tags(self):
         """Return list of (name and urls) only tags."""
-        return [(r['name'], r['url']) for r in self.remotes if r['kind'] == 'tags']
-
-    def copy(self, sub_depth=0, pagename=None):
-        """Duplicate class and self.remotes dictionaries. Prepend '../' to all URLs n times.
-
-        If current pagename is available in another version, link directly to that page instead of master_doc.
-
-        :param int sub_depth: Subdirectory depth. 1 == ../, 2 == ../../,
-        :param str pagename: Name of the page being rendered (without .html or any file extension).
-
-        :return: Versions
-        """
-        new = self.__class__([])
-        for remote_old, remote_new in ((r, r.copy()) for r in self.remotes):
-            new.remotes.append(remote_new)
-
-            # Handle sub_depth URL.
-            if sub_depth > 0:
-                path = '/'.join(['..'] * sub_depth + [remote_new['url']])
-                if path.endswith('/.'):
-                    path = path[:-2]
-                remote_new['url'] = path
-
-            # Handle pagename URL.
-            if remote_new['url'].endswith('.html') and pagename in remote_new['found_docs']:
-                if '/' in remote_new['url']:
-                    remote_new['url'] = '{}/{}.html'.format(remote_new['url'].rsplit('/', 1)[0], pagename)
-                else:
-                    remote_new['url'] = '{}.html'.format(pagename)
-
-            # Handle pinned remotes.
-            if self.greatest_tag_remote == remote_old:
-                new.greatest_tag_remote = remote_new
-            if self.recent_branch_remote == remote_old:
-                new.recent_branch_remote = remote_new
-            if self.recent_remote == remote_old:
-                new.recent_remote = remote_new
-            if self.recent_tag_remote == remote_old:
-                new.recent_tag_remote = remote_new
-            if self.root_remote == remote_old:
-                new.root_remote = remote_new
-        return new
+        return [(r['name'], self.vpathto(r['name'])) for r in self.remotes if r['kind'] == 'tags']
 
     def set_root_remote(self, root_ref):
         """Set the root remote based on the root ref.
@@ -249,3 +211,38 @@ class Versions(object):
         :param str root_ref: Branch/tag at the root of all HTML docs.
         """
         self.root_remote = self[root_ref]
+        self.root_remote['root_dir'] = ''
+
+    def vhasdoc(self, other_version):
+        """Return True if the other version has the current document. Like Sphinx's hasdoc().
+
+        :raise KeyError: If other_version doesn't exist.
+
+        :param str other_version: Version to link to.
+
+        :return: If current document is in the other version.
+        :rtype: bool
+        """
+        if self.context['current_version'] == other_version:
+            return True
+        return self.context['pagename'] in self[other_version]['found_docs']
+
+    def vpathto(self, other_version):
+        """Return relative path to current document in another version. Like Sphinx's pathto().
+
+        If the current document doesn't exist in the other version its master_doc path is returned instead.
+
+        :raise KeyError: If other_version doesn't exist.
+
+        :param str other_version: Version to link to.
+
+        :return: Relative path.
+        :rtype: str
+        """
+        pagename = self.context['pagename']
+        other_remote = self[other_version]
+        other_root_dir = other_remote['root_dir']
+        components = ['..'] * pagename.count('/')
+        components += [other_root_dir] if self.context['scv_is_root_ref'] else ['..', other_root_dir]
+        components += [pagename if self.vhasdoc(other_version) else other_remote['master_doc']]
+        return '{}.html'.format(posixpath.join(*components))

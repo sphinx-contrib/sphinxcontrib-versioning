@@ -1,5 +1,7 @@
 """Test function in module."""
 
+import posixpath
+
 import py
 import pytest
 
@@ -22,9 +24,9 @@ def test_single(local_docs):
     assert len(exported_root.listdir()) == 1
     assert exported_root.join(versions['master']['sha'], 'conf.py').read() == ''
 
-    # Verify versions URLs.
-    expected = ['contents.html']
-    assert sorted(r['url'] for r in versions.remotes) == expected
+    # Verify root_dir and master_doc..
+    expected = ['contents']
+    assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
 
 def test_dual(local_docs, run):
@@ -55,9 +57,9 @@ def test_dual(local_docs, run):
     assert exported_root.join(versions['master']['sha'], 'conf.py').read() == ''
     assert exported_root.join(versions['feature']['sha'], 'conf.py').read() == 'master_doc = "index"\n'
 
-    # Verify versions URLs.
-    expected = ['contents.html', 'feature/index.html']
-    assert sorted(r['url'] for r in versions.remotes) == expected
+    # Verify versions root_dirs and master_docs.
+    expected = ['contents', 'feature/index']
+    assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
 
 def test_file_collision(local_docs, run):
@@ -73,14 +75,14 @@ def test_file_collision(local_docs, run):
     versions.set_root_remote('master')
     assert len(versions) == 2
 
-    # Run and verify URLs.
+    # Verify versions root_dirs and master_docs.
     pre_build(str(local_docs), versions, tuple())
-    expected = ['_static_/contents.html', 'contents.html']
-    assert sorted(r['url'] for r in versions.remotes) == expected
+    expected = ['_static_/contents', 'contents']
+    assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
 
 def test_invalid_name(local_docs, run):
-    """Test handling of branch names with invalid URL characters.
+    """Test handling of branch names with invalid root_dir characters.
 
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
@@ -92,10 +94,10 @@ def test_invalid_name(local_docs, run):
     versions.set_root_remote('master')
     assert len(versions) == 2
 
-    # Run and verify URLs.
+    # Verify versions root_dirs and master_docs.
     pre_build(str(local_docs), versions, tuple())
-    expected = ['contents.html', 'robpol86_feature/contents.html']
-    assert sorted(r['url'] for r in versions.remotes) == expected
+    expected = ['contents', 'robpol86_feature/contents']
+    assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
 
 def test_error(local_docs, run):

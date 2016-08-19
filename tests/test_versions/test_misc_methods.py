@@ -29,6 +29,7 @@ def test_priority(remotes, sort, priority, invert):
     :param bool invert: Passed to class.
     """
     versions = Versions(remotes, sort=sort.split(','), priority=priority, invert=invert)
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
     actual = [i[0] for i in versions]
 
     if sort == 'alpha' and priority == 'branches':
@@ -70,15 +71,6 @@ def test_getitem():
         assert versions[name]['name'] == name
         assert versions[date]['name'] == name
 
-    # Set and test URLs.
-    versions.remotes[1]['url'] = 'url1'
-    versions.remotes[2]['url'] = 'url2'
-    versions.remotes[3]['url'] = 'url3'
-    assert versions['.']['name'] == 'zh-pages'
-    assert versions['url1']['name'] == 'master'
-    assert versions['url2']['name'] == 'v1.2.0'
-    assert versions['url3']['name'] == 'v2.0.0'
-
     # Indexes.
     for i, name in enumerate(r[1] for r in REMOTES):
         assert versions[i]['name'] == name
@@ -95,18 +87,21 @@ def test_getitem():
 def test_bool_len():
     """Test length and boolean values of Versions and .branches/.tags."""
     versions = Versions(REMOTES)
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
     assert bool(versions) is True
     assert bool(versions.branches) is True
     assert bool(versions.tags) is True
     assert len(versions) == 7
 
     versions = Versions(r for r in REMOTES if r[2] == 'heads')
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
     assert bool(versions) is True
     assert bool(versions.branches) is True
     assert bool(versions.tags) is False
     assert len(versions) == 2
 
     versions = Versions(r for r in REMOTES if r[2] == 'tags')
+    versions.context.update(dict(pagename='contents', scv_is_root_ref=True, current_version='master'))
     assert bool(versions) is True
     assert bool(versions.branches) is False
     assert bool(versions.tags) is True

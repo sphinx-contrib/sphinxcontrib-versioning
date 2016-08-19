@@ -99,7 +99,7 @@ def gather_git_info(root, conf_rel_paths, whitelist_branches, whitelist_tags):
 
 
 def pre_build(local_root, versions, overflow):
-    """Build docs for all versions to determine URL (non-root directory name and master_doc names).
+    """Build docs for all versions to determine root directory and master_doc names.
 
     Need to build docs to (a) avoid filename collision with files from root_ref and branch/tag names and (b) determine
     master_doc config values for all versions (in case master_doc changes from e.g. contents.rst to index.rst between
@@ -126,21 +126,21 @@ def pre_build(local_root, versions, overflow):
 
     # Build root ref.
     with TempDir() as temp_dir:
-        log.debug('Building root ref (before setting URLs) in temporary directory: %s', temp_dir)
+        log.debug('Building root ref (before setting root_dirs) in temporary directory: %s', temp_dir)
         source = os.path.dirname(os.path.join(exported_root, root_remote['sha'], root_remote['conf_rel_path']))
         build(source, temp_dir, versions, root_remote['name'], overflow)
         existing = os.listdir(temp_dir)
 
-    # Define directory paths in URLs in versions. Skip the root ref (will remain '.').
+    # Define root_dir versions. Skip the root ref (will remain '').
     for remote in (r for r in versions.remotes if r != root_remote):
         root_dir = RE_INVALID_FILENAME.sub('_', remote['name'])
         while root_dir in existing:
             root_dir += '_'
-        remote['url'] = root_dir
+        remote['root_dir'] = root_dir
         log.debug('%s root directory is %s', remote['name'], root_dir)
         existing.append(root_dir)
 
-    # Define master_doc file paths in URLs in versions and get found_docs for all versions.
+    # Get found_docs and master_doc values for all versions.
     for remote in list(versions.remotes):
         log.debug('Partially running sphinx-build to read configuration for: %s', remote['name'])
         source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
@@ -150,11 +150,8 @@ def pre_build(local_root, versions, overflow):
             log.warning('Skipping. Will not be building: %s', remote['name'])
             versions.remotes.pop(versions.remotes.index(remote))
             continue
-        url = os.path.join(remote['url'], '{}.html'.format(config['master_doc']))
-        if url.startswith('./'):
-            url = url[2:]
-        remote['url'] = url
         remote['found_docs'] = config['found_docs']
+        remote['master_doc'] = config['master_doc']
 
     return exported_root
 
@@ -180,9 +177,9 @@ def build_all(exported_root, destination, versions, overflow):
         for remote in list(r for r in versions.remotes if r != root_remote):
             log.info('Building ref: %s', remote['name'])
             source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
-            target = os.path.join(destination, os.path.dirname(remote['url']))
+            target = os.path.join(destination, remote['root_dir'])
             try:
-                build(source, target, versions.copy(1), remote['name'], overflow)
+                build(source, target, versions, remote['name'], overflow)
             except HandledError:
                 log.warning('Skipping. Will not be building %s. Rebuilding everything.', remote['name'])
                 versions.remotes.pop(versions.remotes.index(remote))
