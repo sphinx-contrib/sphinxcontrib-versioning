@@ -152,7 +152,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v2.0.0/docs/tutorial.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/regex_tests/docs/tutorial.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -191,7 +191,7 @@ eliminates race conditions when multiple CI jobs are building docs at the same t
 <h3>Build All Versions<a class="headerlink" href="#build-all-versions" title="Permalink to this headline">¶</a></h3>
 <p>Now that you&#8217;ve got docs pushed to origin and they build fine with <code class="docutils literal"><span class="pre">sphinx-build</span></code> let&#8217;s try building them with
 SCVersioning:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch build docs/_build/html docs
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch build docs docs/_build/html
 open docs/_build/html/index.html
 </pre></div>
 </div>
@@ -292,19 +292,20 @@ delete feature use one or more <code class="docutils literal"><span class="pre">
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: v2.0.0
+        v: regex_tests
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="tutorial.html">v2.0.0</a></dd>
+            <dd><a href="../tutorial.html">v2.0.0</a></dd>
             <dd><a href="../v1.1.0/tutorial.html">v1.1.0</a></dd>
             <dd><a href="../v1.0.1/tutorial.html">v1.0.1</a></dd>
             <dd><a href="../v1.0.0/tutorial.html">v1.0.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
+            <dd><a href="tutorial.html">regex_tests</a></dd>
             <dd><a href="../is_root/tutorial.html">is_root</a></dd>
             <dd><a href="../master/tutorial.html">master</a></dd>
             <dd><a href="../wip_banner3/tutorial.html">wip_banner3</a></dd>

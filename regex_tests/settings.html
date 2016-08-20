@@ -156,7 +156,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v2.0.0/docs/settings.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/regex_tests/docs/settings.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -361,8 +361,9 @@ and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref 
 <span id="cmdoption--whitelist-branches"></span><span id="cmdoption-arg-scv_whitelist_branches"></span><code class="descname">-w</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-branches</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">scv_whitelist_branches</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-w" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out branches not matching the pattern. Can be a simple string or a regex pattern. Specify multiple times to
 include more patterns in the whitelist.</p>
-<p>This setting may also be specified in your conf.py file. It must be either a string or an <code class="docutils literal"><span class="pre">re.compile()</span></code> object:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_branches</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span>
+<p>This setting may also be specified in your conf.py file. It must be a tuple of either strings or <code class="docutils literal"><span class="pre">re.compile()</span></code>
+objects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_branches</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="s1">&#39;latest&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -371,8 +372,9 @@ include more patterns in the whitelist.</p>
 <dt id="cmdoption-W">
 <span id="cmdoption--whitelist-tags"></span><span id="cmdoption-arg-scv_whitelist_tags"></span><code class="descname">-W</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-tags</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">scv_whitelist_tags</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-W" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <a class="reference internal" href="#cmdoption--whitelist-branches"><code class="xref std std-option docutils literal"><span class="pre">--whitelist-branches</span></code></a> but for git tags instead.</p>
-<p>This setting may also be specified in your conf.py file. It must be either a string or an <code class="docutils literal"><span class="pre">re.compile()</span></code> object:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_tags</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;^v\d+\.\d+\.\d+$&#39;</span><span class="p">)</span>
+<p>This setting may also be specified in your conf.py file. It must be a tuple of either strings or <code class="docutils literal"><span class="pre">re.compile()</span></code>
+objects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_tags</span> <span class="o">=</span> <span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;^v\d+\.\d+\.\d+$&#39;</span><span class="p">),)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -466,19 +468,20 @@ files in the branch if a branch is deleted from the repo after SCVersioning alre
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: v2.0.0
+        v: regex_tests
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="settings.html">v2.0.0</a></dd>
+            <dd><a href="../settings.html">v2.0.0</a></dd>
             <dd><a href="../v1.1.0/settings.html">v1.1.0</a></dd>
             <dd><a href="../v1.0.1/settings.html">v1.0.1</a></dd>
             <dd><a href="../v1.0.0/settings.html">v1.0.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
+            <dd><a href="settings.html">regex_tests</a></dd>
             <dd><a href="../is_root/settings.html">is_root</a></dd>
             <dd><a href="../master/settings.html">master</a></dd>
             <dd><a href="../wip_banner3/settings.html">wip_banner3</a></dd>
