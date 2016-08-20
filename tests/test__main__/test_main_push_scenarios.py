@@ -8,11 +8,12 @@ import py
 import pytest
 
 
-def test_no_exclude(local_docs_ghp, run):
+def test_no_exclude(local_docs_ghp, run, urls):
     """Test with successful push to remote. Don't remove/exclude any files.
 
     :param local_docs_ghp: conftest fixture.
     :param run: conftest fixture.
+    :param urls: conftest fixture.
     """
     # Run.
     output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
@@ -22,8 +23,7 @@ def test_no_exclude(local_docs_ghp, run):
     # Check HTML.
     run(local_docs_ghp, ['git', 'checkout', 'gh-pages'])
     run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    contents = local_docs_ghp.join('contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
+    urls(local_docs_ghp.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
 
     # Run again.
     output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
@@ -38,11 +38,12 @@ def test_no_exclude(local_docs_ghp, run):
     assert sha == old_sha
 
 
-def test_exclude(local_docs_ghp, run):
+def test_exclude(local_docs_ghp, run, urls):
     """Test excluding files and REL_DEST. Also test changing files.
 
     :param local_docs_ghp: conftest fixture.
     :param run: conftest fixture.
+    :param urls: conftest fixture.
     """
     run(local_docs_ghp, ['git', 'checkout', 'gh-pages'])
     local_docs_ghp.ensure('documentation', 'delete.txt').write('a')
@@ -57,8 +58,7 @@ def test_exclude(local_docs_ghp, run):
 
     # Check files.
     run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    contents = local_docs_ghp.join('documentation', 'contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
+    urls(local_docs_ghp.join('documentation', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
     assert not local_docs_ghp.join('documentation', 'delete.txt').check()
     assert local_docs_ghp.join('documentation', 'keep.txt').check()
 
@@ -75,8 +75,9 @@ def test_exclude(local_docs_ghp, run):
     # Check files.
     run(local_docs_ghp, ['git', 'checkout', 'gh-pages'])
     run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    contents = local_docs_ghp.join('documentation', 'contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
+    contents = urls(local_docs_ghp.join('documentation', 'contents.html'), [
+        '<li><a href="contents.html">master</a></li>'
+    ])
     assert 'New Unexpected Line!' in contents
     assert not local_docs_ghp.join('documentation', 'delete.txt').check()
     assert local_docs_ghp.join('documentation', 'keep.txt').check()
@@ -101,13 +102,14 @@ def test_root_ref(local_docs_ghp, run):
 
 
 @pytest.mark.parametrize('give_up', [False, True])
-def test_race(tmpdir, local_docs_ghp, remote, run, give_up):
+def test_race(tmpdir, local_docs_ghp, remote, run, urls, give_up):
     """Test with race condition where another process pushes to gh-pages causing a retry.
 
     :param tmpdir: pytest fixture.
     :param local_docs_ghp: conftest fixture.
     :param remote: conftest fixture.
     :param run: conftest fixture.
+    :param urls: conftest fixture.
     :param bool give_up: Cause multiple race conditions causing timeout/giveup.
     """
     local_other = tmpdir.ensure_dir('local_other')
@@ -151,8 +153,7 @@ def test_race(tmpdir, local_docs_ghp, remote, run, give_up):
     # Verify files.
     run(local_docs_ghp, ['git', 'checkout', 'gh-pages'])
     run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    contents = local_docs_ghp.join('html', 'docs', 'contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
+    urls(local_docs_ghp.join('html', 'docs', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
     actual = local_docs_ghp.join('README').read()
     assert actual == 'Orphaned branch for HTML docs.changed'
 

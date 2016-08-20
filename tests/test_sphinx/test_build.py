@@ -8,11 +8,12 @@ from sphinxcontrib.versioning.versions import Versions
 
 
 @pytest.mark.parametrize('no_feature', [True, False])
-def test_simple(tmpdir, local_docs, no_feature):
+def test_simple(tmpdir, local_docs, urls, no_feature):
     """Verify versions are included in HTML.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
+    :param urls: conftest fixture.
     :param bool no_feature: Don't include feature branch in versions. Makes sure there are no false positives.
     """
     target = tmpdir.ensure_dir('target')
@@ -23,12 +24,10 @@ def test_simple(tmpdir, local_docs, no_feature):
 
     build(str(local_docs), str(target), versions, 'master')
 
-    contents = target.join('contents.html').read()
-    assert '<a href="contents.html">master</a></li>' in contents
-    if no_feature:
-        assert 'feature</a></li>' not in contents
-    else:
-        assert '<li><a href="feature/contents.html">feature</a></li>' in contents
+    expected = ['<li><a href="contents.html">master</a></li>']
+    if not no_feature:
+        expected.append('<li><a href="feature/contents.html">feature</a></li>')
+    urls(target.join('contents.html'), expected)
 
 
 @pytest.mark.parametrize('project', [True, False, True, False])
@@ -90,11 +89,12 @@ def test_sphinx_error(tmpdir, local_docs):
 
 
 @pytest.mark.parametrize('pre_existing_versions', [False, True])
-def test_custom_sidebar(tmpdir, local_docs, pre_existing_versions):
+def test_custom_sidebar(tmpdir, local_docs, urls, pre_existing_versions):
     """Make sure user's sidebar item is kept intact.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
+    :param urls: conftest fixture.
     :param bool pre_existing_versions: Test if user already has versions.html in conf.py.
     """
     target = tmpdir.ensure_dir('target')
@@ -115,8 +115,7 @@ def test_custom_sidebar(tmpdir, local_docs, pre_existing_versions):
 
     build(str(local_docs), str(target), versions, 'master')
 
-    contents = target.join('contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
+    contents = urls(target.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
     assert '<h3>Custom Sidebar</h3>' in contents
 
 
@@ -155,11 +154,12 @@ def test_versions_override(tmpdir, local_docs):
     assert '<li>BitBucket: feature</li>' in contents
 
 
-def test_subdirs(tmpdir, local_docs):
+def test_subdirs(tmpdir, local_docs, urls):
     """Make sure relative URLs in `versions` works with RST files in subdirectories.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
+    :param urls: conftest fixture.
     """
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
@@ -183,22 +183,12 @@ def test_subdirs(tmpdir, local_docs):
 
     build(str(local_docs), str(target), versions, 'master')
 
-    contents = target.join('contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
-    assert '<li><a href="feature/contents.html">feature</a></li>' in contents
-
-    page = target.join('subdir', 'sub.html').read()
-    assert '<li><a href="sub.html">master</a></li>' in page
-    assert '<li><a href="../feature/subdir/sub.html">feature</a></li>' in page
-    page = target.join('subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="sub.html">master</a></li>' in page
-    assert '<li><a href="../../feature/subdir/subdir/sub.html">feature</a></li>' in page
-    page = target.join('subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="sub.html">master</a></li>' in page
-    assert '<li><a href="../../../feature/subdir/subdir/subdir/sub.html">feature</a></li>' in page
-    page = target.join('subdir', 'subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="sub.html">master</a></li>' in page
-    assert '<li><a href="../../../../feature/subdir/subdir/subdir/subdir/sub.html">feature</a></li>' in page
-    page = target.join('subdir', 'subdir', 'subdir', 'subdir', 'subdir', 'sub.html').read()
-    assert '<li><a href="sub.html">master</a></li>' in page
-    assert '<li><a href="../../../../../feature/subdir/subdir/subdir/subdir/subdir/sub.html">feature</a></li>' in page
+    urls(target.join('contents.html'), [
+        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="feature/contents.html">feature</a></li>'
+    ])
+    for i in range(1, 6):
+        urls(target.join(*['subdir'] * i + ['sub.html']), [
+            '<li><a href="sub.html">master</a></li>',
+            '<li><a href="{}feature/{}sub.html">feature</a></li>'.format('../' * i, 'subdir/' * i),
+        ])

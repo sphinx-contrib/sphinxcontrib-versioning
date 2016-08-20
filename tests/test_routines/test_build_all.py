@@ -8,11 +8,12 @@ from sphinxcontrib.versioning.routines import build_all, gather_git_info
 from sphinxcontrib.versioning.versions import Versions
 
 
-def test_single(tmpdir, local_docs):
+def test_single(tmpdir, local_docs, urls):
     """With single version.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
+    :param urls: conftest fixture.
     """
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
     versions.set_root_remote('master')
@@ -33,19 +34,19 @@ def test_single(tmpdir, local_docs):
     assert actual == expected
 
     # Verify HTML links.
-    contents = destination.join('contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
+    urls(destination.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
 
 
 @pytest.mark.parametrize('parallel', [False, True])
 @pytest.mark.parametrize('triple', [False, True])
-def test_multiple(tmpdir, config, local_docs, run, triple, parallel):
+def test_multiple(tmpdir, config, local_docs, run, urls, triple, parallel):
     """With two or three versions.
 
     :param tmpdir: pytest fixture.
     :param sphinxcontrib.versioning.lib.Config config: conftest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
+    :param urls: conftest fixture.
     :param bool triple: With three versions (including master) instead of two.
     :param bool parallel: Run sphinx-build with -j option.
     """
@@ -86,36 +87,36 @@ def test_multiple(tmpdir, config, local_docs, run, triple, parallel):
     assert actual == expected
 
     # Verify root ref HTML links.
-    contents = destination.join('contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
-    assert '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>' in contents
+    expected = ['<li><a href="contents.html">master</a></li>', '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>']
     if triple:
-        assert '<li><a href="v1.0.1/contents.html">v1.0.1</a></li>' in contents
+        expected.append('<li><a href="v1.0.1/contents.html">v1.0.1</a></li>')
+    urls(destination.join('contents.html'), expected)
 
     # Verify v1.0.0 links.
-    contents = destination.join('v1.0.0', 'contents.html').read()
-    assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="contents.html">v1.0.0</a></li>' in contents
+    expected = ['<li><a href="../contents.html">master</a></li>', '<li><a href="contents.html">v1.0.0</a></li>']
     if triple:
-        assert '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>' in contents
-    else:
+        expected.append('<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>')
+    urls(destination.join('v1.0.0', 'contents.html'), expected)
+    if not triple:
         return
 
     # Verify v1.0.1 links.
-    contents = destination.join('v1.0.1', 'contents.html').read()
-    assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>' in contents
-    assert '<li><a href="contents.html">v1.0.1</a></li>' in contents
+    urls(destination.join('v1.0.1', 'contents.html'), [
+        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
+        '<li><a href="contents.html">v1.0.1</a></li>',
+    ])
 
 
 @pytest.mark.parametrize('parallel', [False, True])
-def test_error(tmpdir, config, local_docs, run, parallel):
+def test_error(tmpdir, config, local_docs, run, urls, parallel):
     """Test with a bad root ref. Also test skipping bad non-root refs.
 
     :param tmpdir: pytest fixture.
     :param sphinxcontrib.versioning.lib.Config config: conftest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
+    :param urls: conftest fixture.
     :param bool parallel: Run sphinx-build with -j option.
     """
     config.overflow = ('-j', '2') if parallel else tuple()
@@ -145,36 +146,34 @@ def test_error(tmpdir, config, local_docs, run, parallel):
     assert [r['name'] for r in versions.remotes] == ['a_good', 'c_good', 'master']
 
     # Verify root ref HTML links.
-    contents = destination.join('contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
-    assert '<li><a href="a_good/contents.html">a_good</a></li>' in contents
-    assert '<li><a href="c_good/contents.html">c_good</a></li>' in contents
-    assert 'b_broken' not in contents
-    assert 'd_broken' not in contents
+    urls(destination.join('contents.html'), [
+        '<li><a href="a_good/contents.html">a_good</a></li>',
+        '<li><a href="c_good/contents.html">c_good</a></li>',
+        '<li><a href="contents.html">master</a></li>',
+    ])
 
     # Verify a_good links.
-    contents = destination.join('a_good', 'contents.html').read()
-    assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="contents.html">a_good</a></li>' in contents
-    assert '<li><a href="../c_good/contents.html">c_good</a></li>' in contents
-    assert 'b_broken' not in contents
-    assert 'd_broken' not in contents
+    urls(destination.join('a_good', 'contents.html'), [
+        '<li><a href="contents.html">a_good</a></li>',
+        '<li><a href="../c_good/contents.html">c_good</a></li>',
+        '<li><a href="../contents.html">master</a></li>',
+    ])
 
     # Verify c_good links.
-    contents = destination.join('c_good', 'contents.html').read()
-    assert '<li><a href="../contents.html">master</a></li>' in contents
-    assert '<li><a href="../a_good/contents.html">a_good</a></li>' in contents
-    assert '<li><a href="contents.html">c_good</a></li>' in contents
-    assert 'b_broken' not in contents
-    assert 'd_broken' not in contents
+    urls(destination.join('c_good', 'contents.html'), [
+        '<li><a href="../a_good/contents.html">a_good</a></li>',
+        '<li><a href="contents.html">c_good</a></li>',
+        '<li><a href="../contents.html">master</a></li>',
+    ])
 
 
-def test_all_errors(tmpdir, local_docs, run):
+def test_all_errors(tmpdir, local_docs, run, urls):
     """Test good root ref with all bad non-root refs.
 
     :param tmpdir: pytest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
+    :param urls: conftest fixture.
     """
     run(local_docs, ['git', 'checkout', '-b', 'a_broken', 'master'])
     local_docs.join('conf.py').write('master_doc = exception\n')
@@ -195,7 +194,4 @@ def test_all_errors(tmpdir, local_docs, run):
     assert [r['name'] for r in versions.remotes] == ['master']
 
     # Verify root ref HTML links.
-    contents = destination.join('contents.html').read()
-    assert '<li><a href="contents.html">master</a></li>' in contents
-    assert 'a_broken' not in contents
-    assert 'b_broken' not in contents
+    urls(destination.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])

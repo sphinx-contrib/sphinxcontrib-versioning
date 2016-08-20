@@ -1,9 +1,13 @@
 """pytest fixtures for this directory."""
 
+import re
+
 import pytest
 
 from sphinxcontrib.versioning.git import run_command
 from sphinxcontrib.versioning.lib import Config
+
+RE_URLS = re.compile('<li><a href="[^"]+">[^<]+</a></li>')
 
 
 @pytest.fixture
@@ -25,6 +29,25 @@ def config(monkeypatch):
 def run():
     """run_command() wrapper returned from a pytest fixture."""
     return lambda d, c: run_command(str(d), [str(i) for i in c])
+
+
+@pytest.fixture
+def urls():
+    """Verify URLs in HTML file match expected."""
+    def match(path, expected):
+        """Assert equals and return file contents.
+
+        :param py.path path: Path to file to read.
+        :param list expected: Expected matches.
+
+        :return: File contents.
+        :rtype: str
+        """
+        contents = path.read()
+        actual = RE_URLS.findall(contents)
+        assert actual == expected
+        return contents
+    return match
 
 
 @pytest.fixture
