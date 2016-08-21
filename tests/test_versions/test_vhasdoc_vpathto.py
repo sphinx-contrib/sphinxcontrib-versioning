@@ -26,7 +26,7 @@ def get_versions(context):
 
 def test_root_ref():
     """Test from root ref."""
-    versions = get_versions(dict(current_version='a', scv_is_root_ref=True))
+    versions = get_versions(dict(current_version='a', scv_is_root=True))
 
     # From contents page. All versions have this page.
     versions.context['pagename'] = 'contents'
@@ -90,7 +90,7 @@ def test_root_ref():
 
 def test_b():
     """Test version 'b'."""
-    versions = get_versions(dict(current_version='b', scv_is_root_ref=False))
+    versions = get_versions(dict(current_version='b', scv_is_root=False))
 
     versions.context['pagename'] = 'contents'
     assert versions.vhasdoc('a') is True
@@ -145,7 +145,7 @@ def test_b():
 
 def test_c():
     """Test version 'c'."""
-    versions = get_versions(dict(current_version='c', scv_is_root_ref=False))
+    versions = get_versions(dict(current_version='c', scv_is_root=False))
 
     versions.context['pagename'] = 'contents'
     assert versions.vhasdoc('a') is True

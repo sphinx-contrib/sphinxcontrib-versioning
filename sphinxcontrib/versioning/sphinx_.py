@@ -25,7 +25,7 @@ class EventHandlers(object):
 
     :ivar multiprocessing.queues.Queue ABORT_AFTER_READ: Communication channel to parent process.
     :ivar str CURRENT_VERSION: Current version being built.
-    :ivar bool IS_ROOT: Value for context['scv_is_root_ref'].
+    :ivar bool IS_ROOT: Value for context['scv_is_root'].
     :ivar sphinxcontrib.versioning.versions.Versions VERSIONS: Versions class instance.
     """
 
@@ -91,7 +91,7 @@ class EventHandlers(object):
         context['scv_is_recent_branch'] = this_remote == versions.recent_branch_remote
         context['scv_is_recent_ref'] = this_remote == versions.recent_remote
         context['scv_is_recent_tag'] = this_remote == versions.recent_tag_remote
-        context['scv_is_root_ref'] = cls.IS_ROOT
+        context['scv_is_root'] = cls.IS_ROOT
         context['scv_is_tag'] = this_remote['kind'] == 'tags'
         # context['scv_root_ref_is_branch'] = versions.root_remote['kind'] == 'heads'
         # context['scv_root_ref_is_tag'] = versions.root_remote['kind'] == 'tags'

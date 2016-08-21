@@ -229,14 +229,14 @@ class Versions(object):
         :return: Relative path.
         :rtype: str
         """
-        is_root_ref = self.context['scv_is_root_ref']
+        is_root = self.context['scv_is_root']
         pagename = self.context['pagename']
-        if self.context['current_version'] == other_version and not is_root_ref:
+        if self.context['current_version'] == other_version and not is_root:
             return '{}.html'.format(pagename.split('/')[-1])
 
         other_remote = self[other_version]
         other_root_dir = other_remote['root_dir']
         components = ['..'] * pagename.count('/')
-        components += [other_root_dir] if is_root_ref else ['..', other_root_dir]
+        components += [other_root_dir] if is_root else ['..', other_root_dir]
         components += [pagename if self.vhasdoc(other_version) else other_remote['master_doc']]
         return '{}.html'.format(posixpath.join(*components))

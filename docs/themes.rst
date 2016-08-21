@@ -47,21 +47,13 @@ variables are exposed:
     A boolean set to True if the current version being built is a git tag and is the most recent commit out of just git
     tags.
 
-.. attribute:: scv_is_root_ref
+.. attribute:: scv_is_root
 
-    A boolean set to True if the current version being built is the :option:`--root-ref`.
+    A boolean set to True if the current version being built is in the web root (defined by :option:`--root-ref`).
 
 .. attribute:: scv_is_tag
 
     A boolean set to True if the current version being built is from a git tag.
-
-.. attribute:: scv_root_ref_is_branch
-
-    A boolean set to True if the root ref is from a git branch.
-
-.. attribute:: scv_root_ref_is_tag
-
-    A boolean set to True if the root ref is from a git tag.
 
 .. attribute:: versions
 

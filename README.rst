@@ -50,6 +50,7 @@ Unreleased
 Changed
     * Root ref will also be built in its own directory like other versions. All URLs to root ref will point to the one
       in that directory instead of the root. More info: https://github.com/Robpol86/sphinxcontrib-versioning/issues/15
+    * Renamed Jinja2 context variable ``scv_is_root_ref`` to ``scv_is_root``.
 
 Removed
     * Jinja2 context variables: ``scv_root_ref_is_branch`` ``scv_root_ref_is_tag``
