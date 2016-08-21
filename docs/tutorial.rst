@@ -89,7 +89,7 @@ Now that you have the destination branch in origin go ahead and run SCVersioning
 
 .. code-block:: bash
 
-    sphinx-versioning -r feature_branch push gh-pages . docs
+    sphinx-versioning -r feature_branch push docs gh-pages .
 
 Again you can find more information about all of the options at :ref:`settings` or by running with ``-help`` but just
 for convenience:

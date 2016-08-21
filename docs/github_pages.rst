@@ -67,7 +67,7 @@ Edit your CI configuration file (e.g. `.travis.yml <https://docs.travis-ci.com/u
     after_success:
       - git config --global user.email "builds@travis-ci.com"
       - git config --global user.name "Travis CI"
-      - sphinx-versioning push gh-pages . docs
+      - sphinx-versioning push docs gh-pages .
 
 The two git config lines are needed to make commits locally to the gh-pages branch (cloned to a temporary directory by
 SCVersioning). If you want SCVersioning to delete unrelated files from the gh-pages branch (e.g. deleted branches' HTML
@@ -75,7 +75,7 @@ documentation, deleted tags, etc) change the sphinx-versioning command to:
 
 .. code-block:: bash
 
-    sphinx-versioning -e .gitignore -e .nojekyll -e README.rst push gh-pages . docs
+    sphinx-versioning -e .gitignore -e .nojekyll -e README.rst push docs gh-pages .
 
 This tells SCVersioning to delete all files in gh-pages except those three. More information in :option:`--grm-exclude`.
 
@@ -132,7 +132,7 @@ section look like this:
       - git config --global user.name "Travis CI"
       - git remote set-url origin "git@github.com:$TRAVIS_REPO_SLUG"
       - export ${!TRAVIS*}  # Optional, for commit messages.
-      - sphinx-versioning push gh-pages . docs
+      - sphinx-versioning push docs gh-pages .
 
 .. warning::
 
