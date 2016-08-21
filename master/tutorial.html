@@ -8,7 +8,18 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-82627369-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Tutorial &mdash; sphinxcontrib-versioning</title>
@@ -231,7 +242,7 @@ up with the history of your code changes.</p>
 <div class="section" id="push-all-versions">
 <span id="id2"></span><h3>Push All Versions<a class="headerlink" href="#push-all-versions" title="Permalink to this headline">¶</a></h3>
 <p>Now that you have the destination branch in origin go ahead and run SCVersioning:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch push gh-pages . docs
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch push docs gh-pages .
 </pre></div>
 </div>
 <p>Again you can find more information about all of the options at <a class="reference internal" href="settings.html#settings"><span class="std std-ref">Settings</span></a> or by running with <code class="docutils literal"><span class="pre">-help</span></code> but just
@@ -305,7 +316,6 @@ delete feature use one or more <code class="docutils literal"><span class="pre">
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../stage/tutorial.html">stage</a></dd>
             <dd><a href="tutorial.html">master</a></dd>
             <dd><a href="../wip_banner3/tutorial.html">wip_banner3</a></dd>
             <dd><a href="../wip_banner2/tutorial.html">wip_banner2</a></dd>
