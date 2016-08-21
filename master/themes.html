@@ -223,27 +223,15 @@ tags.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="scv_is_root_ref">
-<code class="descname">scv_is_root_ref</code><a class="headerlink" href="#scv_is_root_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>A boolean set to True if the current version being built is the <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a>.</p>
+<dt id="scv_is_root">
+<code class="descname">scv_is_root</code><a class="headerlink" href="#scv_is_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is in the web root (defined by <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a>).</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="scv_is_tag">
 <code class="descname">scv_is_tag</code><a class="headerlink" href="#scv_is_tag" title="Permalink to this definition">¶</a></dt>
 <dd><p>A boolean set to True if the current version being built is from a git tag.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="scv_root_ref_is_branch">
-<code class="descname">scv_root_ref_is_branch</code><a class="headerlink" href="#scv_root_ref_is_branch" title="Permalink to this definition">¶</a></dt>
-<dd><p>A boolean set to True if the root ref is from a git branch.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="scv_root_ref_is_tag">
-<code class="descname">scv_root_ref_is_tag</code><a class="headerlink" href="#scv_root_ref_is_tag" title="Permalink to this definition">¶</a></dt>
-<dd><p>A boolean set to True if the root ref is from a git tag.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -378,7 +366,6 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../rename/themes.html">rename</a></dd>
             <dd><a href="themes.html">master</a></dd>
             <dd><a href="../wip_banner3/themes.html">wip_banner3</a></dd>
             <dd><a href="../wip_banner2/themes.html">wip_banner2</a></dd>
