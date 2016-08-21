@@ -1,0 +1,398 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-82627369-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>GitHub Pages &mdash; sphinxcontrib-versioning</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="sphinxcontrib-versioning" href="index.html"/>
+        <link rel="next" title="Changelog" href="changelog.html"/>
+        <link rel="prev" title="Supported Themes" href="themes.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> sphinxcontrib-versioning
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="themes.html">Supported Themes</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Web Hosting</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GitHub Pages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#turn-off-jekyll">Turn Off Jekyll</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-in-ci">Running in CI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ci-config-file">CI Config File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#commit">Commit</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ssh-key">SSH Key</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ssh-keygen">ssh-keygen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">travis.yml</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">sphinxcontrib-versioning</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>GitHub Pages</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+          
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/wip_dev_banner/docs/github_pages.rst" class="fa fa-github"> Edit on GitHub</a>
+          
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+  <div class="section" id="github-pages">
+<span id="id1"></span><h1>GitHub Pages<a class="headerlink" href="#github-pages" title="Permalink to this headline">¶</a></h1>
+<p>It&#8217;s pretty easy to use <a class="reference external" href="https://pages.github.com/">GitHub Pages</a> to host all of your versioned documentation. Before
+starting be sure to go through the <a class="reference internal" href="tutorial.html#tutorial"><span class="std std-ref">Tutorial</span></a> first to make sure you can build your docs locally. You&#8217;ll also want
+to do the <a class="reference internal" href="tutorial.html#push-all-versions"><span class="std std-ref">Push All Versions</span></a> section.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">You may want to enable GitHub&#8217;s <a class="reference external" href="https://help.github.com/articles/about-protected-branches/">protected branches</a>
+feature for the gh-pages branch to prevent you or anyone from accidentally deleting the branch from remote.</p>
+</div>
+<p>This guide assumes:</p>
+<ol class="arabic simple">
+<li>You already have documentation in your master branch and SCVersioning builds it locally. If not you&#8217;ll need to use
+the <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a> argument.</li>
+<li>You already have your CI configured and running on your repo (this guide uses Travis CI but it should work on any
+other).</li>
+</ol>
+<div class="section" id="turn-off-jekyll">
+<h2>Turn Off Jekyll<a class="headerlink" href="#turn-off-jekyll" title="Permalink to this headline">¶</a></h2>
+<p>Building on the steps in the <a class="reference internal" href="tutorial.html#tutorial"><span class="std std-ref">Tutorial</span></a> document you&#8217;ll want to disable Jekyll because it doesn&#8217;t copy over files
+and directories <a class="reference external" href="https://github.com/blog/572-bypassing-jekyll-on-github-pages">that start with underscores</a>, which
+Sphinx uses.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git checkout gh-pages
+git pull origin gh-pages
+touch .nojekyll
+git add .nojekyll
+git commit
+git push origin gh-pages
+git checkout master  <span class="c1"># Or whatever branch you were in.</span>
+</pre></div>
+</div>
+<p>Then navigate to <a class="reference external" href="https://username.github.io/repo_name/">https://username.github.io/repo_name/</a> and if you used <code class="docutils literal"><span class="pre">.</span></code> for your <a class="reference internal" href="settings.html#cmdoption-arg-REL_DEST"><code class="xref std std-option docutils literal"><span class="pre">REL_DEST</span></code></a> you should see
+your HTML docs there. Otherwise if you used something like <code class="docutils literal"><span class="pre">html/docs</span></code> you&#8217;ll need to navigate to
+<a class="reference external" href="https://username.github.io/repo_name/html/docs/">https://username.github.io/repo_name/html/docs/</a>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Old repositories may not have <strong>Enforce HTTPS</strong> enabled for their GitHub Pages. It&#8217;s a good idea to enable this
+feature. More info: <a class="reference external" href="https://help.github.com/articles/securing-your-github-pages-site-with-https/">https://help.github.com/articles/securing-your-github-pages-site-with-https/</a></p>
+</div>
+</div>
+<div class="section" id="running-in-ci">
+<h2>Running in CI<a class="headerlink" href="#running-in-ci" title="Permalink to this headline">¶</a></h2>
+<p>The goal of using GitHub Pages is to have docs automatically update on every new/changed branch/tag. In this example
+we&#8217;ll be using Travis CI but any CI should work.</p>
+<p>Travis won&#8217;t be able to push any changes to the gh-pages branch without SSH keys. This guide will worry about just
+getting Travis to run SCVersioning. It should only fail when trying to push to origin.</p>
+<div class="section" id="ci-config-file">
+<h3>CI Config File<a class="headerlink" href="#ci-config-file" title="Permalink to this headline">¶</a></h3>
+<p>Edit your CI configuration file (e.g. <a class="reference external" href="https://docs.travis-ci.com/user/customizing-the-build/">.travis.yml</a>) with:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">install</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">pip install sphinxcontrib-versioning</span>
+<span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.email &quot;builds@travis-ci.com&quot;</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.name &quot;Travis CI&quot;</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning push docs gh-pages .</span>
+</pre></div>
+</div>
+<p>The two git config lines are needed to make commits locally to the gh-pages branch (cloned to a temporary directory by
+SCVersioning). If you want SCVersioning to delete unrelated files from the gh-pages branch (e.g. deleted branches&#8217; HTML
+documentation, deleted tags, etc) change the sphinx-versioning command to:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -e .gitignore -e .nojekyll -e README.rst push docs gh-pages .
+</pre></div>
+</div>
+<p>This tells SCVersioning to delete all files in gh-pages except those three. More information in <a class="reference internal" href="settings.html#cmdoption--grm-exclude"><code class="xref std std-option docutils literal"><span class="pre">--grm-exclude</span></code></a>.</p>
+</div>
+<div class="section" id="commit">
+<h3>Commit<a class="headerlink" href="#commit" title="Permalink to this headline">¶</a></h3>
+<p>Commit your changes to the CI config file and push. You should see documentation building successfully, but it should
+fail when it tries to push since we haven&#8217;t given your CI any permission to make changes to the git repository.</p>
+</div>
+</div>
+<div class="section" id="ssh-key">
+<h2>SSH Key<a class="headerlink" href="#ssh-key" title="Permalink to this headline">¶</a></h2>
+<p>Now that we know SCVersioning works fine locally and remotely it&#8217;s time to unleash it. We&#8217;ll be using
+<a class="reference external" href="https://developer.github.com/guides/managing-deploy-keys/">Deploy Keys</a> to grant Travis write access to your
+repository. At the time of this writing this is the most narrow-scoped authorization method for docs deployment.</p>
+<p>To avoid leaking the SSH private key (thereby granting write access to the repo) we&#8217;ll be using Travis CI&#8217;s
+<a class="reference external" href="https://docs.travis-ci.com/user/encrypting-files/">Encrypting Files</a> feature. You&#8217;ll need to install the Travis CI
+<a class="reference external" href="https://github.com/travis-ci/travis.rb#installation">ruby client</a> for this section.</p>
+<div class="section" id="ssh-keygen">
+<h3>ssh-keygen<a class="headerlink" href="#ssh-keygen" title="Permalink to this headline">¶</a></h3>
+<p>First we&#8217;ll create the SSH key pair.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>ssh-keygen -t rsa -b <span class="m">4096</span> -C <span class="s2">&quot;Travis CI Deploy Key&quot;</span> -N <span class="s2">&quot;&quot;</span> -f docs/key
+cat docs/key.pub  <span class="c1"># We&#39;ll be adding this to GitHub&#39;s repo settings page.</span>
+travis encrypt-file docs/key docs/key.enc --add after_success  <span class="c1"># Updates .travis.yml</span>
+rm docs/key docs/key.pub  <span class="c1"># Don&#39;t need these anymore.</span>
+</pre></div>
+</div>
+<p>We need to give GitHub your SSH <strong>public</strong> key (the one we ran with <code class="docutils literal"><span class="pre">cat</span></code>). Go to
+<a class="reference external" href="https://github.com/username/repo_name/settings/keys">https://github.com/username/repo_name/settings/keys</a> and click &#8220;Add deploy key&#8221;. The title could be anything (e.g.
+&#8220;Travis CI Deploy Key&#8221;). The key you&#8217;re pasting will be one long line and will look something like &#8220;ssh-rsa AAAAB3N...==
+Travis CI Deploy Key&#8221;</p>
+<p>Be sure to check <strong>Allow write access</strong>.</p>
+</div>
+<div class="section" id="id3">
+<h3>travis.yml<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">travis</span> <span class="pre">encrypt-file</span></code> command should have updated your <code class="docutils literal"><span class="pre">.travis.yml</span></code> with the openssl command for you. However
+we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
+section look like this:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
+  - <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>ssh-agent -s<span class="k">)</span><span class="s2">&quot;</span><span class="p">;</span> touch docs/key<span class="p">;</span> chmod <span class="m">0600</span> docs/key
+  - openssl aes-256-cbc -d -K <span class="s2">&quot;</span><span class="nv">$encrypted_key</span><span class="s2">&quot;</span> -iv <span class="s2">&quot;</span><span class="nv">$encrypted_iv</span><span class="s2">&quot;</span> &lt; docs/key.enc &gt; docs/key
+    <span class="o">&amp;&amp;</span> ssh-add docs/key  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
+  - git config --global user.email <span class="s2">&quot;builds@travis-ci.com&quot;</span>
+  - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
+  - git remote set-url origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
+  - <span class="nb">export</span> <span class="si">${</span><span class="p">!TRAVIS*</span><span class="si">}</span>  <span class="c1"># Optional, for commit messages.</span>
+  - sphinx-versioning push docs gh-pages .
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Always conditionally run ssh-add only if openssl succeeds like in the example above. Encrypted environment variables
+are not set on Travis CI and probably other CIs during pull requests for security reasons. If you always run ssh-add
+(which appears to be what everyone does) all of your pull requests will have failing tests because:</p>
+<ol class="last arabic simple">
+<li>Travis CI runs all commands in after_success even if one fails.</li>
+<li>openssl appears to copy &#8220;key.enc&#8221; to &#8220;key&#8221; when it fails to decrypt.</li>
+<li>ssh-add will prompt for a passphrase because it thinks the file is encrypted with an SSH passphrase.</li>
+<li>The Travis job will hang, timeout, and fail even if tests pass.</li>
+</ol>
+</div>
+<p>Finally commit both <strong>.travis.yml</strong> and the encrypted <strong>docs/key.enc</strong> file. Push and watch Travis update your docs
+automatically for you.</p>
+</div>
+</div>
+</div>
+
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="themes.html" class="btn btn-neutral" title="Supported Themes" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, @Robpol86.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: wip_dev_banner
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../v2.0.0/github_pages.html">v2.0.0</a></dd>
+            <dd><a href="../v1.1.0/github_pages.html">v1.1.0</a></dd>
+            <dd><a href="../v1.0.1/github_pages.html">v1.0.1</a></dd>
+            <dd><a href="../v1.0.0/github_pages.html">v1.0.0</a></dd>
+        </dl>
+        <dl>
+            <dt>Branches</dt>
+            <dd><a href="github_pages.html">wip_dev_banner</a></dd>
+            <dd><a href="../master/github_pages.html">master</a></dd>
+            <dd><a href="../wip_banner3/github_pages.html">wip_banner3</a></dd>
+            <dd><a href="../wip_banner2/github_pages.html">wip_banner2</a></dd>
+            <dd><a href="../wip_banner/github_pages.html">wip_banner</a></dd>
+        </dl>
+    </div>
+</div>
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
