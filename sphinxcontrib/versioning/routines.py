@@ -7,7 +7,7 @@ import re
 import subprocess
 
 from sphinxcontrib.versioning.git import export, fetch_commits, filter_and_date, GitError, list_remote
-from sphinxcontrib.versioning.lib import HandledError, TempDir
+from sphinxcontrib.versioning.lib import Config, HandledError, TempDir
 from sphinxcontrib.versioning.sphinx_ import build, read_config
 
 RE_INVALID_FILENAME = re.compile(r'[^0-9A-Za-z.-]')
@@ -114,7 +114,6 @@ def pre_build(local_root, versions):
     """
     log = logging.getLogger(__name__)
     exported_root = TempDir(True).name
-    root_remote = versions.root_remote
 
     # Extract all.
     for sha in {r['sha'] for r in versions.remotes}:
@@ -122,15 +121,16 @@ def pre_build(local_root, versions):
         log.debug('Exporting %s to temporary directory.', sha)
         export(local_root, sha, target)
 
-    # Build root ref.
+    # Build root.
+    remote = versions[Config.from_context().root_ref]
     with TempDir() as temp_dir:
-        log.debug('Building root ref (before setting root_dirs) in temporary directory: %s', temp_dir)
-        source = os.path.dirname(os.path.join(exported_root, root_remote['sha'], root_remote['conf_rel_path']))
-        build(source, temp_dir, versions, root_remote['name'])
+        log.debug('Building root (before setting root_dirs) in temporary directory: %s', temp_dir)
+        source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
+        build(source, temp_dir, versions, remote['name'], True)
         existing = os.listdir(temp_dir)
 
-    # Define root_dir versions. Skip the root ref (will remain '').
-    for remote in (r for r in versions.remotes if r != root_remote):
+    # Define root_dir for all versions to avoid file name collisions.
+    for remote in versions.remotes:
         root_dir = RE_INVALID_FILENAME.sub('_', remote['name'])
         while root_dir in existing:
             root_dir += '_'
@@ -162,21 +162,21 @@ def build_all(exported_root, destination, versions):
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
     """
     log = logging.getLogger(__name__)
-    root_remote = versions.root_remote
 
     while True:
-        # Build root ref.
-        log.info('Building root ref: %s', root_remote['name'])
-        source = os.path.dirname(os.path.join(exported_root, root_remote['sha'], root_remote['conf_rel_path']))
-        build(source, destination, versions, root_remote['name'])
+        # Build root.
+        remote = versions[Config.from_context().root_ref]
+        log.info('Building root: %s', remote['name'])
+        source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
+        build(source, destination, versions, remote['name'], True)
 
-        # Build other refs.
-        for remote in list(r for r in versions.remotes if r != root_remote):
+        # Build all refs.
+        for remote in list(versions.remotes):
             log.info('Building ref: %s', remote['name'])
             source = os.path.dirname(os.path.join(exported_root, remote['sha'], remote['conf_rel_path']))
             target = os.path.join(destination, remote['root_dir'])
             try:
-                build(source, target, versions, remote['name'])
+                build(source, target, versions, remote['name'], False)
             except HandledError:
                 log.warning('Skipping. Will not be building %s. Rebuilding everything.', remote['name'])
                 versions.remotes.pop(versions.remotes.index(remote))

@@ -97,7 +97,6 @@ class Versions(object):
     :ivar dict recent_branch_remote: Most recently committed branch.
     :ivar dict recent_remote: Most recently committed branch/tag.
     :ivar dict recent_tag_remote: Most recently committed tag.
-    :ivar dict root_remote: Branch/tag at the root of all HTML docs.
     """
 
     def __init__(self, remotes, sort=None, priority=None, invert=False):
@@ -124,7 +123,6 @@ class Versions(object):
         self.recent_branch_remote = None
         self.recent_remote = None
         self.recent_tag_remote = None
-        self.root_remote = None
 
         # Sort one or more times.
         if sort:
@@ -205,14 +203,6 @@ class Versions(object):
         """Return list of (name and urls) only tags."""
         return [(r['name'], self.vpathto(r['name'])) for r in self.remotes if r['kind'] == 'tags']
 
-    def set_root_remote(self, root_ref):
-        """Set the root remote based on the root ref.
-
-        :param str root_ref: Branch/tag at the root of all HTML docs.
-        """
-        self.root_remote = self[root_ref]
-        self.root_remote['root_dir'] = ''
-
     def vhasdoc(self, other_version):
         """Return True if the other version has the current document. Like Sphinx's hasdoc().
 
@@ -239,13 +229,14 @@ class Versions(object):
         :return: Relative path.
         :rtype: str
         """
+        is_root_ref = self.context['scv_is_root_ref']
         pagename = self.context['pagename']
-        if self.context['current_version'] == other_version:
+        if self.context['current_version'] == other_version and not is_root_ref:
             return '{}.html'.format(pagename.split('/')[-1])
 
         other_remote = self[other_version]
         other_root_dir = other_remote['root_dir']
         components = ['..'] * pagename.count('/')
-        components += [other_root_dir] if self.context['scv_is_root_ref'] else ['..', other_root_dir]
+        components += [other_root_dir] if is_root_ref else ['..', other_root_dir]
         components += [pagename if self.vhasdoc(other_version) else other_remote['master_doc']]
         return '{}.html'.format(posixpath.join(*components))

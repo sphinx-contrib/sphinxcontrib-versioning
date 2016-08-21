@@ -25,11 +25,13 @@ class EventHandlers(object):
 
     :ivar multiprocessing.queues.Queue ABORT_AFTER_READ: Communication channel to parent process.
     :ivar str CURRENT_VERSION: Current version being built.
+    :ivar bool IS_ROOT: Value for context['scv_is_root_ref'].
     :ivar sphinxcontrib.versioning.versions.Versions VERSIONS: Versions class instance.
     """
 
     ABORT_AFTER_READ = None
     CURRENT_VERSION = None
+    IS_ROOT = False
     VERSIONS = None
 
     @staticmethod
@@ -89,10 +91,10 @@ class EventHandlers(object):
         context['scv_is_recent_branch'] = this_remote == versions.recent_branch_remote
         context['scv_is_recent_ref'] = this_remote == versions.recent_remote
         context['scv_is_recent_tag'] = this_remote == versions.recent_tag_remote
-        context['scv_is_root_ref'] = this_remote == versions.root_remote
+        context['scv_is_root_ref'] = cls.IS_ROOT
         context['scv_is_tag'] = this_remote['kind'] == 'tags'
-        context['scv_root_ref_is_branch'] = versions.root_remote['kind'] == 'heads'
-        context['scv_root_ref_is_tag'] = versions.root_remote['kind'] == 'tags'
+        # context['scv_root_ref_is_branch'] = versions.root_remote['kind'] == 'heads'
+        # context['scv_root_ref_is_tag'] = versions.root_remote['kind'] == 'tags'
         context['versions'] = versions
 
 
@@ -104,7 +106,7 @@ def setup(app):
     :returns: Extension version.
     :rtype: dict
     """
-    # Used internally. For rebuilding all pages when one or more non-root-ref fails.
+    # Used internally. For rebuilding all pages when one or versions fail.
     app.add_config_value('sphinxcontrib_versioning_versions', SC_VERSIONING_VERSIONS, 'html')
 
     # Tell Sphinx which config values can be set by the user.
@@ -127,16 +129,18 @@ class ConfigInject(SphinxConfig):
         self.extensions.append('sphinxcontrib.versioning.sphinx_')
 
 
-def _build(argv, versions, current_name):
+def _build(argv, versions, current_name, is_root):
     """Build Sphinx docs via multiprocessing for isolation.
 
     :param tuple argv: Arguments to pass to Sphinx.
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
     :param str current_name: The ref name of the current version being built.
+    :param bool is_root: Is this build in the web root?
     """
     # Patch.
     application.Config = ConfigInject
     EventHandlers.CURRENT_VERSION = current_name
+    EventHandlers.IS_ROOT = is_root
     EventHandlers.VERSIONS = versions
     SC_VERSIONING_VERSIONS[:] = [p for r in versions.remotes for p in sorted(r.items()) if p[0] not in ('sha', 'date')]
 
@@ -166,10 +170,10 @@ def _read_config(argv, current_name, queue):
     EventHandlers.ABORT_AFTER_READ = queue
 
     # Run.
-    _build(argv, Versions(list()), current_name)
+    _build(argv, Versions(list()), current_name, False)
 
 
-def build(source, target, versions, current_name):
+def build(source, target, versions, current_name, is_root):
     """Build Sphinx docs for one version. Includes Versions class instance with names/urls in the HTML context.
 
     :raise HandledError: If sphinx-build fails. Will be logged before raising.
@@ -178,11 +182,12 @@ def build(source, target, versions, current_name):
     :param str target: Destination directory to write documentation to (passed to sphinx-build).
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
     :param str current_name: The ref name of the current version being built.
+    :param bool is_root: Is this build in the web root?
     """
     log = logging.getLogger(__name__)
     argv = ('sphinx-build', source, target)
     log.debug('Running sphinx-build for %s with args: %s', current_name, str(argv))
-    child = multiprocessing.Process(target=_build, args=(argv, versions, current_name))
+    child = multiprocessing.Process(target=_build, args=(argv, versions, current_name, is_root))
     child.start()
     child.join()  # Block.
     if child.exitcode != 0:

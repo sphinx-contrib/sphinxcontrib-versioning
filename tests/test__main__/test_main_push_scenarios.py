@@ -23,7 +23,8 @@ def test_no_exclude(local_docs_ghp, run, urls):
     # Check HTML.
     run(local_docs_ghp, ['git', 'checkout', 'gh-pages'])
     run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    urls(local_docs_ghp.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    urls(local_docs_ghp.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(local_docs_ghp.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
 
     # Run again.
     output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
@@ -58,9 +59,11 @@ def test_exclude(local_docs_ghp, run, urls):
 
     # Check files.
     run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    urls(local_docs_ghp.join('documentation', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
-    assert not local_docs_ghp.join('documentation', 'delete.txt').check()
-    assert local_docs_ghp.join('documentation', 'keep.txt').check()
+    destination = local_docs_ghp.join('documentation')
+    urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    assert not destination.join('delete.txt').check()
+    assert destination.join('keep.txt').check()
 
     # Change and commit.
     run(local_docs_ghp, ['git', 'checkout', 'master'])
@@ -75,12 +78,13 @@ def test_exclude(local_docs_ghp, run, urls):
     # Check files.
     run(local_docs_ghp, ['git', 'checkout', 'gh-pages'])
     run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    contents = urls(local_docs_ghp.join('documentation', 'contents.html'), [
-        '<li><a href="contents.html">master</a></li>'
-    ])
-    assert 'New Unexpected Line!' in contents
-    assert not local_docs_ghp.join('documentation', 'delete.txt').check()
-    assert local_docs_ghp.join('documentation', 'keep.txt').check()
+    contents = list()
+    contents.append(urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>']))
+    contents.append(urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>']))
+    assert 'New Unexpected Line!' in contents[0]
+    assert 'New Unexpected Line!' in contents[1]
+    assert not destination.join('delete.txt').check()
+    assert destination.join('keep.txt').check()
 
 
 def test_root_ref(local_docs_ghp, run):
@@ -153,7 +157,9 @@ def test_race(tmpdir, local_docs_ghp, remote, run, urls, give_up):
     # Verify files.
     run(local_docs_ghp, ['git', 'checkout', 'gh-pages'])
     run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    urls(local_docs_ghp.join('html', 'docs', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    destination = local_docs_ghp.join('html', 'docs')
+    urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
     actual = local_docs_ghp.join('README').read()
     assert actual == 'Orphaned branch for HTML docs.changed'
 

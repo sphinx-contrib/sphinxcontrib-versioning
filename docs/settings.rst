@@ -149,7 +149,8 @@ These options are available for the build sub command:
 
 .. option:: -r <ref>, --root-ref <ref>, scv_root_ref
 
-    The branch/tag at the root of :option:`DESTINATION`. All others are in subdirectories. Default is **master**.
+    The branch/tag at the root of :option:`DESTINATION`. Will also be in subdirectories like the others. Default is
+    **master**.
 
     If the root-ref does not exist or does not have docs, ``sphinx-versioning`` will fail and exit. The root-ref must
     have docs.

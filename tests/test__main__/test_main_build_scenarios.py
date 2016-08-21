@@ -33,23 +33,33 @@ def test_sub_page_and_tag(tmpdir, local_docs, run, urls):
     output = run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)])
     assert 'Traceback' not in output
 
-    # Check master.
+    # Check root.
     urls(destination.join('contents.html'), [
-        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="master/contents.html">master</a></li>',
         '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>'
     ])
     urls(destination.join('subdir', 'sub.html'), [
-        '<li><a href="sub.html">master</a></li>',
+        '<li><a href="../master/subdir/sub.html">master</a></li>',
         '<li><a href="../v1.0.0/subdir/sub.html">v1.0.0</a></li>',
+    ])
+
+    # Check master.
+    urls(destination.join('master', 'contents.html'), [
+        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
+    ])
+    urls(destination.join('master', 'subdir', 'sub.html'), [
+        '<li><a href="sub.html">master</a></li>',
+        '<li><a href="../../v1.0.0/subdir/sub.html">v1.0.0</a></li>',
     ])
 
     # Check v1.0.0.
     urls(destination.join('v1.0.0', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="contents.html">v1.0.0</a></li>',
     ])
     urls(destination.join('v1.0.0', 'subdir', 'sub.html'), [
-        '<li><a href="../../subdir/sub.html">master</a></li>',
+        '<li><a href="../../master/subdir/sub.html">master</a></li>',
         '<li><a href="sub.html">v1.0.0</a></li>',
     ])
 
@@ -75,7 +85,8 @@ def test_moved_docs(tmpdir, local_docs, run, urls):
     assert 'Traceback' not in output
 
     # Check master.
-    urls(destination.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
 
 
 def test_moved_docs_many(tmpdir, local_docs, run, urls):
@@ -104,31 +115,35 @@ def test_moved_docs_many(tmpdir, local_docs, run, urls):
     output = run(tmpdir, ['sphinx-versioning', '-c', str(local_docs), 'build', 'docs', 'docs2', '.', str(destination)])
     assert 'Traceback' not in output
 
-    # Check master.
+    # Check root.
     urls(destination.join('contents.html'), [
-        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="master/contents.html">master</a></li>',
         '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="v1.0.1/contents.html">v1.0.1</a></li>',
         '<li><a href="v1.0.2/contents.html">v1.0.2</a></li>',
     ])
 
-    # Check v1.0.0, v1.0.1, v1.0.2.
+    # Check master, v1.0.0, v1.0.1, v1.0.2.
+    urls(destination.join('master', 'contents.html'), [
+        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
+        '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>',
+        '<li><a href="../v1.0.2/contents.html">v1.0.2</a></li>',
+    ])
     urls(destination.join('v1.0.0', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="contents.html">v1.0.0</a></li>',
         '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>',
         '<li><a href="../v1.0.2/contents.html">v1.0.2</a></li>',
     ])
-
     urls(destination.join('v1.0.1', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="contents.html">v1.0.1</a></li>',
         '<li><a href="../v1.0.2/contents.html">v1.0.2</a></li>',
     ])
-
     urls(destination.join('v1.0.2', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>',
         '<li><a href="contents.html">v1.0.2</a></li>',
@@ -148,7 +163,8 @@ def test_version_change(tmpdir, local_docs, run, urls):
     # Only master.
     output = run(local_docs, ['sphinx-versioning', 'build', '.', 'docs', str(destination)])
     assert 'Traceback' not in output
-    urls(destination.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
 
     # Add tags.
     run(local_docs, ['git', 'tag', 'v1.0.0'])
@@ -157,19 +173,25 @@ def test_version_change(tmpdir, local_docs, run, urls):
     output = run(local_docs, ['sphinx-versioning', 'build', '.', 'docs', str(destination)])
     assert 'Traceback' not in output
     urls(destination.join('contents.html'), [
-        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="master/contents.html">master</a></li>',
         '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="v2.0.0/contents.html">v2.0.0</a></li>',
     ])
 
+    urls(destination.join('master', 'contents.html'), [
+        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
+        '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
+    ])
+
     urls(destination.join('v1.0.0', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="contents.html">v1.0.0</a></li>',
         '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
     ])
 
     urls(destination.join('v2.0.0', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="contents.html">v2.0.0</a></li>',
     ])
@@ -179,12 +201,17 @@ def test_version_change(tmpdir, local_docs, run, urls):
     output = run(local_docs, ['sphinx-versioning', 'build', '.', 'docs', str(destination)])
     assert 'Traceback' not in output
     urls(destination.join('contents.html'), [
-        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="master/contents.html">master</a></li>',
         '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>',
     ])
 
+    urls(destination.join('master', 'contents.html'), [
+        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
+    ])
+
     urls(destination.join('v1.0.0', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="contents.html">v1.0.0</a></li>',
     ])
 
@@ -205,8 +232,9 @@ def test_multiple_local_repos(tmpdir, run, urls):
     output = run(other, ['sphinx-versioning', '-c', '../local', '-v', 'build', '.', str(destination)])
     assert 'Traceback' not in output
 
-    # Check master.
-    urls(destination.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    # Check.
+    urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
 
 
 @pytest.mark.parametrize('no_tags', [False, True])
@@ -323,33 +351,48 @@ def test_add_remove_docs(tmpdir, local_docs, run, urls, parallel):
     else:
         assert 'waiting for workers' not in output
 
-    # Check master.
+    # Check root.
     urls(destination.join('contents.html'), [
-        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="master/contents.html">master</a></li>',
         '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="v1.1.0/contents.html">v1.1.0</a></li>',
         '<li><a href="v1.1.1/contents.html">v1.1.1</a></li>',
         '<li><a href="v2.0.0/contents.html">v2.0.0</a></li>',
     ])
-
     urls(destination.join('one.html'), [
-        '<li><a href="one.html">master</a></li>',
+        '<li><a href="master/one.html">master</a></li>',
         '<li><a href="v1.0.0/one.html">v1.0.0</a></li>',
         '<li><a href="v1.1.0/one.html">v1.1.0</a></li>',
         '<li><a href="v1.1.1/one.html">v1.1.1</a></li>',
         '<li><a href="v2.0.0/one.html">v2.0.0</a></li>',
     ])
 
+    # Check master.
+    urls(destination.join('master', 'contents.html'), [
+        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
+        '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>',
+        '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>',
+        '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
+    ])
+    urls(destination.join('master', 'one.html'), [
+        '<li><a href="one.html">master</a></li>',
+        '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>',
+        '<li><a href="../v1.1.0/one.html">v1.1.0</a></li>',
+        '<li><a href="../v1.1.1/one.html">v1.1.1</a></li>',
+        '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>',
+    ])
+
     # Check v2.0.0.
     urls(destination.join('v2.0.0', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>',
         '<li><a href="contents.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v2.0.0', 'one.html'), [
-        '<li><a href="../one.html">master</a></li>',
+        '<li><a href="../master/one.html">master</a></li>',
         '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/one.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/one.html">v1.1.1</a></li>',
@@ -358,28 +401,28 @@ def test_add_remove_docs(tmpdir, local_docs, run, urls, parallel):
 
     # Check v1.1.1.
     urls(destination.join('v1.1.1', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>',
         '<li><a href="contents.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.1.1', 'one.html'), [
-        '<li><a href="../one.html">master</a></li>',
+        '<li><a href="../master/one.html">master</a></li>',
         '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/one.html">v1.1.0</a></li>',
         '<li><a href="one.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.1.1', 'too.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/too.html">v1.1.0</a></li>',
         '<li><a href="too.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.1.1', 'sub', 'three.html'), [
-        '<li><a href="../../contents.html">master</a></li>',
+        '<li><a href="../../master/contents.html">master</a></li>',
         '<li><a href="../../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="../../v1.1.0/sub/three.html">v1.1.0</a></li>',
         '<li><a href="three.html">v1.1.1</a></li>',
@@ -388,28 +431,28 @@ def test_add_remove_docs(tmpdir, local_docs, run, urls, parallel):
 
     # Check v1.1.0.
     urls(destination.join('v1.1.0', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="contents.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.1.0', 'one.html'), [
-        '<li><a href="../one.html">master</a></li>',
+        '<li><a href="../master/one.html">master</a></li>',
         '<li><a href="../v1.0.0/one.html">v1.0.0</a></li>',
         '<li><a href="one.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/one.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.1.0', 'too.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="too.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/too.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.1.0', 'sub', 'three.html'), [
-        '<li><a href="../../contents.html">master</a></li>',
+        '<li><a href="../../master/contents.html">master</a></li>',
         '<li><a href="../../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="three.html">v1.1.0</a></li>',
         '<li><a href="../../v1.1.1/sub/three.html">v1.1.1</a></li>',
@@ -418,28 +461,28 @@ def test_add_remove_docs(tmpdir, local_docs, run, urls, parallel):
 
     # Check v1.0.0.
     urls(destination.join('v1.0.0', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="contents.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.0.0', 'one.html'), [
-        '<li><a href="../one.html">master</a></li>',
+        '<li><a href="../master/one.html">master</a></li>',
         '<li><a href="one.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/one.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/one.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/one.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.0.0', 'two.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="two.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>',
         '<li><a href="../v2.0.0/contents.html">v2.0.0</a></li>',
     ])
     urls(destination.join('v1.0.0', 'three.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="three.html">v1.0.0</a></li>',
         '<li><a href="../v1.1.0/contents.html">v1.1.0</a></li>',
         '<li><a href="../v1.1.1/contents.html">v1.1.1</a></li>',
@@ -464,7 +507,8 @@ def test_passing_verbose(local_docs, run, urls, verbosity):
 
     # Check master.
     destination = local_docs.join('destination')
-    urls(destination.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
 
     # Check output.
     if verbosity == 0:
@@ -503,11 +547,10 @@ def test_whitelisting(local_docs, run, urls):
     assert 'With docs: ignored included master v1.0 v1.0-dev\n' in output
     assert 'Passed whitelisting: included master v1.0\n' in output
 
-    # Check master.
-    destination = local_docs.join('html')
-    urls(destination.join('contents.html'), [
+    # Check root.
+    urls(local_docs.join('html', 'contents.html'), [
         '<li><a href="included/contents.html">included</a></li>',
-        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="master/contents.html">master</a></li>',
         '<li><a href="v1.0/contents.html">v1.0</a></li>',
     ])
 

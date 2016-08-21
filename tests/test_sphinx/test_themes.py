@@ -47,7 +47,6 @@ def test_supported(tmpdir, config, local_docs, run, theme):
         ('', 'v2.7.0', 'tags', 12, 'conf.py'),
         ('', 'testing_branch', 'heads', 13, 'conf.py'),
     ], sort=['semver'])
-    versions.set_root_remote('master')
 
     # Build with normal sphinx-build.
     run(local_docs, ['sphinx-build', '.', str(target_n), '-D', 'html_theme=' + theme])
@@ -55,7 +54,7 @@ def test_supported(tmpdir, config, local_docs, run, theme):
     assert 'master' not in contents_n
 
     # Build with versions.
-    build(str(local_docs), str(target_y), versions, 'master')
+    build(str(local_docs), str(target_y), versions, 'master', True)
     contents_y = target_y.join('contents.html').read()
     assert 'master' in contents_y
 
@@ -70,10 +69,11 @@ def test_supported(tmpdir, config, local_docs, run, theme):
         assert any(name in line for line in diff if line.startswith('+'))
 
 
-def test_sphinx_rtd_theme(tmpdir, local_docs):
+def test_sphinx_rtd_theme(tmpdir, config, local_docs):
     """Test sphinx_rtd_theme features.
 
     :param tmpdir: pytest fixture.
+    :param config: conftest fixture.
     :param local_docs: conftest fixture.
     """
     local_docs.join('conf.py').write('html_theme="sphinx_rtd_theme"')
@@ -81,8 +81,7 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
     # Build branches only.
     target_b = tmpdir.ensure_dir('target_b')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')], ['semver'])
-    versions.set_root_remote('master')
-    build(str(local_docs), str(target_b), versions, 'master')
+    build(str(local_docs), str(target_b), versions, 'master', True)
     contents = target_b.join('contents.html').read()
     assert '<dt>Branches</dt>' in contents
     assert '<dt>Tags</dt>' not in contents
@@ -90,8 +89,8 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
     # Build tags only.
     target_t = tmpdir.ensure_dir('target_t')
     versions = Versions([('', 'v1.0.0', 'tags', 3, 'conf.py'), ('', 'v1.2.0', 'tags', 4, 'conf.py')], sort=['semver'])
-    versions.set_root_remote('v1.2.0')
-    build(str(local_docs), str(target_t), versions, 'v1.2.0')
+    config.root_ref = 'v1.2.0'
+    build(str(local_docs), str(target_t), versions, 'v1.2.0', True)
     contents = target_t.join('contents.html').read()
     assert '<dt>Branches</dt>' not in contents
     assert '<dt>Tags</dt>' in contents
@@ -102,8 +101,8 @@ def test_sphinx_rtd_theme(tmpdir, local_docs):
         ('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py'),
         ('', 'v1.0.0', 'tags', 3, 'conf.py'), ('', 'v1.2.0', 'tags', 4, 'conf.py')
     ], sort=['semver'])
-    versions.set_root_remote('master')
-    build(str(local_docs), str(target_bt), versions, 'master')
+    config.root_ref = 'master'
+    build(str(local_docs), str(target_bt), versions, 'master', True)
     contents = target_bt.join('contents.html').read()
     assert '<dt>Branches</dt>' in contents
     assert '<dt>Tags</dt>' in contents

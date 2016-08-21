@@ -20,11 +20,10 @@ def test_simple(tmpdir, local_docs, urls, no_feature):
     versions = Versions(
         [('', 'master', 'heads', 1, 'conf.py')] + ([] if no_feature else [('', 'feature', 'heads', 2, 'conf.py')])
     )
-    versions.set_root_remote('master')
 
-    build(str(local_docs), str(target), versions, 'master')
+    build(str(local_docs), str(target), versions, 'master', True)
 
-    expected = ['<li><a href="contents.html">master</a></li>']
+    expected = ['<li><a href="master/contents.html">master</a></li>']
     if not no_feature:
         expected.append('<li><a href="feature/contents.html">feature</a></li>')
     urls(target.join('contents.html'), expected)
@@ -42,9 +41,8 @@ def test_isolation(tmpdir, config, local_docs, project):
     config.overflow = ('-D', 'project=Robpol86' if project else 'copyright="2016, SCV"')
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
-    versions.set_root_remote('master')
 
-    build(str(local_docs), str(target), versions, 'master')
+    build(str(local_docs), str(target), versions, 'master', True)
 
     contents = target.join('contents.html').read()
     if project:
@@ -65,9 +63,8 @@ def test_overflow(tmpdir, config, local_docs):
     config.overflow = ('-D', 'copyright=2016, SCV')
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
-    versions.set_root_remote('master')
 
-    build(str(local_docs), str(target), versions, 'master')
+    build(str(local_docs), str(target), versions, 'master', True)
 
     contents = target.join('contents.html').read()
     assert '2016, SCV' in contents
@@ -85,7 +82,7 @@ def test_sphinx_error(tmpdir, local_docs):
     local_docs.join('conf.py').write('undefined')
 
     with pytest.raises(HandledError):
-        build(str(local_docs), str(target), versions, 'master')
+        build(str(local_docs), str(target), versions, 'master', True)
 
 
 @pytest.mark.parametrize('pre_existing_versions', [False, True])
@@ -99,7 +96,6 @@ def test_custom_sidebar(tmpdir, local_docs, urls, pre_existing_versions):
     """
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
-    versions.set_root_remote('master')
 
     if pre_existing_versions:
         local_docs.join('conf.py').write(
@@ -113,9 +109,9 @@ def test_custom_sidebar(tmpdir, local_docs, urls, pre_existing_versions):
         )
     local_docs.ensure('_templates', 'custom.html').write('<h3>Custom Sidebar</h3><ul><li>Test</li></ul>')
 
-    build(str(local_docs), str(target), versions, 'master')
+    build(str(local_docs), str(target), versions, 'master', True)
 
-    contents = urls(target.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    contents = urls(target.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
     assert '<h3>Custom Sidebar</h3>' in contents
 
 
@@ -126,7 +122,6 @@ def test_versions_override(tmpdir, local_docs):
     :param local_docs: conftest fixture.
     """
     versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
-    versions.set_root_remote('master')
 
     local_docs.join('conf.py').write(
         'templates_path = ["_templates"]\n'
@@ -142,13 +137,13 @@ def test_versions_override(tmpdir, local_docs):
     )
 
     target = tmpdir.ensure_dir('target_master')
-    build(str(local_docs), str(target), versions, 'master')
+    build(str(local_docs), str(target), versions, 'master', True)
     contents = target.join('contents.html').read()
     assert '<li>GitHub: master</li>' in contents
     assert '<li>BitBucket: master</li>' in contents
 
     target = tmpdir.ensure_dir('target_feature')
-    build(str(local_docs), str(target), versions, 'feature')
+    build(str(local_docs), str(target), versions, 'feature', False)
     contents = target.join('contents.html').read()
     assert '<li>GitHub: feature</li>' in contents
     assert '<li>BitBucket: feature</li>' in contents
@@ -163,7 +158,6 @@ def test_subdirs(tmpdir, local_docs, urls):
     """
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
-    versions.set_root_remote('master')
     versions['master']['found_docs'] = ('contents',)
     versions['master']['found_docs'] = ('contents',)
 
@@ -181,14 +175,14 @@ def test_subdirs(tmpdir, local_docs, urls):
             'Sub directory sub page documentation.\n'
         )
 
-    build(str(local_docs), str(target), versions, 'master')
+    build(str(local_docs), str(target), versions, 'master', True)
 
     urls(target.join('contents.html'), [
-        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="master/contents.html">master</a></li>',
         '<li><a href="feature/contents.html">feature</a></li>'
     ])
     for i in range(1, 6):
         urls(target.join(*['subdir'] * i + ['sub.html']), [
-            '<li><a href="sub.html">master</a></li>',
+            '<li><a href="{}master/{}sub.html">master</a></li>'.format('../' * i, 'subdir/' * i),
             '<li><a href="{}feature/{}sub.html">feature</a></li>'.format('../' * i, 'subdir/' * i),
         ])

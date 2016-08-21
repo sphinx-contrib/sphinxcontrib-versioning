@@ -185,7 +185,7 @@ def build_options(func):
     func = click.option('-p', '--priority', type=click.Choice(('branches', 'tags')),
                         help="Group these kinds of versions at the top (for themes that don't separate them).")(func)
     func = click.option('-r', '--root-ref',
-                        help='The branch/tag at the root of DESTINATION. Others are in subdirs. Default master.')(func)
+                        help='The branch/tag at the root of DESTINATION. Will also be in subdir. Default master.')(func)
     func = click.option('-s', '--sort', multiple=True, type=click.Choice(('semver', 'alpha', 'time')),
                         help='Sort versions. Specify multiple times to sort equal values of one kind.')(func)
     func = click.option('-t', '--greatest-tag', is_flag=True,
@@ -260,7 +260,6 @@ def build(config, rel_source, destination, **options):
         log.error('Root ref %s not found in: %s', config.root_ref, ' '.join(r[1] for r in remotes))
         raise HandledError
     log.info('Root ref is: %s', config.root_ref)
-    versions.set_root_remote(config.root_ref)
 
     # Pre-build.
     log.info("Pre-running Sphinx to collect versions' master_doc and other info.")

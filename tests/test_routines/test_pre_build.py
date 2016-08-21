@@ -16,7 +16,6 @@ def test_single(local_docs):
     :param local_docs: conftest fixture.
     """
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions.set_root_remote('master')
     assert len(versions) == 1
 
     # Run and verify directory.
@@ -25,7 +24,7 @@ def test_single(local_docs):
     assert exported_root.join(versions['master']['sha'], 'conf.py').read() == ''
 
     # Verify root_dir and master_doc..
-    expected = ['contents']
+    expected = ['master/contents']
     assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
 
@@ -48,7 +47,6 @@ def test_dual(local_docs, run):
     run(local_docs, ['git', 'push', 'origin', 'feature'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions.set_root_remote('master')
     assert len(versions) == 2
 
     # Run and verify directory.
@@ -58,12 +56,12 @@ def test_dual(local_docs, run):
     assert exported_root.join(versions['feature']['sha'], 'conf.py').read() == 'master_doc = "index"\n'
 
     # Verify versions root_dirs and master_docs.
-    expected = ['contents', 'feature/index']
+    expected = ['feature/index', 'master/contents']
     assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
 
 def test_file_collision(local_docs, run):
-    """Test handling of filename collisions between generates files from root ref and branch names.
+    """Test handling of filename collisions between generates files from root and branch names.
 
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
@@ -72,12 +70,11 @@ def test_file_collision(local_docs, run):
     run(local_docs, ['git', 'push', 'origin', '_static'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions.set_root_remote('master')
     assert len(versions) == 2
 
     # Verify versions root_dirs and master_docs.
     pre_build(str(local_docs), versions)
-    expected = ['_static_/contents', 'contents']
+    expected = ['_static_/contents', 'master/contents']
     assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
 
@@ -91,18 +88,18 @@ def test_invalid_name(local_docs, run):
     run(local_docs, ['git', 'push', 'origin', 'robpol86/feature'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions.set_root_remote('master')
     assert len(versions) == 2
 
     # Verify versions root_dirs and master_docs.
     pre_build(str(local_docs), versions)
-    expected = ['contents', 'robpol86_feature/contents']
+    expected = ['master/contents', 'robpol86_feature/contents']
     assert sorted(posixpath.join(r['root_dir'], r['master_doc']) for r in versions.remotes) == expected
 
 
-def test_error(local_docs, run):
+def test_error(config, local_docs, run):
     """Test with a bad root ref. Also test skipping bad non-root refs.
 
+    :param config: conftest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
     """
@@ -118,11 +115,11 @@ def test_error(local_docs, run):
     assert [r['name'] for r in versions.remotes] == ['a_good', 'b_broken', 'c_good', 'd_broken', 'master']
 
     # Bad root ref.
-    versions.set_root_remote('b_broken')
+    config.root_ref = 'b_broken'
     with pytest.raises(HandledError):
         pre_build(str(local_docs), versions)
 
     # Remove bad non-root refs.
-    versions.set_root_remote('master')
+    config.root_ref = 'master'
     pre_build(str(local_docs), versions)
     assert [r['name'] for r in versions.remotes] == ['a_good', 'c_good', 'master']

@@ -16,7 +16,6 @@ def test_single(tmpdir, local_docs, urls):
     :param urls: conftest fixture.
     """
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions.set_root_remote('master')
 
     # Export.
     exported_root = tmpdir.ensure_dir('exported_root')
@@ -30,11 +29,16 @@ def test_single(tmpdir, local_docs, urls):
         '.doctrees',
         '_sources',
         '_static',
+        'master',
+        'master/.doctrees',
+        'master/_sources',
+        'master/_static',
     ]
     assert actual == expected
 
     # Verify HTML links.
-    urls(destination.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
 
 
 @pytest.mark.parametrize('parallel', [False, True])
@@ -58,7 +62,6 @@ def test_multiple(tmpdir, config, local_docs, run, urls, triple, parallel):
         run(local_docs, ['git', 'push', 'origin', 'v1.0.1'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions.set_root_remote('master')
 
     # Export (git tags point to same master sha).
     exported_root = tmpdir.ensure_dir('exported_root')
@@ -72,6 +75,10 @@ def test_multiple(tmpdir, config, local_docs, run, urls, triple, parallel):
         '.doctrees',
         '_sources',
         '_static',
+        'master',
+        'master/.doctrees',
+        'master/_sources',
+        'master/_static',
         'v1.0.0',
         'v1.0.0/.doctrees',
         'v1.0.0/_sources',
@@ -86,14 +93,23 @@ def test_multiple(tmpdir, config, local_docs, run, urls, triple, parallel):
         ])
     assert actual == expected
 
-    # Verify root ref HTML links.
-    expected = ['<li><a href="contents.html">master</a></li>', '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>']
+    # Verify root HTML links.
+    expected = [
+        '<li><a href="master/contents.html">master</a></li>',
+        '<li><a href="v1.0.0/contents.html">v1.0.0</a></li>',
+    ]
     if triple:
         expected.append('<li><a href="v1.0.1/contents.html">v1.0.1</a></li>')
     urls(destination.join('contents.html'), expected)
 
+    # Verify master links.
+    expected = ['<li><a href="contents.html">master</a></li>', '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>']
+    if triple:
+        expected.append('<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>')
+    urls(destination.join('master', 'contents.html'), expected)
+
     # Verify v1.0.0 links.
-    expected = ['<li><a href="../contents.html">master</a></li>', '<li><a href="contents.html">v1.0.0</a></li>']
+    expected = ['<li><a href="../master/contents.html">master</a></li>', '<li><a href="contents.html">v1.0.0</a></li>']
     if triple:
         expected.append('<li><a href="../v1.0.1/contents.html">v1.0.1</a></li>')
     urls(destination.join('v1.0.0', 'contents.html'), expected)
@@ -102,7 +118,7 @@ def test_multiple(tmpdir, config, local_docs, run, urls, triple, parallel):
 
     # Verify v1.0.1 links.
     urls(destination.join('v1.0.1', 'contents.html'), [
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
         '<li><a href="../v1.0.0/contents.html">v1.0.0</a></li>',
         '<li><a href="contents.html">v1.0.1</a></li>',
     ])
@@ -135,35 +151,42 @@ def test_error(tmpdir, config, local_docs, run, urls, parallel):
     export(str(local_docs), versions['b_broken']['sha'], str(exported_root.join(versions['b_broken']['sha'])))
 
     # Bad root ref.
-    versions.set_root_remote('b_broken')
+    config.root_ref = 'b_broken'
     destination = tmpdir.ensure_dir('destination')
     with pytest.raises(HandledError):
         build_all(str(exported_root), str(destination), versions)
 
     # Remove bad non-root refs.
-    versions.set_root_remote('master')
+    config.root_ref = 'master'
     build_all(str(exported_root), str(destination), versions)
     assert [r['name'] for r in versions.remotes] == ['a_good', 'c_good', 'master']
 
-    # Verify root ref HTML links.
+    # Verify root HTML links.
     urls(destination.join('contents.html'), [
         '<li><a href="a_good/contents.html">a_good</a></li>',
         '<li><a href="c_good/contents.html">c_good</a></li>',
-        '<li><a href="contents.html">master</a></li>',
+        '<li><a href="master/contents.html">master</a></li>',
     ])
 
     # Verify a_good links.
     urls(destination.join('a_good', 'contents.html'), [
         '<li><a href="contents.html">a_good</a></li>',
         '<li><a href="../c_good/contents.html">c_good</a></li>',
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
     ])
 
     # Verify c_good links.
     urls(destination.join('c_good', 'contents.html'), [
         '<li><a href="../a_good/contents.html">a_good</a></li>',
         '<li><a href="contents.html">c_good</a></li>',
-        '<li><a href="../contents.html">master</a></li>',
+        '<li><a href="../master/contents.html">master</a></li>',
+    ])
+
+    # Verify master links.
+    urls(destination.join('master', 'contents.html'), [
+        '<li><a href="../a_good/contents.html">a_good</a></li>',
+        '<li><a href="../c_good/contents.html">c_good</a></li>',
+        '<li><a href="contents.html">master</a></li>',
     ])
 
 
@@ -182,7 +205,6 @@ def test_all_errors(tmpdir, local_docs, run, urls):
     run(local_docs, ['git', 'push', 'origin', 'a_broken', 'b_broken'])
 
     versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
-    versions.set_root_remote('master')
 
     exported_root = tmpdir.ensure_dir('exported_root')
     export(str(local_docs), versions['master']['sha'], str(exported_root.join(versions['master']['sha'])))
@@ -193,5 +215,6 @@ def test_all_errors(tmpdir, local_docs, run, urls):
     build_all(str(exported_root), str(destination), versions)
     assert [r['name'] for r in versions.remotes] == ['master']
 
-    # Verify root ref HTML links.
-    urls(destination.join('contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    # Verify root HTML links.
+    urls(destination.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(destination.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
