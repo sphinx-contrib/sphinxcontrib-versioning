@@ -44,8 +44,8 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-Unreleased
-----------
+2.1.0 - 2016-08-22
+------------------
 
 Added
     * Option to enable warning banner in old/development versions. Similar to Jinja2's documentation.
