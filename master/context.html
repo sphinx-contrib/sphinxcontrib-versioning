@@ -8,10 +8,21 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-82627369-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Supported Themes &mdash; sphinxcontrib-versioning</title>
+  <title>HTML Context API &mdash; sphinxcontrib-versioning</title>
   
 
   
@@ -38,7 +49,7 @@
 
   
     <link rel="top" title="sphinxcontrib-versioning" href="index.html"/>
-        <link rel="next" title="GitHub Pages" href="github_pages.html"/>
+        <link rel="next" title="Supported Themes" href="themes.html"/>
         <link rel="prev" title="Settings" href="settings.html"/> 
 
   
@@ -68,7 +79,7 @@
             
             
               <div class="version">
-                1.0.1
+                2.0.0
               </div>
             
           
@@ -94,11 +105,12 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Themes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#html-context-variables-api">HTML Context Variables (API)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#screen-shots">Screen Shots</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HTML Context API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#versions-iterable">Versions Iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-variables">Other Variables</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="themes.html">Supported Themes</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Web Hosting</span></p>
 <ul>
@@ -141,12 +153,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Supported Themes</li>
+    <li>HTML Context API</li>
     <li class="wy-breadcrumbs-aside">
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/wip_banner2/docs/themes.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/context.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -157,23 +169,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="supported-themes">
-<span id="themes"></span><h1>Supported Themes<a class="headerlink" href="#supported-themes" title="Permalink to this headline">¶</a></h1>
-<p>Below are screen shots of the supported built-in Sphinx themes. You can the &#8220;Versions&#8221; section in each screen shot on
-sidebars.</p>
-<div class="section" id="html-context-variables-api">
-<h2>HTML Context Variables (API)<a class="headerlink" href="#html-context-variables-api" title="Permalink to this headline">¶</a></h2>
-<p>If you want to add support to another theme it&#8217;s pretty easy. You just need to handle a few
-<a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> context variables:</p>
-<dl class="attribute">
-<dt id="current_version">
-<code class="descname">current_version</code><a class="headerlink" href="#current_version" title="Permalink to this definition">¶</a></dt>
-<dd><p>A string of the current version being built. This will be the git ref name (e.g. a branch name or tag name).</p>
-<div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="x">&lt;h3&gt;Current Version: </span><span class="cp">{{</span> <span class="nv">current_version</span> <span class="cp">}}</span><span class="x">&lt;/h3&gt;</span>
-</pre></div>
-</div>
-</dd></dl>
-
+  <div class="section" id="html-context-api">
+<span id="context"></span><h1>HTML Context API<a class="headerlink" href="#html-context-api" title="Permalink to this headline">¶</a></h1>
+<p>The following <a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> context variables are exposed in <a class="reference external" href="http://www.sphinx-doc.org/en/stable/config.html?highlight=context#confval-html_context">the Sphinx HTML builder context</a> in all
+versions.</p>
+<div class="section" id="versions-iterable">
+<h2>Versions Iterable<a class="headerlink" href="#versions-iterable" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">versions</span></code> is the main variable of interest. It yields names of other (and the current) versions and relative URLs to
+them. You can iterate on it to get all branches and tags, or use special properties attached to it to yield just
+branches or just tags.</p>
 <dl class="attribute">
 <dt id="versions">
 <code class="descname">versions</code><a class="headerlink" href="#versions" title="Permalink to this definition">¶</a></dt>
@@ -218,41 +222,66 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
 </dd></dl>
 
 </div>
-<div class="section" id="screen-shots">
-<h2>Screen Shots<a class="headerlink" href="#screen-shots" title="Permalink to this headline">¶</a></h2>
-<p>Below are screen shots of the supported built-in themes.</p>
-<div class="figure" id="id1">
-<a class="reference external image-reference" href="_images/sphinx_rtd_theme.png"><img alt="_images/sphinx_rtd_theme.png" src="_images/sphinx_rtd_theme.png" /></a>
-<p class="caption"><span class="caption-text">sphinx_rtd_theme</span></p>
+<div class="section" id="other-variables">
+<h2>Other Variables<a class="headerlink" href="#other-variables" title="Permalink to this headline">¶</a></h2>
+<dl class="attribute">
+<dt id="current_version">
+<code class="descname">current_version</code><a class="headerlink" href="#current_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string of the current version being built. This will be the git ref name (e.g. a branch name or tag name).</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="x">&lt;h3&gt;Current Version: </span><span class="cp">{{</span> <span class="nv">current_version</span> <span class="cp">}}</span><span class="x">&lt;/h3&gt;</span>
+</pre></div>
 </div>
-<div class="figure" id="id2">
-<a class="reference external image-reference" href="_images/alabaster.png"><img alt="_images/alabaster.png" src="_images/alabaster.png" /></a>
-<p class="caption"><span class="caption-text">alabaster</span></p>
-</div>
-<div class="figure" id="id3">
-<a class="reference external image-reference" href="_images/classic.png"><img alt="_images/classic.png" src="_images/classic.png" /></a>
-<p class="caption"><span class="caption-text">classic</span></p>
-</div>
-<div class="figure" id="id4">
-<a class="reference external image-reference" href="_images/nature.png"><img alt="_images/nature.png" src="_images/nature.png" /></a>
-<p class="caption"><span class="caption-text">nature</span></p>
-</div>
-<div class="figure" id="id5">
-<a class="reference external image-reference" href="_images/sphinxdoc.png"><img alt="_images/sphinxdoc.png" src="_images/sphinxdoc.png" /></a>
-<p class="caption"><span class="caption-text">sphinxdoc</span></p>
-</div>
-<div class="figure" id="id6">
-<a class="reference external image-reference" href="_images/bizstyle.png"><img alt="_images/bizstyle.png" src="_images/bizstyle.png" /></a>
-<p class="caption"><span class="caption-text">bizstyle</span></p>
-</div>
-<div class="figure" id="id7">
-<a class="reference external image-reference" href="_images/pyramid.png"><img alt="_images/pyramid.png" src="_images/pyramid.png" /></a>
-<p class="caption"><span class="caption-text">pyramid</span></p>
-</div>
-<div class="figure" id="id8">
-<a class="reference external image-reference" href="_images/traditional.png"><img alt="_images/traditional.png" src="_images/traditional.png" /></a>
-<p class="caption"><span class="caption-text">traditional</span></p>
-</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_branch">
+<code class="descname">scv_is_branch</code><a class="headerlink" href="#scv_is_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is from a git branch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_greatest_tag">
+<code class="descname">scv_is_greatest_tag</code><a class="headerlink" href="#scv_is_greatest_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is:</p>
+<ul class="simple">
+<li>From a git tag.</li>
+<li>A valid semver-formatted name (e.g. v1.2.3).</li>
+<li>The highest version number.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_branch">
+<code class="descname">scv_is_recent_branch</code><a class="headerlink" href="#scv_is_recent_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is a git branch and is the most recent commit out of just
+git branches.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_ref">
+<code class="descname">scv_is_recent_ref</code><a class="headerlink" href="#scv_is_recent_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is the most recent git commit (branch or tag).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_recent_tag">
+<code class="descname">scv_is_recent_tag</code><a class="headerlink" href="#scv_is_recent_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is a git tag and is the most recent commit out of just git
+tags.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_root">
+<code class="descname">scv_is_root</code><a class="headerlink" href="#scv_is_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is in the web root (defined by <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a>).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_is_tag">
+<code class="descname">scv_is_tag</code><a class="headerlink" href="#scv_is_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is from a git tag.</p>
+</dd></dl>
+
 </div>
 </div>
 
@@ -263,7 +292,7 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="github_pages.html" class="btn btn-neutral float-right" title="GitHub Pages" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="themes.html" class="btn btn-neutral float-right" title="Supported Themes" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="settings.html" class="btn btn-neutral" title="Settings" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -293,25 +322,25 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: wip_banner2
+        v: master
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="../v2.0.0/themes.html">v2.0.0</a></dd>
-            <dd><a href="../v1.1.0/themes.html">v1.1.0</a></dd>
-            <dd><a href="../v1.0.1/themes.html">v1.0.1</a></dd>
-            <dd><a href="../v1.0.0/themes.html">v1.0.0</a></dd>
+            <dd><a href="../v2.0.0/index.html">v2.0.0</a></dd>
+            <dd><a href="../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../v1.0.1/index.html">v1.0.1</a></dd>
+            <dd><a href="../v1.0.0/index.html">v1.0.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../master/themes.html">master</a></dd>
-            <dd><a href="../stage/themes.html">stage</a></dd>
-            <dd><a href="../wip_dev_banner/themes.html">wip_dev_banner</a></dd>
-            <dd><a href="../wip_banner3/themes.html">wip_banner3</a></dd>
-            <dd><a href="themes.html">wip_banner2</a></dd>
-            <dd><a href="../wip_banner/themes.html">wip_banner</a></dd>
+            <dd><a href="context.html">master</a></dd>
+            <dd><a href="../stage/context.html">stage</a></dd>
+            <dd><a href="../wip_dev_banner/context.html">wip_dev_banner</a></dd>
+            <dd><a href="../wip_banner3/index.html">wip_banner3</a></dd>
+            <dd><a href="../wip_banner2/index.html">wip_banner2</a></dd>
+            <dd><a href="../wip_banner/index.html">wip_banner</a></dd>
         </dl>
     </div>
 </div>
@@ -322,7 +351,7 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.0.1',
+            VERSION:'2.0.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  false
