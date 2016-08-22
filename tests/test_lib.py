@@ -11,6 +11,7 @@ def test_config():
     config.update(dict(invert=True, overflow=('-D', 'key=value'), root_ref='master', verbose=1))
 
     # Verify values.
+    assert config.banner_main_ref == 'master'
     assert config.greatest_tag is False
     assert config.invert is True
     assert config.overflow == ('-D', 'key=value')
@@ -22,6 +23,9 @@ def test_config():
     # Verify iter.
     actual = sorted(config)
     expected = [
+        ('banner_greatest_tag', False),
+        ('banner_main_ref', 'master'),
+        ('banner_recent_tag', False),
         ('chdir', None),
         ('git_root', None),
         ('greatest_tag', False),
@@ -34,6 +38,7 @@ def test_config():
         ('priority', None),
         ('recent_tag', False),
         ('root_ref', 'master'),
+        ('show_banner', False),
         ('sort', tuple()),
         ('verbose', 1),
         ('whitelist_branches', tuple()),

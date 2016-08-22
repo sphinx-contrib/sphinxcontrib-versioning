@@ -124,6 +124,52 @@ Options
 
 These options are available for the build sub command:
 
+.. option:: -a, --banner-greatest-tag, scv_banner_greatest_tag
+
+    Override banner-main-ref to be the tag with the highest version number. If no tags have docs then this option is
+    ignored and :option:`--banner-main-ref` is used.
+
+    This setting may also be specified in your conf.py file. It must be a boolean:
+
+    .. code-block:: python
+
+        scv_banner_greatest_tag = True
+
+.. option:: -A, --banner-recent-tag, scv_banner_recent_tag
+
+    Override banner-main-ref to be the most recent committed tag. If no tags have docs then this option is ignored and
+    :option:`--banner-main-ref` is used.
+
+    This setting may also be specified in your conf.py file. It must be a boolean:
+
+    .. code-block:: python
+
+        scv_banner_recent_tag = True
+
+.. option:: -b, --show-banner, scv_show_banner
+
+    Show a warning banner. Enables the :ref:`banner` feature.
+
+    This setting may also be specified in your conf.py file. It must be a boolean:
+
+    .. code-block:: python
+
+        scv_show_banner = True
+
+.. option:: -B <ref>, --banner-main-ref <ref>, scv_banner_main_ref
+
+    The branch/tag considered to be the latest/current version. The banner will not be displayed in this ref, only in
+    all others. Default is **master**.
+
+    If the banner-main-ref does not exist or does not have docs the banner will be disabled completely in all versions.
+    Docs will continue to be built.
+
+    This setting may also be specified in your conf.py file. It must be a string:
+
+    .. code-block:: python
+
+        scv_banner_main_ref = 'feature_branch'
+
 .. option:: -i, --invert, scv_invert
 
     Invert the order of branches/tags displayed in the sidebars in generated HTML documents. The default order is

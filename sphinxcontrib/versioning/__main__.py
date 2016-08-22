@@ -181,6 +181,13 @@ def build_options(func):
     :return: The wrapped function.
     :rtype: function
     """
+    func = click.option('-a', '--banner-greatest-tag', is_flag=True,
+                        help='Override banner-main-ref to be the tag with the highest version number.')(func)
+    func = click.option('-A', '--banner-recent-tag', is_flag=True,
+                        help='Override banner-main-ref to be the most recent committed tag.')(func)
+    func = click.option('-b', '--show-banner', help='Show a warning banner.', is_flag=True)(func)
+    func = click.option('-B', '--banner-main-ref',
+                        help="Don't show banner on this ref and point banner URLs to this ref. Default master.")(func)
     func = click.option('-i', '--invert', help='Invert/reverse order of versions.', is_flag=True)(func)
     func = click.option('-p', '--priority', type=click.Choice(('branches', 'tags')),
                         help="Group these kinds of versions at the top (for themes that don't separate them).")(func)
@@ -198,6 +205,33 @@ def build_options(func):
                         help='Whitelist tags that match the pattern. Can be specified more than once.')(func)
 
     return func
+
+
+def override_root_main_ref(config, remotes, banner):
+    """Override root_ref or banner_main_ref with tags in config if user requested.
+
+    :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
+    :param iter remotes: List of dicts from Versions.remotes.
+    :param bool banner: Evaluate banner main ref instead of root ref.
+
+    :return: If root/main ref exists.
+    :rtype: bool
+    """
+    log = logging.getLogger(__name__)
+    greatest_tag = config.banner_greatest_tag if banner else config.greatest_tag
+    recent_tag = config.banner_recent_tag if banner else config.recent_tag
+
+    if greatest_tag or recent_tag:
+        candidates = [r for r in remotes if r['kind'] == 'tags']
+        if candidates:
+            multi_sort(candidates, ['semver' if greatest_tag else 'time'])
+            config.update({'banner_main_ref' if banner else 'root_ref': candidates[0]['name']}, overwrite=True)
+        else:
+            flag = '--banner-main-ref' if banner else '--root-ref'
+            log.warning('No git tags with docs found in remote. Falling back to %s value.', flag)
+
+    ref = config.banner_main_ref if banner else config.root_ref
+    return ref in [r['name'] for r in remotes]
 
 
 @cli.command(cls=ClickCommand)
@@ -249,17 +283,21 @@ def build(config, rel_source, destination, **options):
     )
 
     # Get root ref.
-    if config.greatest_tag or config.recent_tag:
-        candidates = [r for r in versions.remotes if r['kind'] == 'tags']
-        if candidates:
-            multi_sort(candidates, ['semver' if config.greatest_tag else 'time'])
-            config.update(dict(root_ref=candidates[0]['name']), overwrite=True)
-        else:
-            log.warning('No git tags with docs found in remote. Falling back to --root-ref value.')
-    if config.root_ref not in [r[1] for r in remotes]:
+    if not override_root_main_ref(config, versions.remotes, False):
         log.error('Root ref %s not found in: %s', config.root_ref, ' '.join(r[1] for r in remotes))
         raise HandledError
     log.info('Root ref is: %s', config.root_ref)
+
+    # Get banner main ref.
+    if not config.show_banner:
+        config.update(dict(banner_greatest_tag=False, banner_main_ref=None, banner_recent_tag=False), overwrite=True)
+    elif not override_root_main_ref(config, versions.remotes, True):
+        log.warning('Banner main ref %s not found in: %s', config.banner_main_ref, ' '.join(r[1] for r in remotes))
+        log.warning('Disabling banner.')
+        config.update(dict(banner_greatest_tag=False, banner_main_ref=None, banner_recent_tag=False, show_banner=False),
+                      overwrite=True)
+    else:
+        log.info('Banner main ref is: %s', config.banner_main_ref)
 
     # Pre-build.
     log.info("Pre-running Sphinx to collect versions' master_doc and other info.")

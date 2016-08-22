@@ -555,6 +555,51 @@ def test_whitelisting(local_docs, run, urls):
     ])
 
 
+@pytest.mark.parametrize('disable_banner', [False, True])
+def test_banner(banner, local_docs, run, disable_banner):
+    """Test the banner.
+
+    :param banner: conftest fixture.
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    :param bool disable_banner: Cause banner to be disabled.
+    """
+    run(local_docs, ['git', 'tag', 'snapshot-01'])
+    local_docs.join('conf.py').write('project = "MyProject"\n', mode='a')
+    run(local_docs, ['git', 'commit', '-am', 'Setting project name.'])
+    run(local_docs, ['git', 'checkout', '-b', 'stable', 'master'])
+    run(local_docs, ['git', 'checkout', 'master'])
+    local_docs.join('conf.py').write('author = "me"\n', mode='a')
+    run(local_docs, ['git', 'commit', '-am', 'Setting author name.'])
+    run(local_docs, ['git', 'push', 'origin', 'master', 'stable', 'snapshot-01'])
+
+    # Run.
+    destination = local_docs.ensure_dir('..', 'destination')
+    args = ['--show-banner', '--banner-main-ref', 'unknown' if disable_banner else 'stable']
+    output = run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)] + args)
+    assert 'Traceback' not in output
+
+    # Handle no banner.
+    if disable_banner:
+        assert 'Disabling banner.' in output
+        assert 'Banner main ref is' not in output
+        banner(destination.join('contents.html'), None)
+        return
+    assert 'Disabling banner.' not in output
+    assert 'Banner main ref is: stable' in output
+
+    # Check banner.
+    banner(destination.join('stable', 'contents.html'), None)  # No banner in main ref.
+    for subdir in (False, True):
+        banner(
+            destination.join('master' if subdir else '', 'contents.html'),
+            '{}stable/contents.html'.format('../' if subdir else ''),
+            'the development version of MyProject. The main version is stable',
+        )
+    banner(destination.join('snapshot-01', 'contents.html'), '../stable/contents.html',
+           'an old version of Python. The main version is stable')
+
+
 def test_error_bad_path(tmpdir, run):
     """Test handling of bad paths.
 

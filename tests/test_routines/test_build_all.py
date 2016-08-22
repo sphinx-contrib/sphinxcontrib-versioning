@@ -47,7 +47,7 @@ def test_multiple(tmpdir, config, local_docs, run, urls, triple, parallel):
     """With two or three versions.
 
     :param tmpdir: pytest fixture.
-    :param sphinxcontrib.versioning.lib.Config config: conftest fixture.
+    :param config: conftest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
     :param urls: conftest fixture.
@@ -124,12 +124,157 @@ def test_multiple(tmpdir, config, local_docs, run, urls, triple, parallel):
     ])
 
 
+@pytest.mark.parametrize('show_banner', [False, True])
+def test_banner_branch(tmpdir, banner, config, local_docs, run, show_banner):
+    """Test banner messages without tags.
+
+    :param tmpdir: pytest fixture.
+    :param banner: conftest fixture.
+    :param config: conftest fixture.
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    :param bool show_banner: Show the banner.
+    """
+    run(local_docs, ['git', 'checkout', '-b', 'old_build', 'master'])
+    run(local_docs, ['git', 'checkout', 'master'])
+    run(local_docs, ['git', 'rm', 'two.rst'])
+    local_docs.join('contents.rst').write(
+        'Test\n'
+        '====\n'
+        '\n'
+        'Sample documentation.\n'
+        '\n'
+        '.. toctree::\n'
+        '    one\n'
+    )
+    run(local_docs, ['git', 'commit', '-am', 'Deleted.'])
+    run(local_docs, ['git', 'push', 'origin', 'master', 'old_build'])
+
+    config.show_banner = show_banner
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
+    versions['master']['found_docs'] = ('contents', 'one')
+    versions['old_build']['found_docs'] = ('contents', 'one', 'two')
+
+    # Export.
+    exported_root = tmpdir.ensure_dir('exported_root')
+    export(str(local_docs), versions['master']['sha'], str(exported_root.join(versions['master']['sha'])))
+    export(str(local_docs), versions['old_build']['sha'], str(exported_root.join(versions['old_build']['sha'])))
+
+    # Run and verify files.
+    dst = tmpdir.ensure_dir('destination')
+    build_all(str(exported_root), str(dst), versions)
+    actual = sorted(f.relto(dst) for f in dst.visit(lambda p: p.basename in ('contents.html', 'one.html', 'two.html')))
+    expected = [
+        'contents.html', 'master/contents.html', 'master/one.html',
+        'old_build/contents.html', 'old_build/one.html', 'old_build/two.html', 'one.html'
+    ]
+    assert actual == expected
+
+    # Verify no banner.
+    if not show_banner:
+        for path in expected:
+            banner(dst.join(path), None)
+        return
+    for path in ('contents.html', 'master/contents.html', 'master/one.html', 'one.html'):
+        banner(dst.join(path), None)
+
+    # Verify banner.
+    banner(dst.join('old_build', 'contents.html'), '../master/contents.html',
+           'the development version of Python. The main version is master')
+    banner(dst.join('old_build', 'one.html'), '../master/one.html',
+           'the development version of Python. The main version is master')
+    banner(dst.join('old_build', 'two.html'), '', 'the development version of Python')
+
+
+@pytest.mark.parametrize('recent', [False, True])
+def test_banner_tag(tmpdir, banner, config, local_docs, run, recent):
+    """Test banner messages with tags.
+
+    :param tmpdir: pytest fixture.
+    :param banner: conftest fixture.
+    :param config: conftest fixture.
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    :param bool recent: --banner-recent-tag instead of --banner-greatest-tag.
+    """
+    old, new = ('201611', '201612') if recent else ('v1.0.0', 'v2.0.0')
+    run(local_docs, ['git', 'tag', old])
+    run(local_docs, ['git', 'mv', 'two.rst', 'too.rst'])
+    local_docs.join('contents.rst').write(
+        'Test\n'
+        '====\n'
+        '\n'
+        'Sample documentation.\n'
+        '\n'
+        '.. toctree::\n'
+        '    one\n'
+        '    too\n'
+    )
+    local_docs.join('too.rst').write(
+        '.. _too:\n'
+        '\n'
+        'Too\n'
+        '===\n'
+        '\n'
+        'Sub page documentation 2 too.\n'
+    )
+    run(local_docs, ['git', 'commit', '-am', 'Deleted.'])
+    run(local_docs, ['git', 'tag', new])
+    run(local_docs, ['git', 'push', 'origin', 'master', old, new])
+
+    config.banner_greatest_tag = not recent
+    config.banner_main_ref = new
+    config.banner_recent_tag = recent
+    config.show_banner = True
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
+    versions['master']['found_docs'] = ('contents', 'one', 'too')
+    versions[new]['found_docs'] = ('contents', 'one', 'too')
+    versions[old]['found_docs'] = ('contents', 'one', 'two')
+
+    # Export.
+    exported_root = tmpdir.ensure_dir('exported_root')
+    export(str(local_docs), versions['master']['sha'], str(exported_root.join(versions['master']['sha'])))
+    export(str(local_docs), versions[old]['sha'], str(exported_root.join(versions[old]['sha'])))
+
+    # Run and verify files.
+    dst = tmpdir.ensure_dir('destination')
+    build_all(str(exported_root), str(dst), versions)
+    actual = sorted(f.relto(dst)
+                    for f in dst.visit(lambda p: p.basename in ('contents.html', 'one.html', 'two.html', 'too.html')))
+    expected = ['contents.html', 'master/contents.html', 'master/one.html', 'master/too.html', 'one.html', 'too.html']
+    if recent:
+        expected = ['201612/contents.html', '201612/one.html', '201612/too.html'] + expected
+        expected = ['201611/contents.html', '201611/one.html', '201611/two.html'] + expected
+    else:
+        expected += ['v1.0.0/contents.html', 'v1.0.0/one.html', 'v1.0.0/two.html']
+        expected += ['v2.0.0/contents.html', 'v2.0.0/one.html', 'v2.0.0/too.html']
+    assert actual == expected
+
+    # Verify master banner.
+    for page in ('contents', 'one', 'too'):
+        banner(dst.join('{}.html'.format(page)), '{new}/{page}.html'.format(new=new, page=page),
+               'the development version of Python. The latest version is {}'.format(new))
+        banner(dst.join('master', '{}.html'.format(page)), '../{new}/{page}.html'.format(new=new, page=page),
+               'the development version of Python. The latest version is {}'.format(new))
+
+    # Verify old tag banner.
+    banner(
+        dst.join(old, 'contents.html'), '../{}/contents.html'.format(new),
+        'an old version of Python. The latest version is {}'.format(new)
+    )
+    banner(
+        dst.join(old, 'one.html'), '../{}/one.html'.format(new),
+        'an old version of Python. The latest version is {}'.format(new)
+    )
+    banner(dst.join(old, 'two.html'), '', 'an old version of Python')
+
+
 @pytest.mark.parametrize('parallel', [False, True])
 def test_error(tmpdir, config, local_docs, run, urls, parallel):
     """Test with a bad root ref. Also test skipping bad non-root refs.
 
     :param tmpdir: pytest fixture.
-    :param sphinxcontrib.versioning.lib.Config config: conftest fixture.
+    :param config: conftest fixture.
     :param local_docs: conftest fixture.
     :param run: conftest fixture.
     :param urls: conftest fixture.

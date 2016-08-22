@@ -100,7 +100,12 @@ setup(
     license=LICENSE,
     long_description=readme(),
     name=NAME,
-    package_data={'': [os.path.join('_templates', 'versions.html')]},
+    package_data={'': [
+        os.path.join('_static', 'banner.css'),
+        os.path.join('_templates', 'banner.html'),
+        os.path.join('_templates', 'layout.html'),
+        os.path.join('_templates', 'versions.html'),
+    ]},
     packages=['sphinxcontrib', os.path.join('sphinxcontrib', 'versioning')],
     url='https://github.com/Robpol86/' + NAME,
     version=VERSION,

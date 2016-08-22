@@ -1,0 +1,31 @@
+{# Set banner color via CSS. #}
+{%- set banner_classes = 'scv-banner' %}
+{%- if html_theme in ('sphinx_rtd_theme', 'bizstyle', 'classic', 'traditional') %}
+    {%- set banner_classes = banner_classes + ' scv-' + html_theme %}
+{%- endif %}
+
+{# Set banner message. #}
+{%- if scv_banner_main_version != current_version %}
+    {# Determine base message. #}
+    {%- if scv_is_branch %}
+        {%- set banner_message = '<b>Warning:</b> This document is for the development version of %s.'|format(project) %}
+    {%- else %}
+        {%- set banner_message = '<b>Warning:</b> This document is for an old version of %s.'|format(project) %}
+    {%- endif %}
+    {# Determine URL of main version. #}
+    {%- if vhasdoc(scv_banner_main_version) %}
+        {%- set banner_message = '<a href="%s">' + banner_message + ' The %s version is %s.</a>' %}
+        {%- if scv_banner_main_ref_is_tag %}
+            {%- set banner_message = banner_message|format(vpathto(scv_banner_main_version), 'latest', scv_banner_main_version) %}
+        {%- else %}
+            {%- set banner_message = banner_message|format(vpathto(scv_banner_main_version), 'main', scv_banner_main_version) %}
+        {%- endif %}
+    {%- endif %}
+{%- endif %}
+
+{# Display banner. #}
+{% block banner %}
+{%- if banner_message %}
+    <p class="{{ banner_classes }}">{{ banner_message }}</p>
+{%- endif %}
+{% endblock %}

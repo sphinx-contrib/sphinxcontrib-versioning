@@ -215,18 +215,22 @@ def test_sub_command_options(local_empty, push, source_cli, source_conf):
 
     # Setup source(s).
     if source_cli:
-        args += ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]']
+        args += ['-aAbitT', '-B', 'x', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]']
         if push:
             args += ['-e' 'README.md']
     if source_conf:
         local_empty.ensure('docs', 'contents.rst')
         local_empty.ensure('docs', 'conf.py').write(
             'import re\n\n'
+            'scv_banner_greatest_tag = True\n'
+            'scv_banner_main_ref = "y"\n'
+            'scv_banner_recent_tag = True\n'
             'scv_greatest_tag = True\n'
             'scv_invert = True\n'
             'scv_priority = "tags"\n'
             'scv_recent_tag = True\n'
             'scv_root_ref = "other"\n'
+            'scv_show_banner = True\n'
             'scv_sort = ("alpha",)\n'
             'scv_whitelist_branches = ("other",)\n'
             'scv_whitelist_tags = re.compile("^[0-9]$")\n'
@@ -239,33 +243,45 @@ def test_sub_command_options(local_empty, push, source_cli, source_conf):
 
     # Verify.
     if source_cli:
+        assert config.banner_greatest_tag is True
+        assert config.banner_main_ref == 'x'
+        assert config.banner_recent_tag is True
         assert config.greatest_tag is True
         assert config.invert is True
         assert config.priority == 'branches'
         assert config.recent_tag is True
         assert config.root_ref == 'feature'
+        assert config.show_banner is True
         assert config.sort == ('semver',)
         assert config.whitelist_branches == ('master',)
         assert config.whitelist_tags == ('[0-9]',)
         if push:
             assert config.grm_exclude == ('README.md',)
     elif source_conf:
+        assert config.banner_greatest_tag is True
+        assert config.banner_main_ref == 'y'
+        assert config.banner_recent_tag is True
         assert config.greatest_tag is True
         assert config.invert is True
         assert config.priority == 'tags'
         assert config.recent_tag is True
         assert config.root_ref == 'other'
+        assert config.show_banner is True
         assert config.sort == ('alpha',)
         assert config.whitelist_branches == ('other',)
         assert config.whitelist_tags.pattern == '^[0-9]$'
         if push:
             assert config.grm_exclude == ('README.rst',)
     else:
+        assert config.banner_greatest_tag is False
+        assert config.banner_main_ref == 'master'
+        assert config.banner_recent_tag is False
         assert config.greatest_tag is False
         assert config.invert is False
         assert config.priority is None
         assert config.recent_tag is False
         assert config.root_ref == 'master'
+        assert config.show_banner is False
         assert config.sort == tuple()
         assert config.whitelist_branches == tuple()
         assert config.whitelist_tags == tuple()

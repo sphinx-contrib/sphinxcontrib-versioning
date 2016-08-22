@@ -37,6 +37,7 @@ extensions.append('sphinxcontrib.googleanalytics')
 googleanalytics_id = 'UA-82627369-1'
 
 # SCVersioning.
-scv_greatest_tag = True
+scv_banner_greatest_tag = True
 scv_grm_exclude = ('.gitignore', '.nojekyll', 'README.rst')
+scv_show_banner = True
 scv_sort = ('semver', 'time')

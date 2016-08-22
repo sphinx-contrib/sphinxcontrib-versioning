@@ -159,7 +159,7 @@ def test_subdirs(tmpdir, local_docs, urls):
     target = tmpdir.ensure_dir('target')
     versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
     versions['master']['found_docs'] = ('contents',)
-    versions['master']['found_docs'] = ('contents',)
+    versions['feature']['found_docs'] = ('contents',)
 
     for i in range(1, 6):
         path = ['subdir'] * i + ['sub.rst']

@@ -89,7 +89,7 @@ def test_sphinx_rtd_theme(tmpdir, config, local_docs):
     # Build tags only.
     target_t = tmpdir.ensure_dir('target_t')
     versions = Versions([('', 'v1.0.0', 'tags', 3, 'conf.py'), ('', 'v1.2.0', 'tags', 4, 'conf.py')], sort=['semver'])
-    config.root_ref = 'v1.2.0'
+    config.root_ref = config.banner_main_ref = 'v1.2.0'
     build(str(local_docs), str(target_t), versions, 'v1.2.0', True)
     contents = target_t.join('contents.html').read()
     assert '<dt>Branches</dt>' not in contents
@@ -106,3 +106,26 @@ def test_sphinx_rtd_theme(tmpdir, config, local_docs):
     contents = target_bt.join('contents.html').read()
     assert '<dt>Branches</dt>' in contents
     assert '<dt>Tags</dt>' in contents
+
+
+@pytest.mark.parametrize('theme', THEMES)
+def test_banner(tmpdir, banner, config, local_docs, theme):
+    """Test banner messages.
+
+    :param tmpdir: pytest fixture.
+    :param banner: conftest fixture.
+    :param sphinxcontrib.versioning.lib.Config config: conftest fixture.
+    :param local_docs: conftest fixture.
+    :param str theme: Theme name to use.
+    """
+    config.overflow = ('-D', 'html_theme=' + theme)
+    config.show_banner = True
+    target = tmpdir.ensure_dir('target')
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py'), ('', 'feature', 'heads', 2, 'conf.py')])
+    versions['master']['found_docs'] = ('contents',)
+    versions['feature']['found_docs'] = ('contents',)
+
+    build(str(local_docs), str(target), versions, 'feature', False)
+
+    banner(target.join('contents.html'), '../master/contents.html',
+           'the development version of Python. The main version is master')

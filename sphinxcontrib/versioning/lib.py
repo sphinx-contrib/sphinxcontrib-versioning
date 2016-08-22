@@ -19,13 +19,17 @@ class Config(object):
         self._program_state = dict()
 
         # Booleans.
+        self.banner_greatest_tag = False
+        self.banner_recent_tag = False
         self.greatest_tag = False
         self.invert = False
         self.no_colors = False
         self.no_local_conf = False
         self.recent_tag = False
+        self.show_banner = False
 
         # Strings.
+        self.banner_main_ref = 'master'
         self.chdir = None
         self.git_root = None
         self.local_conf = None

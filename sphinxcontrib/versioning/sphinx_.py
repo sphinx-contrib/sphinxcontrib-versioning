@@ -24,14 +24,22 @@ class EventHandlers(object):
     """Hold Sphinx event handlers as static or class methods.
 
     :ivar multiprocessing.queues.Queue ABORT_AFTER_READ: Communication channel to parent process.
+    :ivar bool BANNER_GREATEST_TAG: Banner URLs point to greatest/highest (semver) tag.
+    :ivar str BANNER_MAIN_VERSION: Banner URLs point to this remote name (from Versions.__getitem__()).
+    :ivar bool BANNER_RECENT_TAG: Banner URLs point to most recently committed tag.
     :ivar str CURRENT_VERSION: Current version being built.
     :ivar bool IS_ROOT: Value for context['scv_is_root'].
+    :ivar bool SHOW_BANNER: Display the banner.
     :ivar sphinxcontrib.versioning.versions.Versions VERSIONS: Versions class instance.
     """
 
     ABORT_AFTER_READ = None
+    BANNER_GREATEST_TAG = False
+    BANNER_MAIN_VERSION = None
+    BANNER_RECENT_TAG = False
     CURRENT_VERSION = None
     IS_ROOT = False
+    SHOW_BANNER = False
     VERSIONS = None
 
     @staticmethod
@@ -80,12 +88,18 @@ class EventHandlers(object):
         cls.VERSIONS.context = context
         versions = cls.VERSIONS
         this_remote = versions[cls.CURRENT_VERSION]
+        banner_main_remote = versions[cls.BANNER_MAIN_VERSION] if cls.SHOW_BANNER else None
 
         # Update Jinja2 context.
         context['bitbucket_version'] = cls.CURRENT_VERSION
         context['current_version'] = cls.CURRENT_VERSION
         context['github_version'] = cls.CURRENT_VERSION
         context['html_theme'] = app.config.html_theme
+        context['scv_banner_greatest_tag'] = cls.BANNER_GREATEST_TAG
+        context['scv_banner_main_ref_is_branch'] = banner_main_remote['kind'] == 'heads' if cls.SHOW_BANNER else None
+        context['scv_banner_main_ref_is_tag'] = banner_main_remote['kind'] == 'tags' if cls.SHOW_BANNER else None
+        context['scv_banner_main_version'] = banner_main_remote['name'] if cls.SHOW_BANNER else None
+        context['scv_banner_recent_tag'] = cls.BANNER_RECENT_TAG
         context['scv_is_branch'] = this_remote['kind'] == 'heads'
         context['scv_is_greatest_tag'] = this_remote == versions.greatest_tag_remote
         context['scv_is_recent_branch'] = this_remote == versions.recent_branch_remote
@@ -93,6 +107,7 @@ class EventHandlers(object):
         context['scv_is_recent_tag'] = this_remote == versions.recent_tag_remote
         context['scv_is_root'] = cls.IS_ROOT
         context['scv_is_tag'] = this_remote['kind'] == 'tags'
+        context['scv_show_banner'] = cls.SHOW_BANNER
         context['versions'] = versions
         context['vhasdoc'] = versions.vhasdoc
         context['vpathto'] = versions.vpathto
@@ -108,6 +123,10 @@ def setup(app):
     """
     # Used internally. For rebuilding all pages when one or versions fail.
     app.add_config_value('sphinxcontrib_versioning_versions', SC_VERSIONING_VERSIONS, 'html')
+
+    # Needed for banner.
+    app.config.html_static_path.append(os.path.join(os.path.dirname(__file__), '_static'))
+    app.add_stylesheet('banner.css')
 
     # Tell Sphinx which config values can be set by the user.
     for name, default in Config():
@@ -137,15 +156,21 @@ def _build(argv, versions, current_name, is_root):
     :param str current_name: The ref name of the current version being built.
     :param bool is_root: Is this build in the web root?
     """
+    config = Config.from_context()
+
     # Patch.
     application.Config = ConfigInject
+    if config.show_banner:
+        EventHandlers.BANNER_GREATEST_TAG = config.banner_greatest_tag
+        EventHandlers.BANNER_MAIN_VERSION = config.banner_main_ref
+        EventHandlers.BANNER_RECENT_TAG = config.banner_recent_tag
+        EventHandlers.SHOW_BANNER = True
     EventHandlers.CURRENT_VERSION = current_name
     EventHandlers.IS_ROOT = is_root
     EventHandlers.VERSIONS = versions
     SC_VERSIONING_VERSIONS[:] = [p for r in versions.remotes for p in sorted(r.items()) if p[0] not in ('sha', 'date')]
 
     # Update argv.
-    config = Config.from_context()
     if config.verbose > 1:
         argv += ('-v',) * (config.verbose - 1)
     if config.no_colors:

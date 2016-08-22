@@ -7,6 +7,7 @@ import pytest
 from sphinxcontrib.versioning.git import run_command
 from sphinxcontrib.versioning.lib import Config
 
+RE_BANNER = re.compile('>(?:<a href="([^"]+)">)?<b>Warning:</b> This document is for ([^<]+).(?:</a>)?</p>')
 RE_URLS = re.compile('<li><a href="[^"]+">[^<]+</a></li>')
 
 
@@ -29,6 +30,29 @@ def config(monkeypatch):
 def run():
     """run_command() wrapper returned from a pytest fixture."""
     return lambda d, c: run_command(str(d), [str(i) for i in c])
+
+
+@pytest.fixture
+def banner():
+    """Verify banner in HTML file match expected."""
+    def match(path, expected_url=None, expected_base=None):
+        """Assert equals and return file contents.
+
+        :param py.path path: Path to file to read.
+        :param str expected_url: Expected URL in <a href="" /> link.
+        :param str expected_base: Expected base message.
+
+        :return: File contents.
+        :rtype: str
+        """
+        contents = path.read()
+        actual = RE_BANNER.findall(contents)
+        if not expected_url and not expected_base:
+            assert not actual
+        else:
+            assert actual == [(expected_url, expected_base)]
+        return contents
+    return match
 
 
 @pytest.fixture

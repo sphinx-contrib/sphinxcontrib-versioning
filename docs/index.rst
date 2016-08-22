@@ -39,6 +39,7 @@ Project Links
 
     install
     tutorial
+    banner
     settings
     context
     themes

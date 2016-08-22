@@ -84,6 +84,36 @@ Functions
             Go to <a href="{{ vpathto('master') }}">master</a> for the latest docs.
         {% endif %}
 
+Banner Variables
+================
+
+These variables are exposed in the Jinja2 context to facilitate displaying the banner message and deciding which message
+to display.
+
+.. attribute:: scv_banner_greatest_tag
+
+    A boolean set to True if :option:`--banner-greatest-tag` is used.
+
+.. attribute:: scv_banner_main_ref_is_branch
+
+    A boolean set to True if the banner main ref is a branch.
+
+.. attribute:: scv_banner_main_ref_is_tag
+
+    A boolean set to True if the banner main ref is a tag.
+
+.. attribute:: scv_banner_main_version
+
+    A string, the value of :option:`--banner-main-ref`.
+
+.. attribute:: scv_banner_recent_tag
+
+    A boolean set to True if :option:`--banner-recent-tag` is used.
+
+.. attribute:: scv_show_banner
+
+    A boolean set to True if :option:`--show-banner` is used.
+
 Other Variables
 ===============
 

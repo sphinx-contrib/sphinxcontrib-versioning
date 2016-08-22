@@ -48,12 +48,19 @@ Unreleased
 ----------
 
 Added
+    * Option to enable warning banner in old/development versions. Similar to Jinja2's documentation.
+    * Command line options: ``--banner-greatest-tag`` ``--banner-recent-tag`` ``--show-banner`` ``--banner-main-ref``
     * Jinja2 context functions: ``vhasdoc()`` ``vpathto()``
+    * Jinja2 context variables: ``scv_show_banner`` ``scv_banner_greatest_tag`` ``scv_banner_main_ref_is_branch``
+      ``scv_banner_main_ref_is_tag`` ``scv_banner_main_version`` ``scv_banner_recent_tag``
 
 Changed
     * Root ref will also be built in its own directory like other versions. All URLs to root ref will point to the one
       in that directory instead of the root. More info: https://github.com/Robpol86/sphinxcontrib-versioning/issues/15
     * Renamed Jinja2 context variable ``scv_is_root_ref`` to ``scv_is_root``.
+
+Fixed
+    * https://github.com/Robpol86/sphinxcontrib-versioning/issues/13
 
 Removed
     * Jinja2 context variables: ``scv_root_ref_is_branch`` ``scv_root_ref_is_tag``
