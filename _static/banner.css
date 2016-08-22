@@ -28,3 +28,7 @@
     color: white;
     background-color: #d40;
 }
+
+.scv-generic > a {
+    color: white;
+}
