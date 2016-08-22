@@ -107,6 +107,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">HTML Context API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#versions-iterable">Versions Iterable</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#banner-variables">Banner Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#other-variables">Other Variables</a></li>
 </ul>
 </li>
@@ -262,6 +263,47 @@ version.</p>
 <span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span><span class="x"></span>
 </pre></div>
 </div>
+</dd></dl>
+
+</div>
+<div class="section" id="banner-variables">
+<h2>Banner Variables<a class="headerlink" href="#banner-variables" title="Permalink to this headline">¶</a></h2>
+<p>These variables are exposed in the Jinja2 context to facilitate displaying the banner message and deciding which message
+to display.</p>
+<dl class="attribute">
+<dt id="scv_banner_greatest_tag">
+<code class="descname">scv_banner_greatest_tag</code><a class="headerlink" href="#scv_banner_greatest_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if <a class="reference internal" href="settings.html#cmdoption--banner-greatest-tag"><code class="xref std std-option docutils literal"><span class="pre">--banner-greatest-tag</span></code></a> is used.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_banner_main_ref_is_branch">
+<code class="descname">scv_banner_main_ref_is_branch</code><a class="headerlink" href="#scv_banner_main_ref_is_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the banner main ref is a branch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_banner_main_ref_is_tag">
+<code class="descname">scv_banner_main_ref_is_tag</code><a class="headerlink" href="#scv_banner_main_ref_is_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the banner main ref is a tag.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_banner_main_version">
+<code class="descname">scv_banner_main_version</code><a class="headerlink" href="#scv_banner_main_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string, the value of <a class="reference internal" href="settings.html#cmdoption--banner-main-ref"><code class="xref std std-option docutils literal"><span class="pre">--banner-main-ref</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_banner_recent_tag">
+<code class="descname">scv_banner_recent_tag</code><a class="headerlink" href="#scv_banner_recent_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if <a class="reference internal" href="settings.html#cmdoption--banner-recent-tag"><code class="xref std std-option docutils literal"><span class="pre">--banner-recent-tag</span></code></a> is used.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_show_banner">
+<code class="descname">scv_show_banner</code><a class="headerlink" href="#scv_show_banner" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if <a class="reference internal" href="settings.html#cmdoption--show-banner"><code class="xref std std-option docutils literal"><span class="pre">--show-banner</span></code></a> is used.</p>
 </dd></dl>
 
 </div>
