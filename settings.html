@@ -1,14 +1,23 @@
 
 
 
-
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-82627369-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Settings &mdash; sphinxcontrib-versioning</title>
@@ -33,12 +42,12 @@
   
 
   
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/banner.css" type="text/css" />
   
 
   
     <link rel="top" title="sphinxcontrib-versioning" href="index.html"/>
-        <link rel="next" title="Supported Themes" href="themes.html"/>
+        <link rel="next" title="HTML Context API" href="context.html"/>
         <link rel="prev" title="Tutorial" href="tutorial.html"/> 
 
   
@@ -108,6 +117,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="context.html">HTML Context API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="themes.html">Supported Themes</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Web Hosting</span></p>
@@ -156,7 +166,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v2.0.0/docs/settings.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/settings.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -167,6 +177,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
+  
+
+
+    
+    
+
+
+
+    <p class="scv-banner scv-sphinx_rtd_theme"><a href="v2.0.0/settings.html"><b>Warning:</b> This document is for the development version of sphinxcontrib-versioning. The latest version is v2.0.0.</a></p>
+
   <div class="section" id="settings">
 <span id="id1"></span><h1>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning <span class="o">[</span>GLOBAL_OPTIONS<span class="o">]</span> build <span class="o">[</span>OPTIONS<span class="o">]</span> REL_SOURCE... DESTINATION
@@ -310,7 +330,8 @@ selected for <code class="docutils literal"><span class="pre">kind</span></code>
 <dl class="option">
 <dt id="cmdoption-r">
 <span id="cmdoption--root-ref"></span><span id="cmdoption-arg-scv_root_ref"></span><code class="descname">-r</code><code class="descclassname"> &lt;ref&gt;</code><code class="descclassname">, </code><code class="descname">--root-ref</code><code class="descclassname"> &lt;ref&gt;</code><code class="descclassname">, </code><code class="descname">scv_root_ref</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-r" title="Permalink to this definition">¶</a></dt>
-<dd><p>The branch/tag at the root of <a class="reference internal" href="#cmdoption-arg-DESTINATION"><code class="xref std std-option docutils literal"><span class="pre">DESTINATION</span></code></a>. All others are in subdirectories. Default is <strong>master</strong>.</p>
+<dd><p>The branch/tag at the root of <a class="reference internal" href="#cmdoption-arg-DESTINATION"><code class="xref std std-option docutils literal"><span class="pre">DESTINATION</span></code></a>. Will also be in subdirectories like the others. Default is
+<strong>master</strong>.</p>
 <p>If the root-ref does not exist or does not have docs, <code class="docutils literal"><span class="pre">sphinx-versioning</span></code> will fail and exit. The root-ref must
 have docs.</p>
 <p>This setting may also be specified in your conf.py file. It must be a string:</p>
@@ -361,8 +382,9 @@ and <a class="reference internal" href="#cmdoption--root-ref"><code class="xref 
 <span id="cmdoption--whitelist-branches"></span><span id="cmdoption-arg-scv_whitelist_branches"></span><code class="descname">-w</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-branches</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">scv_whitelist_branches</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-w" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter out branches not matching the pattern. Can be a simple string or a regex pattern. Specify multiple times to
 include more patterns in the whitelist.</p>
-<p>This setting may also be specified in your conf.py file. It must be either a string or an <code class="docutils literal"><span class="pre">re.compile()</span></code> object:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_branches</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span>
+<p>This setting may also be specified in your conf.py file. It must be a tuple of either strings or <code class="docutils literal"><span class="pre">re.compile()</span></code>
+objects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_branches</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="s1">&#39;latest&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -371,8 +393,9 @@ include more patterns in the whitelist.</p>
 <dt id="cmdoption-W">
 <span id="cmdoption--whitelist-tags"></span><span id="cmdoption-arg-scv_whitelist_tags"></span><code class="descname">-W</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">--whitelist-tags</code><code class="descclassname"> &lt;pattern&gt;</code><code class="descclassname">, </code><code class="descname">scv_whitelist_tags</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-W" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as <a class="reference internal" href="#cmdoption--whitelist-branches"><code class="xref std std-option docutils literal"><span class="pre">--whitelist-branches</span></code></a> but for git tags instead.</p>
-<p>This setting may also be specified in your conf.py file. It must be either a string or an <code class="docutils literal"><span class="pre">re.compile()</span></code> object:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_tags</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;^v\d+\.\d+\.\d+$&#39;</span><span class="p">)</span>
+<p>This setting may also be specified in your conf.py file. It must be a tuple of either strings or <code class="docutils literal"><span class="pre">re.compile()</span></code>
+objects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_whitelist_tags</span> <span class="o">=</span> <span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;^v\d+\.\d+\.\d+$&#39;</span><span class="p">),)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -430,13 +453,14 @@ files in the branch if a branch is deleted from the repo after SCVersioning alre
 </div>
 
 
+
            </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="themes.html" class="btn btn-neutral float-right" title="Supported Themes" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="context.html" class="btn btn-neutral float-right" title="HTML Context API" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="tutorial.html" class="btn btn-neutral" title="Tutorial" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -466,7 +490,7 @@ files in the branch if a branch is deleted from the repo after SCVersioning alre
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: v2.0.0
+        v: master
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">

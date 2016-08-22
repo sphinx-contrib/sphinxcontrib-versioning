@@ -2,14 +2,23 @@
 
 
 
-
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-82627369-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Index &mdash; sphinxcontrib-versioning</title>
@@ -34,7 +43,7 @@
   
 
   
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/banner.css" type="text/css" />
   
 
   
@@ -93,6 +102,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="context.html">HTML Context API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="themes.html">Supported Themes</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Web Hosting</span></p>
@@ -141,7 +151,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v2.0.0/docs/genindex.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/genindex.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -354,7 +364,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="themes.html#versions.branches">branches (versions attribute)</a>
+  <dt><a href="context.html#versions.branches">branches (versions attribute)</a>
   </dt>
 
   </dl></td>
@@ -453,7 +463,7 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="themes.html#current_version">current_version</a>
+  <dt><a href="context.html#current_version">current_version</a>
   </dt>
 
   </dl></td>
@@ -523,41 +533,33 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="themes.html#scv_is_branch">scv_is_branch</a>
+  <dt><a href="context.html#scv_is_branch">scv_is_branch</a>
   </dt>
 
       
-  <dt><a href="themes.html#scv_is_greatest_tag">scv_is_greatest_tag</a>
+  <dt><a href="context.html#scv_is_greatest_tag">scv_is_greatest_tag</a>
   </dt>
 
       
-  <dt><a href="themes.html#scv_is_recent_branch">scv_is_recent_branch</a>
+  <dt><a href="context.html#scv_is_recent_branch">scv_is_recent_branch</a>
   </dt>
 
       
-  <dt><a href="themes.html#scv_is_recent_ref">scv_is_recent_ref</a>
-  </dt>
-
-      
-  <dt><a href="themes.html#scv_is_recent_tag">scv_is_recent_tag</a>
+  <dt><a href="context.html#scv_is_recent_ref">scv_is_recent_ref</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="themes.html#scv_is_root_ref">scv_is_root_ref</a>
+  <dt><a href="context.html#scv_is_recent_tag">scv_is_recent_tag</a>
   </dt>
 
       
-  <dt><a href="themes.html#scv_is_tag">scv_is_tag</a>
+  <dt><a href="context.html#scv_is_root">scv_is_root</a>
   </dt>
 
       
-  <dt><a href="themes.html#scv_root_ref_is_branch">scv_root_ref_is_branch</a>
-  </dt>
-
-      
-  <dt><a href="themes.html#scv_root_ref_is_tag">scv_root_ref_is_tag</a>
+  <dt><a href="context.html#scv_is_tag">scv_is_tag</a>
   </dt>
 
   </dl></td>
@@ -567,7 +569,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="themes.html#versions.tags">tags (versions attribute)</a>
+  <dt><a href="context.html#versions.tags">tags (versions attribute)</a>
   </dt>
 
   </dl></td>
@@ -577,7 +579,17 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="themes.html#versions">versions</a>
+  <dt><a href="context.html#versions">versions</a>
+  </dt>
+
+      
+  <dt><a href="context.html#vhasdoc">vhasdoc() (built-in function)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="context.html#vpathto">vpathto() (built-in function)</a>
   </dt>
 
   </dl></td>
@@ -612,13 +624,13 @@
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: v2.0.0
+        v: master
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="v2.0.0/genindex.html">v2.0.0</a></dd>
+            <dd><a href="v2.0.0/index.html">v2.0.0</a></dd>
             <dd><a href="v1.1.0/index.html">v1.1.0</a></dd>
             <dd><a href="v1.0.1/index.html">v1.0.1</a></dd>
             <dd><a href="v1.0.0/index.html">v1.0.0</a></dd>
@@ -626,7 +638,7 @@
         <dl>
             <dt>Branches</dt>
             <dd><a href="wip_dev_banner/index.html">wip_dev_banner</a></dd>
-            <dd><a href="master/index.html">master</a></dd>
+            <dd><a href="master/genindex.html">master</a></dd>
             <dd><a href="wip_banner3/index.html">wip_banner3</a></dd>
             <dd><a href="wip_banner2/index.html">wip_banner2</a></dd>
             <dd><a href="wip_banner/index.html">wip_banner</a></dd>
