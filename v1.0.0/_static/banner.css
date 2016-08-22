@@ -4,7 +4,7 @@
     font-size: 80%;
     text-align: center;
     color: white;
-    background: linear-gradient(-45deg,
+    background: #d40 linear-gradient(-45deg,
         rgba(255, 255, 255, 0.2) 0%,
         rgba(255, 255, 255, 0.2) 25%,
         transparent 25%,
@@ -33,16 +33,9 @@
 
 .scv-classic {
     text-align: center !important;
-    background-color: #d40;
 }
 
 
 .scv-traditional {
     text-align: center !important;
-    background-color: #d40;
-}
-
-
-.scv-generic {
-    background-color: #d40;
 }
