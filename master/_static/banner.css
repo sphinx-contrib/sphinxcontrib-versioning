@@ -14,3 +14,17 @@
     );
     background-size: 28px 28px;
 }
+
+.scv-rtd {
+    color: white;
+    background-color: #2980B9;
+}
+
+.scv-rtd > a {
+    color: white;
+}
+
+.scv-generic {
+    color: white;
+    background-color: #d40;
+}
