@@ -92,3 +92,27 @@ def test_new_branch_tags(tmpdir, local_light, fail):
     files = [f.relto(target) for f in target.listdir()]
     assert files == ['README']
     assert target.join('README').read() == 'new'
+
+
+def test_symlink(tmpdir, local, run):
+    """Test repos with broken symlinks.
+
+    :param tmpdir: pytest fixture.
+    :param local: conftest fixture.
+    :param run: conftest fixture.
+    """
+    orphan = tmpdir.ensure('to_be_removed')
+    local.join('good_symlink').mksymlinkto('README')
+    local.join('broken_symlink').mksymlinkto('to_be_removed')
+    run(local, ['git', 'add', 'good_symlink', 'broken_symlink'])
+    run(local, ['git', 'commit', '-m', 'Added symlinks.'])
+    run(local, ['git', 'push', 'origin', 'master'])
+    orphan.remove()
+
+    target = tmpdir.ensure_dir('target')
+    sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+
+    export(str(local), sha, str(target))
+    run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
+    files = sorted(f.relto(target) for f in target.listdir())
+    assert files == ['README', 'good_symlink']

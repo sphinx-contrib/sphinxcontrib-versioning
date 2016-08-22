@@ -61,6 +61,7 @@ Changed
 
 Fixed
     * https://github.com/Robpol86/sphinxcontrib-versioning/issues/13
+    * https://github.com/Robpol86/sphinxcontrib-versioning/pull/20
 
 Removed
     * Jinja2 context variables: ``scv_root_ref_is_branch`` ``scv_root_ref_is_tag``
