@@ -1,7 +1,9 @@
 .scv-banner {
+    padding: 3px;
     border-radius: 2px;
     font-size: 80%;
     text-align: center;
+    color: white;
     background: linear-gradient(-45deg,
         rgba(255, 255, 255, 0.2) 0%,
         rgba(255, 255, 255, 0.2) 25%,
@@ -14,21 +16,21 @@
     );
     background-size: 28px 28px;
 }
-
-.scv-rtd {
+.scv-banner > a {
     color: white;
+}
+
+
+.scv-sphinx_rtd_theme {
     background-color: #2980B9;
 }
 
-.scv-rtd > a {
-    color: white;
+
+.scv-bizstyle {
+    background-color: #336699;
 }
+
 
 .scv-generic {
-    color: white;
     background-color: #d40;
-}
-
-.scv-generic > a {
-    color: white;
 }
