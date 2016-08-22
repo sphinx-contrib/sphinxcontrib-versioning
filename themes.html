@@ -1,23 +1,14 @@
 
 
 
+
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <script type="text/javascript">
-
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-82627369-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    </script>
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Supported Themes &mdash; sphinxcontrib-versioning</title>
@@ -42,7 +33,7 @@
   
 
   
-    <link rel="stylesheet" href="_static/banner.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   
 
   
@@ -155,7 +146,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/themes.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v2.0.0/docs/themes.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -166,16 +157,6 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  
-
-
-    
-    
-
-
-
-    <p class="scv-banner scv-sphinx_rtd_theme"><a href="v2.0.0/themes.html"><b>Warning:</b> This document is for the development version of sphinxcontrib-versioning. The latest version is v2.0.0.</a></p>
-
   <div class="section" id="supported-themes">
 <span id="themes"></span><h1>Supported Themes<a class="headerlink" href="#supported-themes" title="Permalink to this headline">¶</a></h1>
 <p>Below are screen shots of the supported built-in Sphinx themes. You can the &#8220;Versions&#8221; section in each screen shot on
@@ -231,15 +212,27 @@ tags.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="scv_is_root">
-<code class="descname">scv_is_root</code><a class="headerlink" href="#scv_is_root" title="Permalink to this definition">¶</a></dt>
-<dd><p>A boolean set to True if the current version being built is in the web root (defined by <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a>).</p>
+<dt id="scv_is_root_ref">
+<code class="descname">scv_is_root_ref</code><a class="headerlink" href="#scv_is_root_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the current version being built is the <a class="reference internal" href="settings.html#cmdoption--root-ref"><code class="xref std std-option docutils literal"><span class="pre">--root-ref</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="scv_is_tag">
 <code class="descname">scv_is_tag</code><a class="headerlink" href="#scv_is_tag" title="Permalink to this definition">¶</a></dt>
 <dd><p>A boolean set to True if the current version being built is from a git tag.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_root_ref_is_branch">
+<code class="descname">scv_root_ref_is_branch</code><a class="headerlink" href="#scv_root_ref_is_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the root ref is from a git branch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_root_ref_is_tag">
+<code class="descname">scv_root_ref_is_tag</code><a class="headerlink" href="#scv_root_ref_is_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the root ref is from a git tag.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -325,7 +318,6 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
 </div>
 
 
-
            </div>
           </div>
           <footer>
@@ -362,7 +354,7 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: master
+        v: v2.0.0
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
@@ -375,6 +367,7 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
         </dl>
         <dl>
             <dt>Branches</dt>
+            <dd><a href="stage/themes.html">stage</a></dd>
             <dd><a href="wip_dev_banner/themes.html">wip_dev_banner</a></dd>
             <dd><a href="master/themes.html">master</a></dd>
             <dd><a href="wip_banner3/themes.html">wip_banner3</a></dd>

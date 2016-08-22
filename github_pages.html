@@ -1,23 +1,14 @@
 
 
 
+
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <script type="text/javascript">
-
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-82627369-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    </script>
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>GitHub Pages &mdash; sphinxcontrib-versioning</title>
@@ -42,7 +33,7 @@
   
 
   
-    <link rel="stylesheet" href="_static/banner.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   
 
   
@@ -164,7 +155,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/github_pages.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v2.0.0/docs/github_pages.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -175,16 +166,6 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  
-
-
-    
-    
-
-
-
-    <p class="scv-banner scv-sphinx_rtd_theme"><a href="v2.0.0/github_pages.html"><b>Warning:</b> This document is for the development version of sphinxcontrib-versioning. The latest version is v2.0.0.</a></p>
-
   <div class="section" id="github-pages">
 <span id="id1"></span><h1>GitHub Pages<a class="headerlink" href="#github-pages" title="Permalink to this headline">¶</a></h1>
 <p>It&#8217;s pretty easy to use <a class="reference external" href="https://pages.github.com/">GitHub Pages</a> to host all of your versioned documentation. Before
@@ -239,13 +220,13 @@ getting Travis to run SCVersioning. It should only fail when trying to push to o
 <span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.email &quot;builds@travis-ci.com&quot;</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.name &quot;Travis CI&quot;</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning push docs gh-pages .</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning push gh-pages . docs</span>
 </pre></div>
 </div>
 <p>The two git config lines are needed to make commits locally to the gh-pages branch (cloned to a temporary directory by
 SCVersioning). If you want SCVersioning to delete unrelated files from the gh-pages branch (e.g. deleted branches&#8217; HTML
 documentation, deleted tags, etc) change the sphinx-versioning command to:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -e .gitignore -e .nojekyll -e README.rst push docs gh-pages .
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -e .gitignore -e .nojekyll -e README.rst push gh-pages . docs
 </pre></div>
 </div>
 <p>This tells SCVersioning to delete all files in gh-pages except those three. More information in <a class="reference internal" href="settings.html#cmdoption--grm-exclude"><code class="xref std std-option docutils literal"><span class="pre">--grm-exclude</span></code></a>.</p>
@@ -292,7 +273,7 @@ section look like this:</p>
   - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
   - git remote set-url origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
   - <span class="nb">export</span> <span class="si">${</span><span class="p">!TRAVIS*</span><span class="si">}</span>  <span class="c1"># Optional, for commit messages.</span>
-  - sphinx-versioning push docs gh-pages .
+  - sphinx-versioning push gh-pages . docs
 </pre></div>
 </div>
 <div class="admonition warning">
@@ -312,7 +293,6 @@ automatically for you.</p>
 </div>
 </div>
 </div>
-
 
 
            </div>
@@ -351,7 +331,7 @@ automatically for you.</p>
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: master
+        v: v2.0.0
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
@@ -364,6 +344,7 @@ automatically for you.</p>
         </dl>
         <dl>
             <dt>Branches</dt>
+            <dd><a href="stage/github_pages.html">stage</a></dd>
             <dd><a href="wip_dev_banner/github_pages.html">wip_dev_banner</a></dd>
             <dd><a href="master/github_pages.html">master</a></dd>
             <dd><a href="wip_banner3/github_pages.html">wip_banner3</a></dd>
