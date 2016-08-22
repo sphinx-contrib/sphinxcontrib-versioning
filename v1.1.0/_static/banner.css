@@ -31,6 +31,18 @@
 }
 
 
+.scv-classic {
+    text-align: center !important;
+    background-color: #d40;
+}
+
+
+.scv-traditional {
+    text-align: center !important;
+    background-color: #d40;
+}
+
+
 .scv-generic {
     background-color: #d40;
 }
