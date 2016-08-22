@@ -6,7 +6,18 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-82627369-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Tutorial &mdash; sphinxcontrib-versioning</title>
@@ -150,7 +161,7 @@
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/v2.0.0/docs/tutorial.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/docs/tutorial.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -164,9 +175,12 @@
   
 
 
+    
+    
 
 
 
+    <p class="scv-banner scv-sphinx_rtd_theme"><a href="v2.0.0/tutorial.html"><b>Warning:</b> This document is for the development version of sphinxcontrib-versioning. The latest version is v2.0.0.</a></p>
 
   <div class="section" id="tutorial">
 <span id="id1"></span><h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
@@ -196,7 +210,7 @@ eliminates race conditions when multiple CI jobs are building docs at the same t
 <h3>Build All Versions<a class="headerlink" href="#build-all-versions" title="Permalink to this headline">¶</a></h3>
 <p>Now that you&#8217;ve got docs pushed to origin and they build fine with <code class="docutils literal"><span class="pre">sphinx-build</span></code> let&#8217;s try building them with
 SCVersioning:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch build docs/_build/html docs
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch build docs docs/_build/html
 open docs/_build/html/index.html
 </pre></div>
 </div>
@@ -236,7 +250,7 @@ up with the history of your code changes.</p>
 <div class="section" id="push-all-versions">
 <span id="id2"></span><h3>Push All Versions<a class="headerlink" href="#push-all-versions" title="Permalink to this headline">¶</a></h3>
 <p>Now that you have the destination branch in origin go ahead and run SCVersioning:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch push gh-pages . docs
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch push docs gh-pages .
 </pre></div>
 </div>
 <p>Again you can find more information about all of the options at <a class="reference internal" href="settings.html#settings"><span class="std std-ref">Settings</span></a> or by running with <code class="docutils literal"><span class="pre">-help</span></code> but just
@@ -298,7 +312,7 @@ delete feature use one or more <code class="docutils literal"><span class="pre">
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: v2.0.0
+        v: master
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
