@@ -102,10 +102,12 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="banner.html">Banner Message</a></li>
 <li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">HTML Context API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#versions-iterable">Versions Iterable</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#banner-variables">Banner Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#other-variables">Other Variables</a></li>
 </ul>
 </li>
@@ -264,6 +266,47 @@ version.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="banner-variables">
+<h2>Banner Variables<a class="headerlink" href="#banner-variables" title="Permalink to this headline">¶</a></h2>
+<p>These variables are exposed in the Jinja2 context to facilitate displaying the banner message and deciding which message
+to display.</p>
+<dl class="attribute">
+<dt id="scv_banner_greatest_tag">
+<code class="descname">scv_banner_greatest_tag</code><a class="headerlink" href="#scv_banner_greatest_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if <a class="reference internal" href="settings.html#cmdoption--banner-greatest-tag"><code class="xref std std-option docutils literal"><span class="pre">--banner-greatest-tag</span></code></a> is used.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_banner_main_ref_is_branch">
+<code class="descname">scv_banner_main_ref_is_branch</code><a class="headerlink" href="#scv_banner_main_ref_is_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the banner main ref is a branch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_banner_main_ref_is_tag">
+<code class="descname">scv_banner_main_ref_is_tag</code><a class="headerlink" href="#scv_banner_main_ref_is_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if the banner main ref is a tag.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_banner_main_version">
+<code class="descname">scv_banner_main_version</code><a class="headerlink" href="#scv_banner_main_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string, the value of <a class="reference internal" href="settings.html#cmdoption--banner-main-ref"><code class="xref std std-option docutils literal"><span class="pre">--banner-main-ref</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_banner_recent_tag">
+<code class="descname">scv_banner_recent_tag</code><a class="headerlink" href="#scv_banner_recent_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if <a class="reference internal" href="settings.html#cmdoption--banner-recent-tag"><code class="xref std std-option docutils literal"><span class="pre">--banner-recent-tag</span></code></a> is used.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scv_show_banner">
+<code class="descname">scv_show_banner</code><a class="headerlink" href="#scv_show_banner" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean set to True if <a class="reference internal" href="settings.html#cmdoption--show-banner"><code class="xref std std-option docutils literal"><span class="pre">--show-banner</span></code></a> is used.</p>
+</dd></dl>
+
+</div>
 <div class="section" id="other-variables">
 <h2>Other Variables<a class="headerlink" href="#other-variables" title="Permalink to this headline">¶</a></h2>
 <dl class="attribute">
@@ -378,11 +421,7 @@ tags.</p>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="wip_dev_banner/context.html">wip_dev_banner</a></dd>
             <dd><a href="master/context.html">master</a></dd>
-            <dd><a href="wip_banner3/index.html">wip_banner3</a></dd>
-            <dd><a href="wip_banner2/index.html">wip_banner2</a></dd>
-            <dd><a href="wip_banner/index.html">wip_banner</a></dd>
         </dl>
     </div>
 </div>
