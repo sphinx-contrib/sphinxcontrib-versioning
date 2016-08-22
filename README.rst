@@ -47,6 +47,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ----------
 
+Added
+    * Jinja2 context functions: ``vhasdoc()`` ``vpathto()``
+
 Changed
     * Root ref will also be built in its own directory like other versions. All URLs to root ref will point to the one
       in that directory instead of the root. More info: https://github.com/Robpol86/sphinxcontrib-versioning/issues/15

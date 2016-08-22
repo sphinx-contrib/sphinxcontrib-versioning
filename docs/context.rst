@@ -54,6 +54,36 @@ branches or just tags.
             {%- endfor %}
         </dl>
 
+Functions
+=========
+
+.. function:: vhasdoc(other_version)
+
+    Similar to Sphinx's `hasdoc() <sphinx_hasdoc_>`_ function. Returns True if the current document exists in another
+    version.
+
+    .. code-block:: jinja
+
+        {% if vhasdoc('master') %}
+            This doc is available in <a href="../master/index.html">master</a>.
+        {% endif %}
+
+.. function:: vpathto(other_version)
+
+    Similar to Sphinx's `pathto() <sphinx_pathto_>`_ function. Has two behaviors:
+
+    1. If the current document exists in the specified other version pathto() returns the relative URL to that document.
+    2. If the current document does not exist in the other version the relative URL to that version's
+       `master_doc <sphinx_master_doc_>`_ is returned instead.
+
+    .. code-block:: jinja
+
+        {% if vhasdoc('master') %}
+            This doc is available in <a href="{{ vpathto('master') }}">master</a>.
+        {% else %}
+            Go to <a href="{{ vpathto('master') }}">master</a> for the latest docs.
+        {% endif %}
+
 Other Variables
 ===============
 
@@ -101,3 +131,6 @@ Other Variables
 
 .. _Jinja2: http://jinja.pocoo.org/
 .. _sphinx_context: http://www.sphinx-doc.org/en/stable/config.html?highlight=context#confval-html_context
+.. _sphinx_hasdoc: http://www.sphinx-doc.org/en/stable/templating.html#hasdoc
+.. _sphinx_master_doc: http://www.sphinx-doc.org/en/stable/config.html#confval-master_doc
+.. _sphinx_pathto: http://www.sphinx-doc.org/en/stable/templating.html#pathto

@@ -93,9 +93,9 @@ class EventHandlers(object):
         context['scv_is_recent_tag'] = this_remote == versions.recent_tag_remote
         context['scv_is_root'] = cls.IS_ROOT
         context['scv_is_tag'] = this_remote['kind'] == 'tags'
-        # context['scv_root_ref_is_branch'] = versions.root_remote['kind'] == 'heads'
-        # context['scv_root_ref_is_tag'] = versions.root_remote['kind'] == 'tags'
         context['versions'] = versions
+        context['vhasdoc'] = versions.vhasdoc
+        context['vpathto'] = versions.vpathto
 
 
 def setup(app):
