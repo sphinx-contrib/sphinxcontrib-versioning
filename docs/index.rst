@@ -40,6 +40,7 @@ Project Links
     install
     tutorial
     settings
+    context
     themes
 
 .. toctree::
