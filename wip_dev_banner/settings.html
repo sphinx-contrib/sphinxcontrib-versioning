@@ -306,6 +306,51 @@ directory or an absolute directory path.</p>
 <span id="build-options"></span><h3>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h3>
 <p>These options are available for the build sub command:</p>
 <dl class="option">
+<dt id="cmdoption-a">
+<span id="cmdoption--banner-greatest-tag"></span><span id="cmdoption-arg-scv_banner_greatest_tag"></span><code class="descname">-a</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--banner-greatest-tag</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_banner_greatest_tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override banner-main-ref to be the tag with the highest version number. If no tags have docs then this option is
+ignored and <a class="reference internal" href="#cmdoption--banner-main-ref"><code class="xref std std-option docutils literal"><span class="pre">--banner-main-ref</span></code></a> is used.</p>
+<p>This setting may also be specified in your conf.py file. It must be a boolean:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_banner_greatest_tag</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-A">
+<span id="cmdoption--banner-recent-tag"></span><span id="cmdoption-arg-scv_banner_recent_tag"></span><code class="descname">-A</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--banner-recent-tag</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_banner_recent_tag</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-A" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override banner-main-ref to be the most recent committed tag. If no tags have docs then this option is ignored and
+<a class="reference internal" href="#cmdoption--banner-main-ref"><code class="xref std std-option docutils literal"><span class="pre">--banner-main-ref</span></code></a> is used.</p>
+<p>This setting may also be specified in your conf.py file. It must be a boolean:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_banner_recent_tag</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-b">
+<span id="cmdoption--show-banner"></span><span id="cmdoption-arg-scv_show_banner"></span><code class="descname">-b</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--show-banner</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_show_banner</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show a warning banner. Enables the <a class="reference internal" href="banner.html#banner"><span class="std std-ref">Banner Message</span></a> feature.</p>
+<p>This setting may also be specified in your conf.py file. It must be a boolean:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_show_banner</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-B">
+<span id="cmdoption--banner-main-ref"></span><span id="cmdoption-arg-scv_banner_main_ref"></span><code class="descname">-B</code><code class="descclassname"> &lt;ref&gt;</code><code class="descclassname">, </code><code class="descname">--banner-main-ref</code><code class="descclassname"> &lt;ref&gt;</code><code class="descclassname">, </code><code class="descname">scv_banner_main_ref</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-B" title="Permalink to this definition">¶</a></dt>
+<dd><p>The branch/tag considered to be the latest/current version. The banner will not be displayed in this ref, only in
+all others. Default is <strong>master</strong>.</p>
+<p>If the banner-main-ref does not exist or does not have docs the banner will be disabled completely in all versions.
+Docs will continue to be built.</p>
+<p>This setting may also be specified in your conf.py file. It must be a string:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_banner_main_ref</span> <span class="o">=</span> <span class="s1">&#39;feature_branch&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="option">
 <dt id="cmdoption-i">
 <span id="cmdoption--invert"></span><span id="cmdoption-arg-scv_invert"></span><code class="descname">-i</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--invert</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">scv_invert</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Invert the order of branches/tags displayed in the sidebars in generated HTML documents. The default order is
