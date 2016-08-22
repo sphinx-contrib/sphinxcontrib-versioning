@@ -107,6 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">HTML Context API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#versions-iterable">Versions Iterable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#other-variables">Other Variables</a></li>
 </ul>
 </li>
@@ -217,6 +218,39 @@ branches). Just as the <strong>branches</strong> property the order is maintaine
 <span class="x">    &lt;dd&gt;&lt;a href=&quot;</span><span class="cp">{{</span> <span class="nv">url</span> <span class="cp">}}</span><span class="x">&quot;&gt;</span><span class="cp">{{</span> <span class="nv">name</span> <span class="cp">}}</span><span class="x">&lt;/a&gt;&lt;/dd&gt;</span>
 <span class="x">    </span><span class="cp">{%</span>- <span class="k">endfor</span> <span class="cp">%}</span><span class="x"></span>
 <span class="x">&lt;/dl&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="vhasdoc">
+<code class="descname">vhasdoc</code><span class="sig-paren">(</span><em>other_version</em><span class="sig-paren">)</span><a class="headerlink" href="#vhasdoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to Sphinx&#8217;s <a class="reference external" href="http://www.sphinx-doc.org/en/stable/templating.html#hasdoc">hasdoc()</a> function. Returns True if the current document exists in another
+version.</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">if</span> <span class="nv">vhasdoc</span><span class="o">(</span><span class="s1">&#39;master&#39;</span><span class="o">)</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">    This doc is available in &lt;a href=&quot;../master/index.html&quot;&gt;master&lt;/a&gt;.</span>
+<span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span><span class="x"></span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="vpathto">
+<code class="descname">vpathto</code><span class="sig-paren">(</span><em>other_version</em><span class="sig-paren">)</span><a class="headerlink" href="#vpathto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to Sphinx&#8217;s <a class="reference external" href="http://www.sphinx-doc.org/en/stable/templating.html#pathto">pathto()</a> function. Has two behaviors:</p>
+<ol class="arabic simple">
+<li>If the current document exists in the specified other version pathto() returns the relative URL to that document.</li>
+<li>If the current document does not exist in the other version the relative URL to that version&#8217;s
+<a class="reference external" href="http://www.sphinx-doc.org/en/stable/config.html#confval-master_doc">master_doc</a> is returned instead.</li>
+</ol>
+<div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">if</span> <span class="nv">vhasdoc</span><span class="o">(</span><span class="s1">&#39;master&#39;</span><span class="o">)</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">    This doc is available in &lt;a href=&quot;</span><span class="cp">{{</span> <span class="nv">vpathto</span><span class="o">(</span><span class="s1">&#39;master&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="x">&quot;&gt;master&lt;/a&gt;.</span>
+<span class="cp">{%</span> <span class="k">else</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">    Go to &lt;a href=&quot;</span><span class="cp">{{</span> <span class="nv">vpathto</span><span class="o">(</span><span class="s1">&#39;master&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="x">&quot;&gt;master&lt;/a&gt; for the latest docs.</span>
+<span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span><span class="x"></span>
 </pre></div>
 </div>
 </dd></dl>
@@ -335,7 +369,6 @@ tags.</p>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../stage/context.html">stage</a></dd>
             <dd><a href="context.html">master</a></dd>
             <dd><a href="../wip_dev_banner/context.html">wip_dev_banner</a></dd>
             <dd><a href="../wip_banner3/index.html">wip_banner3</a></dd>
