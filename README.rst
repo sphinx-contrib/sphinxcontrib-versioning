@@ -44,6 +44,12 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+Unreleased
+----------
+
+Fixed
+    * Carrying over to cloned repo the git remote push URL if it's different from fetch URL.
+
 2.1.0 - 2016-08-22
 ------------------
 

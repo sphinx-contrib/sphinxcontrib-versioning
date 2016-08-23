@@ -11,6 +11,7 @@ from subprocess import CalledProcessError, PIPE, Popen, STDOUT
 
 from sphinxcontrib.versioning.lib import TempDir
 
+RE_FETCH_PUSH = re.compile(r'origin\t([A-Za-z0-9@:/._-]+) \((fetch|push)\)\n')
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>heads|tags)/(?P<name>[\w./-]+(?:\^\{})?)$',
                        re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -311,13 +312,15 @@ def clone(local_root, new_root, branch, rel_dest, exclude):
     :param iter exclude: List of strings representing relative file paths to exclude from "git rm".
     """
     log = logging.getLogger(__name__)
-    remote_url = run_command(local_root, ['git', 'ls-remote', '--get-url', 'origin']).strip()
-    if remote_url == 'origin':
-        raise GitError('Git repo missing remote "origin".', remote_url)
+    output = run_command(local_root, ['git', 'remote', '-v'])
+    remote_urls = dict((m[1], m[0]) for m in RE_FETCH_PUSH.findall(output))
+    if not remote_urls:
+        raise GitError('Git repo missing remote "origin".', output)
+    remote_push_url, remote_fetch_url = remote_urls['push'], remote_urls['fetch']
 
     # Clone.
     try:
-        run_command(new_root, ['git', 'clone', remote_url, '--depth=1', '--branch', branch, '.'])
+        run_command(new_root, ['git', 'clone', remote_fetch_url, '--depth=1', '--branch', branch, '.'])
     except CalledProcessError as exc:
         raise GitError('Failed to clone from remote repo URL.', exc.output)
 
@@ -326,6 +329,10 @@ def clone(local_root, new_root, branch, rel_dest, exclude):
         run_command(new_root, ['git', 'symbolic-ref', 'HEAD'])
     except CalledProcessError as exc:
         raise GitError('Specified branch is not a real branch.', exc.output)
+
+    # Set push URL if different.
+    if remote_fetch_url != remote_push_url:
+        run_command(new_root, ['git', 'remote', 'set-url', '--push', 'origin', remote_push_url])
 
     # Done if no exclude.
     if not exclude:

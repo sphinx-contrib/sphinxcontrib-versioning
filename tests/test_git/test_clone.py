@@ -151,10 +151,31 @@ def test_bad_branch_rel_dest_exclude(tmpdir, local, run):
     run(local, ['git', 'remote', 'rm', 'origin'])
     with pytest.raises(GitError) as exc:
         clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', '.', None)
-    assert 'origin' in exc.value.output
+    assert 'Git repo missing remote "origin".' in exc.value.message
+    assert not exc.value.output
 
     # Bad remote.
     run(local, ['git', 'remote', 'add', 'origin', local.join('does_not_exist')])
     with pytest.raises(GitError) as exc:
         clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', '.', None)
     assert "repository '{}' does not exist".format(local.join('does_not_exist')) in exc.value.output
+
+
+def test_fetch_push_remotes(tmpdir, local, remote, run):
+    """Test different fetch/push URLs being carried over.
+
+    :param tmpdir: pytest fixture.
+    :param local: conftest fixture.
+    :param remote: conftest fixture.
+    :param run: conftest fixture.
+    """
+    remote_push = tmpdir.ensure_dir('remote_push')
+    run(remote_push, ['git', 'init', '--bare'])
+    run(local, ['git', 'remote', 'set-url', '--push', 'origin', str(remote_push)])
+
+    new_root = tmpdir.ensure_dir('new_root')
+    clone(str(local), str(new_root), 'master', '', None)
+
+    output = run(new_root, ['git', 'remote', '-v'])
+    expected = 'origin\t{} (fetch)\norigin\t{} (push)\n'.format(remote, remote_push)
+    assert output == expected
