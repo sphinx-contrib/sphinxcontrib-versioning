@@ -177,7 +177,14 @@
 
   <div class="section" id="nearlyfreespeech-net">
 <span id="nfsn"></span><h1>NearlyFreeSpeech.NET<a class="headerlink" href="#nearlyfreespeech-net" title="Permalink to this headline">¶</a></h1>
-<p>TODO</p>
+<p>It&#8217;s possible to setup your CI to push HTML files to an <a class="reference external" href="https://www.nearlyfreespeech.net/">NFSN</a> site to host your
+documentation. This guide will use GitHub and Travis CI but any other providers can be substituted. The workflow will
+be:</p>
+<ol class="arabic simple">
+<li>You commit and push a change to GitHub.</li>
+<li>The Travis CI job will run your tests and then run SCVersioning on success.</li>
+<li>SCVersioning will commit to and push the branch <code class="docutils literal"><span class="pre">nfsn-pages</span></code> to ... TODO</li>
+</ol>
 </div>
 
 
