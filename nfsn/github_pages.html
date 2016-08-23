@@ -293,7 +293,7 @@ section look like this:</p>
     <span class="o">&amp;&amp;</span> ssh-add docs/key  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
   - git config --global user.email <span class="s2">&quot;builds@travis-ci.com&quot;</span>
   - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
-  - git remote set-url origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
+  - git remote set-url --push origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
   - <span class="nb">export</span> <span class="si">${</span><span class="p">!TRAVIS*</span><span class="si">}</span>  <span class="c1"># Optional, for commit messages.</span>
   - sphinx-versioning push docs gh-pages .
 </pre></div>
