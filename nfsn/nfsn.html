@@ -306,9 +306,9 @@ chmod +x hooks/post-receive
 <div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># !/bin/bash</span>
 <span class="nb">export</span> <span class="nv">GIT_WORK_TREE</span><span class="o">=</span><span class="s2">&quot;/home/public&quot;</span>
 <span class="k">while</span> <span class="nb">read</span> sha1old sha1new refname<span class="p">;</span> <span class="k">do</span>
-    <span class="nv">branch</span><span class="o">=</span><span class="k">$(</span>git rev-parse --symbolic --abbrev-ref refname<span class="k">)</span>
+    <span class="nv">branch</span><span class="o">=</span><span class="k">$(</span>git rev-parse --symbolic --abbrev-ref <span class="nv">$refname</span><span class="k">)</span>
     <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$branch</span><span class="s2">&quot;</span> !<span class="o">=</span> <span class="s2">&quot;nfsn-pages&quot;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="k">continue</span>
-    lockf -k -t5 git checkout -f <span class="nv">$branch</span>
+    lockf -k -t5 /home/tmp/nfsn_pages.lock git checkout -f <span class="nv">$branch</span>
 <span class="k">done</span>
 </pre></div>
 </div>
