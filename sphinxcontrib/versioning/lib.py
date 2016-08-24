@@ -34,6 +34,7 @@ class Config(object):
         self.git_root = None
         self.local_conf = None
         self.priority = None
+        self.push_remote = 'origin'
         self.root_ref = 'master'
 
         # Tuples.

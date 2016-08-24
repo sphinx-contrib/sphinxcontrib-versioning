@@ -11,7 +11,7 @@ from subprocess import CalledProcessError, PIPE, Popen, STDOUT
 
 from sphinxcontrib.versioning.lib import TempDir
 
-RE_FETCH_PUSH = re.compile(r'origin\t([A-Za-z0-9@:/._-]+) \((fetch|push)\)\n')
+RE_ALL_REMOTES = re.compile(r'([\w./-]+)\t([A-Za-z0-9@:/._-]+) \((fetch|push)\)\n')
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>heads|tags)/(?P<name>[\w./-]+(?:\^\{})?)$',
                        re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -313,14 +313,18 @@ def clone(local_root, new_root, branch, rel_dest, exclude):
     """
     log = logging.getLogger(__name__)
     output = run_command(local_root, ['git', 'remote', '-v'])
-    remote_urls = dict((m[1], m[0]) for m in RE_FETCH_PUSH.findall(output))
-    if not remote_urls:
+    matches = RE_ALL_REMOTES.findall(output)
+    if not matches:
+        raise GitError('Git repo has no remotes.', output)
+    remotes = {m[0]: [m[1], ''] for m in matches if m[2] == 'fetch'}
+    for match in (m for m in matches if m[2] == 'push'):
+        remotes[match[0]][1] = match[1]
+    if 'origin' not in remotes:
         raise GitError('Git repo missing remote "origin".', output)
-    remote_push_url, remote_fetch_url = remote_urls['push'], remote_urls['fetch']
 
     # Clone.
     try:
-        run_command(new_root, ['git', 'clone', remote_fetch_url, '--depth=1', '--branch', branch, '.'])
+        run_command(new_root, ['git', 'clone', remotes['origin'][0], '--depth=1', '--branch', branch, '.'])
     except CalledProcessError as exc:
         raise GitError('Failed to clone from remote repo URL.', exc.output)
 
@@ -330,9 +334,11 @@ def clone(local_root, new_root, branch, rel_dest, exclude):
     except CalledProcessError as exc:
         raise GitError('Specified branch is not a real branch.', exc.output)
 
-    # Set push URL if different.
-    if remote_fetch_url != remote_push_url:
-        run_command(new_root, ['git', 'remote', 'set-url', '--push', 'origin', remote_push_url])
+    # Copy all remotes from original repo.
+    for name, (fetch, push) in remotes.items():
+        if name != 'origin':
+            run_command(new_root, ['git', 'remote', 'add', name, fetch])
+        run_command(new_root, ['git', 'remote', 'set-url', '--push', name, push])
 
     # Done if no exclude.
     if not exclude:
@@ -355,13 +361,14 @@ def clone(local_root, new_root, branch, rel_dest, exclude):
     run_command(new_root, ['git', 'checkout', '--'] + exclude_joined)
 
 
-def commit_and_push(local_root, versions):
-    """Commit changed, new, and deleted files in the repo and attempt to push the branch to origin.
+def commit_and_push(local_root, remote, versions):
+    """Commit changed, new, and deleted files in the repo and attempt to push the branch to the remote repository.
 
     :raise CalledProcessError: Unhandled git command failure.
     :raise GitError: Conflicting changes made in remote by other client and bad git config for commits.
 
     :param str local_root: Local path to git root directory.
+    :param str remote: The git remote to push to.
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
 
     :return: If push succeeded.
@@ -410,7 +417,7 @@ def commit_and_push(local_root, versions):
 
     # Push.
     try:
-        run_command(local_root, ['git', 'push', 'origin', current_branch])
+        run_command(local_root, ['git', 'push', remote, current_branch])
     except CalledProcessError as exc:
         if '[rejected]' in exc.output and '(fetch first)' in exc.output:
             log.debug('Remote has changed since cloning the repo. Must retry.')

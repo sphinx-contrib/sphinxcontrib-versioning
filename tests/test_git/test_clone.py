@@ -147,11 +147,19 @@ def test_bad_branch_rel_dest_exclude(tmpdir, local, run):
         clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', 'unknown', ['README'])
     assert "pathspec 'unknown' did not match any files" in exc.value.output
 
-    # No remote.
-    run(local, ['git', 'remote', 'rm', 'origin'])
+    # No origin.
+    run(local, ['git', 'remote', 'rename', 'origin', 'origin2'])
     with pytest.raises(GitError) as exc:
         clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', '.', None)
     assert 'Git repo missing remote "origin".' in exc.value.message
+    assert 'origin2\t' in exc.value.output
+    assert 'origin\t' not in exc.value.output
+
+    # No remote.
+    run(local, ['git', 'remote', 'rm', 'origin2'])
+    with pytest.raises(GitError) as exc:
+        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', '.', None)
+    assert 'Git repo has no remotes.' in exc.value.message
     assert not exc.value.output
 
     # Bad remote.
@@ -161,21 +169,33 @@ def test_bad_branch_rel_dest_exclude(tmpdir, local, run):
     assert "repository '{}' does not exist".format(local.join('does_not_exist')) in exc.value.output
 
 
-def test_fetch_push_remotes(tmpdir, local, remote, run):
-    """Test different fetch/push URLs being carried over.
+def test_multiple_remotes(tmpdir, local, remote, run):
+    """Test multiple remote URLs being carried over.
 
     :param tmpdir: pytest fixture.
     :param local: conftest fixture.
     :param remote: conftest fixture.
     :param run: conftest fixture.
     """
-    remote_push = tmpdir.ensure_dir('remote_push')
-    run(remote_push, ['git', 'init', '--bare'])
-    run(local, ['git', 'remote', 'set-url', '--push', 'origin', str(remote_push)])
+    origin_push = tmpdir.ensure_dir('origin_push')
+    run(origin_push, ['git', 'init', '--bare'])
+    run(local, ['git', 'remote', 'set-url', '--push', 'origin', str(origin_push)])
+    origin2_fetch = tmpdir.ensure_dir('origin2_fetch')
+    run(origin2_fetch, ['git', 'init', '--bare'])
+    run(local, ['git', 'remote', 'add', 'origin2', str(origin2_fetch)])
+    origin2_push = tmpdir.ensure_dir('origin2_push')
+    run(origin2_push, ['git', 'init', '--bare'])
+    run(local, ['git', 'remote', 'set-url', '--push', 'origin2', str(origin2_push)])
 
     new_root = tmpdir.ensure_dir('new_root')
     clone(str(local), str(new_root), 'master', '', None)
 
     output = run(new_root, ['git', 'remote', '-v'])
-    expected = 'origin\t{} (fetch)\norigin\t{} (push)\n'.format(remote, remote_push)
-    assert output == expected
+    actual = output.strip().splitlines()
+    expected = [
+        'origin\t{} (fetch)'.format(remote),
+        'origin\t{} (push)'.format(origin_push),
+        'origin2\t{} (fetch)'.format(origin2_fetch),
+        'origin2\t{} (push)'.format(origin2_push),
+    ]
+    assert actual == expected

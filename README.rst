@@ -47,8 +47,12 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ----------
 
+Added
+    * Command line option: ``--push-remote``
+
 Fixed
-    * Carrying over to cloned repo the git remote push URL if it's different from fetch URL.
+    * Copy all remotes from the original repo to the temporarily cloned repo when pushing built docs to a remote.
+      Carries over all remote URLs in case user defines a different URL for push vs fetch.
 
 2.1.0 - 2016-08-22
 ------------------

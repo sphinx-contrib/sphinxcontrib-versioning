@@ -164,6 +164,43 @@ def test_race(tmpdir, local_docs_ghp, remote, run, urls, give_up):
     assert actual == 'Orphaned branch for HTML docs.changed'
 
 
+def test_second_remote(tmpdir, local_docs_ghp, run, urls):
+    """Test pushing to a non-origin remote.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs_ghp: conftest fixture.
+    :param run: conftest fixture.
+    :param urls: conftest fixture.
+    """
+    # Error out because origin2 doesn't exist yet.
+    with pytest.raises(CalledProcessError) as exc:
+        run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'origin2'])
+    assert 'Traceback' not in exc.value.output
+    assert 'Failed to push to remote.' in exc.value.output
+    assert "fatal: 'origin2' does not appear to be a git repository" in exc.value.output
+
+    # Create origin2.
+    origin2 = tmpdir.ensure_dir('origin2')
+    run(origin2, ['git', 'init', '--bare'])
+    run(local_docs_ghp, ['git', 'remote', 'add', 'origin2', origin2])
+    run(local_docs_ghp, ['git', 'push', 'origin2', 'gh-pages'])
+
+    # Run again.
+    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'origin2'])
+    assert 'Traceback' not in output
+    assert 'Successfully pushed to remote repository.' in output
+
+    # Check files.
+    run(local_docs_ghp, ['git', 'checkout', 'origin2/gh-pages'])
+    run(local_docs_ghp, ['git', 'pull', 'origin2', 'gh-pages'])
+    urls(local_docs_ghp.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(local_docs_ghp.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
+    run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
+    assert not local_docs_ghp.join('contents.html').check()
+    assert not local_docs_ghp.join('master').check()
+
+
 def test_error_clone_failure(local_docs, run):
     """Test DEST_BRANCH doesn't exist.
 
@@ -221,8 +258,13 @@ def test_bad_git_config(local_docs_ghp, run):
                 # Invalidate lock file.
                 tmp_repo = py.path.local(re.findall(r'"cwd": "([^"]+)"', line.decode('utf-8'))[0])
                 assert tmp_repo.check(dir=True)
-                run(tmp_repo, ['git', 'config', 'user.useConfigOnly', 'true'])
-                run(tmp_repo, ['git', 'config', 'user.email', '(none)'])
+                for _ in range(3):
+                    try:
+                        run(tmp_repo, ['git', 'config', 'user.useConfigOnly', 'true'])
+                        run(tmp_repo, ['git', 'config', 'user.email', '(none)'])
+                    except CalledProcessError:
+                        continue
+                    break
                 caused = True
     output_lines.append(proc.communicate()[0])
     output = b''.join(output_lines).decode('utf-8')

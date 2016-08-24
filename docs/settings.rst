@@ -277,7 +277,7 @@ Push Arguments
 three times in case of race conditions with other processes also trying to push files to the same branch (e.g. multiple
 Jenkins/Travis jobs).
 
-HTML files are committed to :option:`DEST_BRANCH` and pushed to origin.
+HTML files are committed to :option:`DEST_BRANCH` and pushed to :option:`--push-remote`.
 
 Positional Arguments
 --------------------
@@ -286,10 +286,11 @@ In addition to the :ref:`common arguments <common-positional-arguments>`:
 
 .. option:: DEST_BRANCH
 
-    The branch name where generated docs will be committed to. The branch will then be pushed to origin. If there is a
-    race condition with another job pushing to origin the docs will be re-generated and pushed again.
+    The branch name where generated docs will be committed to. The branch will then be pushed to the remote specified in
+    :option:`--push-remote`. If there is a race condition with another job pushing to the remote the docs will be
+    re-generated and pushed again.
 
-    This must be a branch and not a tag. This also must already exist in origin.
+    This must be a branch and not a tag. This also must already exist in the remote.
 
 .. option:: REL_DEST
 
@@ -320,3 +321,13 @@ only for the push sub command:
     .. code-block:: python
 
         scv_grm_exclude = ('README.md', '.gitignore')
+
+.. option:: -P <remote>, --push-remote <remote>, scv_push_remote
+
+    Push built docs to this remote. Default is **origin**.
+
+    This setting may also be specified in your conf.py file. It must be a string:
+
+    .. code-block:: python
+
+        scv_push_remote = 'origin2'

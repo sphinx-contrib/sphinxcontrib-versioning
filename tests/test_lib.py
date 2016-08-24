@@ -36,6 +36,7 @@ def test_config():
         ('no_local_conf', False),
         ('overflow', ('-D', 'key=value')),
         ('priority', None),
+        ('push_remote', 'origin'),
         ('recent_tag', False),
         ('root_ref', 'master'),
         ('show_banner', False),

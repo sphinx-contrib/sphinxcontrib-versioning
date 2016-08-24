@@ -34,7 +34,7 @@ def test_nothing_to_commit(caplog, local, run, exclude):
         local.join('README').write(contents)  # Unstaged restore.
     old_sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
 
-    actual = commit_and_push(str(local), Versions(REMOTES))
+    actual = commit_and_push(str(local), 'origin', Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha == old_sha
@@ -55,7 +55,7 @@ def test_nothing_significant_to_commit(caplog, local, run, subdirs):
     local.ensure('sub' if subdirs else '', '.doctrees', 'file.bin').write('data')
     local.ensure('sub' if subdirs else '', 'searchindex.js').write('data')
     old_sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
-    actual = commit_and_push(str(local), Versions(REMOTES))
+    actual = commit_and_push(str(local), 'origin', Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha != old_sha
@@ -68,7 +68,7 @@ def test_nothing_significant_to_commit(caplog, local, run, subdirs):
     local.ensure('sub' if subdirs else '', 'searchindex.js').write('changed')
     old_sha = sha
     records_seek = len(caplog.records)
-    actual = commit_and_push(str(local), Versions(REMOTES))
+    actual = commit_and_push(str(local), 'origin', Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha == old_sha
@@ -81,7 +81,7 @@ def test_nothing_significant_to_commit(caplog, local, run, subdirs):
     local.join('README').write('changed')  # Should cause other two to be committed.
     old_sha = sha
     records_seek = len(caplog.records)
-    actual = commit_and_push(str(local), Versions(REMOTES))
+    actual = commit_and_push(str(local), 'origin', Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha != old_sha
@@ -104,7 +104,7 @@ def test_changes(monkeypatch, local, run):
     local.ensure('new', 'new.txt')
     local.join('README').write('test\n', mode='a')
 
-    actual = commit_and_push(str(local), Versions(REMOTES))
+    actual = commit_and_push(str(local), 'origin', Versions(REMOTES))
     assert actual is True
     sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
     assert sha != old_sha
@@ -127,7 +127,7 @@ def test_branch_deleted(local, run):
     local.join('README').write('Changed by local.')
 
     # Run.
-    actual = commit_and_push(str(local), Versions(REMOTES))
+    actual = commit_and_push(str(local), 'origin', Versions(REMOTES))
     assert actual is True
     run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
     assert local.join('README').read() == 'Changed by local.'
@@ -154,7 +154,7 @@ def test_retryable_race(tmpdir, local, remote, run, collision):
 
     # Make unstaged changes and then run.
     local.ensure('sub', 'added.txt').write('Added by local.')
-    actual = commit_and_push(str(local), Versions(REMOTES))
+    actual = commit_and_push(str(local), 'origin', Versions(REMOTES))
 
     # Verify.
     assert actual is False
@@ -170,5 +170,5 @@ def test_origin_deleted(local, remote):
     remote.remove()
 
     with pytest.raises(GitError) as exc:
-        commit_and_push(str(local), Versions(REMOTES))
+        commit_and_push(str(local), 'origin', Versions(REMOTES))
     assert 'Could not read from remote repository' in exc.value.output

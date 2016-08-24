@@ -121,8 +121,8 @@ class ClickCommand(click.Command):
 def cli(config, **options):
     """Build versioned Sphinx docs for every branch and tag pushed to origin.
 
-    Supports only building locally with the "build" sub command or build and push to origin with the "push" sub command.
-    For more information for either run them with their own --help.
+    Supports only building locally with the "build" sub command or build and push to a remote with the "push" sub
+    command. For more information for either run them with their own --help.
 
     The options below are global and must be specified before the sub command name (e.g. -N build ...).
     \f
@@ -319,6 +319,7 @@ def build(config, rel_source, destination, **options):
 @click.option('-e', '--grm-exclude', multiple=True,
               help='If specified "git rm" will delete all files in REL_DEST except for these. Specify multiple times '
                    'for more. Paths are relative to REL_DEST in DEST_BRANCH.')
+@click.option('-P', '--push-remote', help='Push built docs to this remote. Default is origin.')
 @click.argument('REL_SOURCE', nargs=-1, required=True)
 @click.argument('DEST_BRANCH')
 @click.argument('REL_DEST')
@@ -333,8 +334,8 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
     REL_SOURCE is the path to the docs directory relative to the git root. If the source directory has moved around
     between git tags you can specify additional directories.
 
-    DEST_BRANCH is the branch name where generated docs will be committed to. The branch will then be pushed to origin.
-    If there is a race condition with another job pushing to origin the docs will be re-generated and pushed again.
+    DEST_BRANCH is the branch name where generated docs will be committed to. The branch will then be pushed to remote.
+    If there is a race condition with another job pushing to remote the docs will be re-generated and pushed again.
 
     REL_DEST is the path to the directory that will hold all generated docs for all versions relative to the git roof of
     DEST_BRANCH.
@@ -376,7 +377,7 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
 
             log.info('Attempting to push to branch %s on remote repository.', dest_branch)
             try:
-                if commit_and_push(temp_dir, versions):
+                if commit_and_push(temp_dir, config.push_remote, versions):
                     return
             except GitError as exc:
                 log.error(exc.message)

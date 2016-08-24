@@ -130,7 +130,7 @@ section look like this:
         && ssh-add docs/key  # Use && to prevent ssh-add from prompting during pull requests.
       - git config --global user.email "builds@travis-ci.com"
       - git config --global user.name "Travis CI"
-      - git remote set-url origin "git@github.com:$TRAVIS_REPO_SLUG"
+      - git remote set-url --push origin "git@github.com:$TRAVIS_REPO_SLUG"
       - export ${!TRAVIS*}  # Optional, for commit messages.
       - sphinx-versioning push docs gh-pages .
 

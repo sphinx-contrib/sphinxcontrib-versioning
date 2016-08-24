@@ -215,9 +215,10 @@ def test_sub_command_options(local_empty, push, source_cli, source_conf):
 
     # Setup source(s).
     if source_cli:
-        args += ['-aAbitT', '-B', 'x', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]']
+        args += ['-itT', '-p', 'branches', '-r', 'feature', '-s', 'semver', '-w', 'master', '-W', '[0-9]']
+        args += ['-aAb', '-B', 'x']
         if push:
-            args += ['-e' 'README.md']
+            args += ['-e' 'README.md', '-P', 'rem']
     if source_conf:
         local_empty.ensure('docs', 'contents.rst')
         local_empty.ensure('docs', 'conf.py').write(
@@ -228,6 +229,7 @@ def test_sub_command_options(local_empty, push, source_cli, source_conf):
             'scv_greatest_tag = True\n'
             'scv_invert = True\n'
             'scv_priority = "tags"\n'
+            'scv_push_remote = "origin2"\n'
             'scv_recent_tag = True\n'
             'scv_root_ref = "other"\n'
             'scv_show_banner = True\n'
@@ -257,6 +259,7 @@ def test_sub_command_options(local_empty, push, source_cli, source_conf):
         assert config.whitelist_tags == ('[0-9]',)
         if push:
             assert config.grm_exclude == ('README.md',)
+            assert config.push_remote == 'rem'
     elif source_conf:
         assert config.banner_greatest_tag is True
         assert config.banner_main_ref == 'y'
@@ -272,6 +275,7 @@ def test_sub_command_options(local_empty, push, source_cli, source_conf):
         assert config.whitelist_tags.pattern == '^[0-9]$'
         if push:
             assert config.grm_exclude == ('README.rst',)
+            assert config.push_remote == 'origin2'
     else:
         assert config.banner_greatest_tag is False
         assert config.banner_main_ref == 'master'
@@ -287,6 +291,7 @@ def test_sub_command_options(local_empty, push, source_cli, source_conf):
         assert config.whitelist_tags == tuple()
         if push:
             assert config.grm_exclude == tuple()
+            assert config.push_remote == 'origin'
 
 
 @pytest.mark.parametrize('push', [False, True])
