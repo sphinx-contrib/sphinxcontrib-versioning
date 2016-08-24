@@ -44,8 +44,8 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-Unreleased
-----------
+2.1.1 - 2016-08-23
+------------------
 
 Added
     * Command line option: ``--push-remote``
