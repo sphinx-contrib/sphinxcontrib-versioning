@@ -47,7 +47,7 @@
 
   
     <link rel="top" title="sphinxcontrib-versioning" href="index.html"/>
-        <link rel="next" title="Changelog" href="changelog.html"/>
+        <link rel="next" title="NearlyFreeSpeech.NET" href="nfsn.html"/>
         <link rel="prev" title="Supported Themes" href="themes.html"/> 
 
   
@@ -123,6 +123,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="nfsn.html">NearlyFreeSpeech.NET</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Appendix</span></p>
 <ul>
@@ -285,10 +286,11 @@ Travis CI Deploy Key&#8221;</p>
 <h3>travis.yml<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal"><span class="pre">travis</span> <span class="pre">encrypt-file</span></code> command should have updated your <code class="docutils literal"><span class="pre">.travis.yml</span></code> with the openssl command for you. However
 we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
-section look like this:</p>
+section look like the following. Remember to replace <strong>$encrypted_x_key</strong> and <strong>$encrypted_x_iv</strong> with what you
+currently have.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">eval &quot;$(ssh-agent -s)&quot;; touch docs/key; chmod 0600 docs/key</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">openssl aes-256-cbc -d -K &quot;$encrypted_key&quot; -iv &quot;$encrypted_iv&quot; &lt; docs/key.enc &gt; docs/key</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">openssl aes-256-cbc -d -K $encrypted_x_key -iv $encrypted_x_iv &lt; docs/key.enc &gt; docs/key</span>
     <span class="l l-Scalar l-Scalar-Plain">&amp;&amp; ssh-add docs/key</span>  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.email &quot;builds@travis-ci.com&quot;</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.name &quot;Travis CI&quot;</span>
@@ -323,7 +325,7 @@ automatically for you.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="nfsn.html" class="btn btn-neutral float-right" title="NearlyFreeSpeech.NET" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="themes.html" class="btn btn-neutral" title="Supported Themes" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -369,7 +371,6 @@ automatically for you.</p>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../nfsn/github_pages.html">nfsn</a></dd>
             <dd><a href="github_pages.html">master</a></dd>
         </dl>
     </div>

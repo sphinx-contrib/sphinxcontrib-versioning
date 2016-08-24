@@ -120,6 +120,7 @@
 <p class="caption"><span class="caption-text">Web Hosting</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="github_pages.html">GitHub Pages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfsn.html">NearlyFreeSpeech.NET</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Appendix</span></p>
 <ul>
@@ -209,7 +210,7 @@ local changes (committed, staged, unstaged, etc). If you don&#8217;t push to ori
 eliminates race conditions when multiple CI jobs are building docs at the same time.</p>
 </div>
 <div class="section" id="build-all-versions">
-<h3>Build All Versions<a class="headerlink" href="#build-all-versions" title="Permalink to this headline">¶</a></h3>
+<span id="id2"></span><h3>Build All Versions<a class="headerlink" href="#build-all-versions" title="Permalink to this headline">¶</a></h3>
 <p>Now that you&#8217;ve got docs pushed to origin and they build fine with <code class="docutils literal"><span class="pre">sphinx-build</span></code> let&#8217;s try building them with
 SCVersioning:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch build docs docs/_build/html
@@ -233,7 +234,7 @@ and hosting them yourself then you are done here. Otherwise if you want to use t
 </div>
 </div>
 <div class="section" id="pushing-to-remote-branch">
-<h2>Pushing to Remote Branch<a class="headerlink" href="#pushing-to-remote-branch" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2>Pushing to Remote Branch<a class="headerlink" href="#pushing-to-remote-branch" title="Permalink to this headline">¶</a></h2>
 <p>SCVersioning supports pushing generated HTML files of your documentation to a remote branch, handling retries in case of
 race conditions where other parallel jobs try to build docs and push them to the same branch.</p>
 <p>Building on the previous section above let&#8217;s go ahead and push those docs to a branch called <code class="docutils literal"><span class="pre">gh-pages</span></code>. The branch
@@ -250,7 +251,7 @@ git push origin gh-pages
 <p>Since this branch will just host HTML pages you can create an orphaned branch with no history instead of cluttering it
 up with the history of your code changes.</p>
 <div class="section" id="push-all-versions">
-<span id="id2"></span><h3>Push All Versions<a class="headerlink" href="#push-all-versions" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h3>Push All Versions<a class="headerlink" href="#push-all-versions" title="Permalink to this headline">¶</a></h3>
 <p>Now that you have the destination branch in origin go ahead and run SCVersioning:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch push docs gh-pages .
 </pre></div>
@@ -330,7 +331,6 @@ delete feature use one or more <code class="docutils literal"><span class="pre">
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../nfsn/tutorial.html">nfsn</a></dd>
             <dd><a href="tutorial.html">master</a></dd>
         </dl>
     </div>
