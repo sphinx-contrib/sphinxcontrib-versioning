@@ -233,7 +233,8 @@ rm docs/key docs/key.pub  <span class="c1"># Don&#39;t need these anymore.</span
 </div>
 <p>The <code class="docutils literal"><span class="pre">travis</span> <span class="pre">encrypt-file</span></code> command should have updated your <code class="docutils literal"><span class="pre">.travis.yml</span></code> with the openssl command for you. However
 we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
-section look like the following. Remember to replace <code class="docutils literal"><span class="pre">$encrypted_x_key</span></code> with what you currently have.</p>
+section look like the following. Remember to replace <strong>$encrypted_x_key</strong> and <strong>$encrypted_x_iv</strong> with what you
+currently have.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">eval &quot;$(ssh-agent -s)&quot;; touch docs/key; chmod 0600 docs/key</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">openssl aes-256-cbc -d -K $encrypted_x_key -iv $encrypted_x_iv &lt; docs/key.enc &gt; docs/key</span>
