@@ -164,41 +164,115 @@ def test_race(tmpdir, local_docs_ghp, remote, run, urls, give_up):
     assert actual == 'Orphaned branch for HTML docs.changed'
 
 
-def test_second_remote(tmpdir, local_docs_ghp, run, urls):
-    """Test pushing to a non-origin remote.
+def test_different_push(tmpdir, local_docs_ghp, run, urls):
+    """Test pushing to a different remote URL.
 
     :param tmpdir: pytest fixture.
     :param local_docs_ghp: conftest fixture.
     :param run: conftest fixture.
     :param urls: conftest fixture.
     """
+    remote2 = tmpdir.ensure_dir('remote2')
+    run(local_docs_ghp, ['git', 'remote', 'set-url', 'origin', '--push', remote2])
+
     # Error out because remote2 doesn't exist yet.
     with pytest.raises(CalledProcessError) as exc:
-        run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'remote2'])
+        run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
     assert 'Traceback' not in exc.value.output
     assert 'Failed to push to remote.' in exc.value.output
-    assert "fatal: 'remote2' does not appear to be a git repository" in exc.value.output
+    assert "remote2' does not appear to be a git repository" in exc.value.output
+
+    # Create remote2.
+    run(remote2, ['git', 'init', '--bare'])
+
+    # Run again.
+    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.'])
+    assert 'Traceback' not in output
+    assert 'Successfully pushed to remote repository.' in output
+
+    # Check files.
+    run(local_docs_ghp, ['git', 'fetch', 'origin'])
+    run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
+    assert not local_docs_ghp.join('contents.html').check()
+    assert not local_docs_ghp.join('master').check()
+    run(local_docs_ghp, ['git', 'remote', 'add', 'remote2', remote2])
+    run(local_docs_ghp, ['git', 'fetch', 'remote2'])
+    run(local_docs_ghp, ['git', 'checkout', 'remote2/gh-pages'])
+    urls(local_docs_ghp.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(local_docs_ghp.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
+
+
+@pytest.mark.parametrize('remove', [True, False])
+def test_second_remote(tmpdir, local_docs_ghp, run, urls, remove):
+    """Test pushing to a non-origin remote without the original remote having the destination branch.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs_ghp: conftest fixture.
+    :param run: conftest fixture.
+    :param urls: conftest fixture.
+    :param bool remove: Remove gh-pages from origin.
+    """
+    if remove:
+        run(local_docs_ghp, ['git', 'push', 'origin', '--delete', 'gh-pages'])
 
     # Create remote2.
     remote2 = tmpdir.ensure_dir('remote2')
     run(remote2, ['git', 'init', '--bare'])
+    local2 = tmpdir.ensure_dir('local2')
+    run(local2, ['git', 'clone', remote2, '.'])
+    run(local2, ['git', 'checkout', '-b', 'gh-pages'])
+    local2.ensure('README')
+    run(local2, ['git', 'add', 'README'])
+    run(local2, ['git', 'commit', '-m', 'Initial commit.'])
+    run(local2, ['git', 'push', 'origin', 'gh-pages'])
     run(local_docs_ghp, ['git', 'remote', 'add', 'remote2', remote2])
-    run(local_docs_ghp, ['git', 'push', 'remote2', 'gh-pages'])
+    run(local_docs_ghp, ['git', 'fetch', 'remote2'])
 
-    # Run again.
+    # Run.
     output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'remote2'])
     assert 'Traceback' not in output
     assert 'Successfully pushed to remote repository.' in output
 
     # Check files.
+    run(local_docs_ghp, ['git', 'fetch', 'remote2'])
     run(local_docs_ghp, ['git', 'checkout', 'remote2/gh-pages'])
-    run(local_docs_ghp, ['git', 'pull', 'remote2', 'gh-pages'])
     urls(local_docs_ghp.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
     urls(local_docs_ghp.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
-    run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
-    run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
-    assert not local_docs_ghp.join('contents.html').check()
-    assert not local_docs_ghp.join('master').check()
+    if remove:
+        with pytest.raises(CalledProcessError) as exc:
+            run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
+        assert "origin/gh-pages' did not match any file(s) known to git." in exc.value.output
+    else:
+        run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
+        run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
+        assert not local_docs_ghp.join('contents.html').check()
+        assert not local_docs_ghp.join('master').check()
+
+    # Run again.
+    run(local_docs_ghp, ['git', 'checkout', 'master'])
+    local_docs_ghp.join('contents.rst').write('\nNew Line Added\n', mode='a')
+    run(local_docs_ghp, ['git', 'commit', '-am', 'Adding new line.'])
+    run(local_docs_ghp, ['git', 'push', 'origin', 'master'])
+    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'remote2'])
+    assert 'Traceback' not in output
+    assert 'Successfully pushed to remote repository.' in output
+
+    # Check files.
+    run(local_docs_ghp, ['git', 'fetch', 'remote2'])
+    run(local_docs_ghp, ['git', 'checkout', 'remote2/gh-pages'])
+    urls(local_docs_ghp.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
+    urls(local_docs_ghp.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
+    contents = local_docs_ghp.join('contents.html').read()
+    assert 'New Line Added' in contents
+    if remove:
+        with pytest.raises(CalledProcessError) as exc:
+            run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
+        assert "origin/gh-pages' did not match any file(s) known to git." in exc.value.output
+    else:
+        run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
+        run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
+        assert not local_docs_ghp.join('contents.html').check()
+        assert not local_docs_ghp.join('master').check()
 
 
 def test_error_clone_failure(local_docs, run):

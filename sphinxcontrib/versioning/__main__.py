@@ -365,7 +365,7 @@ def push(ctx, config, rel_source, dest_branch, rel_dest, **options):
         with TempDir() as temp_dir:
             log.info('Cloning %s into temporary directory...', dest_branch)
             try:
-                clone(config.git_root, temp_dir, dest_branch, rel_dest, config.grm_exclude)
+                clone(config.git_root, temp_dir, config.push_remote, dest_branch, rel_dest, config.grm_exclude)
             except GitError as exc:
                 log.error(exc.message)
                 log.error(exc.output)

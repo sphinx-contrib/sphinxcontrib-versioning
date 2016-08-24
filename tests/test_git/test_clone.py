@@ -15,7 +15,7 @@ def test_no_exclude(tmpdir, local_docs, run):
     :param run: conftest fixture.
     """
     new_root = tmpdir.ensure_dir('new_root')
-    clone(str(local_docs), str(new_root), 'master', '', None)
+    clone(str(local_docs), str(new_root), 'origin', 'master', '', None)
     assert new_root.join('conf.py').check(file=True)
     assert new_root.join('contents.rst').check(file=True)
     assert new_root.join('README').check(file=True)
@@ -48,7 +48,7 @@ def test_exclude(tmpdir, local, run):
         'README', 'two.txt', 'sub/four.txt',  # Only leave these.
     ]
     new_root = tmpdir.ensure_dir('new_root')
-    clone(str(local), str(new_root), 'feature', '.', exclude)
+    clone(str(local), str(new_root), 'origin', 'feature', '.', exclude)
 
     # Verify files.
     assert new_root.join('.git').check(dir=True)
@@ -86,7 +86,7 @@ def test_exclude_subdir(tmpdir, local, run):
     run(local, ['git', 'push', 'origin', 'master'])
 
     new_root = tmpdir.ensure_dir('new_root')
-    clone(str(local), str(new_root), 'master', 'sub', ['three.txt'])
+    clone(str(local), str(new_root), 'origin', 'master', 'sub', ['three.txt'])
     paths = sorted(f.relto(new_root) for f in new_root.visit() if new_root.join('.git') not in f.parts())
     assert paths == ['README', 'sub', 'sub/three.txt']
 
@@ -112,7 +112,7 @@ def test_exclude_patterns(tmpdir, local, run):
     run(local, ['git', 'push', 'origin', 'master'])
 
     new_root = tmpdir.ensure_dir('new_root')
-    clone(str(local), str(new_root), 'master', '.', ['*.md', '*/*.md'])
+    clone(str(local), str(new_root), 'origin', 'master', '.', ['*.md', '*/*.md'])
     paths = sorted(f.relto(new_root) for f in new_root.visit() if new_root.join('.git') not in f.parts())
     assert paths == ['one.md', 'six.md', 'sub', 'sub/five.md', 'sub/four.md']
 
@@ -129,28 +129,28 @@ def test_bad_branch_rel_dest_exclude(tmpdir, local, run):
     """
     # Unknown branch.
     with pytest.raises(GitError) as exc:
-        clone(str(local), str(tmpdir.ensure_dir('new_root')), 'unknown_branch', '.', None)
+        clone(str(local), str(tmpdir.ensure_dir('new_root')), 'origin', 'unknown_branch', '.', None)
     assert 'Remote branch unknown_branch not found in upstream origin' in exc.value.output
 
     # Not a branch.
     with pytest.raises(GitError) as exc:
-        clone(str(local), str(tmpdir.ensure_dir('new_root')), 'light_tag', '.', None)
+        clone(str(local), str(tmpdir.ensure_dir('new_root')), 'origin', 'light_tag', '.', None)
     assert 'fatal: ref HEAD is not a symbolic ref' in exc.value.output
 
     # rel_dest outside of repo.
     with pytest.raises(GitError) as exc:
-        clone(str(local), str(tmpdir.ensure_dir('new_root2')), 'master', '..', ['README'])
+        clone(str(local), str(tmpdir.ensure_dir('new_root2')), 'origin', 'master', '..', ['README'])
     assert "'..' is outside repository" in exc.value.output
 
     # rel_dest invalid.
     with pytest.raises(GitError) as exc:
-        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', 'unknown', ['README'])
+        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'origin', 'master', 'unknown', ['README'])
     assert "pathspec 'unknown' did not match any files" in exc.value.output
 
     # No origin.
     run(local, ['git', 'remote', 'rename', 'origin', 'origin2'])
     with pytest.raises(GitError) as exc:
-        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', '.', None)
+        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'origin', 'master', '.', None)
     assert 'Git repo missing remote "origin".' in exc.value.message
     assert 'origin2\t' in exc.value.output
     assert 'origin\t' not in exc.value.output
@@ -158,14 +158,14 @@ def test_bad_branch_rel_dest_exclude(tmpdir, local, run):
     # No remote.
     run(local, ['git', 'remote', 'rm', 'origin2'])
     with pytest.raises(GitError) as exc:
-        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', '.', None)
+        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'origin', 'master', '.', None)
     assert 'Git repo has no remotes.' in exc.value.message
     assert not exc.value.output
 
     # Bad remote.
     run(local, ['git', 'remote', 'add', 'origin', local.join('does_not_exist')])
     with pytest.raises(GitError) as exc:
-        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'master', '.', None)
+        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'origin', 'master', '.', None)
     assert "repository '{}' does not exist".format(local.join('does_not_exist')) in exc.value.output
 
 
@@ -188,7 +188,7 @@ def test_multiple_remotes(tmpdir, local, remote, run):
     run(local, ['git', 'remote', 'set-url', '--push', 'origin2', str(origin2_push)])
 
     new_root = tmpdir.ensure_dir('new_root')
-    clone(str(local), str(new_root), 'master', '', None)
+    clone(str(local), str(new_root), 'origin', 'master', '', None)
 
     output = run(new_root, ['git', 'remote', '-v'])
     actual = output.strip().splitlines()

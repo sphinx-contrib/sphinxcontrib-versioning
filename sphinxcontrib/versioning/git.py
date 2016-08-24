@@ -299,7 +299,7 @@ def export(local_root, commit, target):
                     log.debug('Skipping broken symlink: %s', args[0])
 
 
-def clone(local_root, new_root, branch, rel_dest, exclude):
+def clone(local_root, new_root, remote, branch, rel_dest, exclude):
     """Clone "local_root" origin into a new directory and check out a specific branch. Optionally run "git rm".
 
     :raise CalledProcessError: Unhandled git command failure.
@@ -307,24 +307,28 @@ def clone(local_root, new_root, branch, rel_dest, exclude):
 
     :param str local_root: Local path to git root directory.
     :param str new_root: Local path empty directory in which branch will be cloned into.
+    :param str remote: The git remote to clone from to.
     :param str branch: Checkout this branch.
     :param str rel_dest: Run "git rm" on this directory if exclude is truthy.
     :param iter exclude: List of strings representing relative file paths to exclude from "git rm".
     """
     log = logging.getLogger(__name__)
     output = run_command(local_root, ['git', 'remote', '-v'])
-    matches = RE_ALL_REMOTES.findall(output)
-    if not matches:
+    remotes = dict()
+    for match in RE_ALL_REMOTES.findall(output):
+        remotes.setdefault(match[0], [None, None])
+        if match[2] == 'fetch':
+            remotes[match[0]][0] = match[1]
+        else:
+            remotes[match[0]][1] = match[1]
+    if not remotes:
         raise GitError('Git repo has no remotes.', output)
-    remotes = {m[0]: [m[1], ''] for m in matches if m[2] == 'fetch'}
-    for match in (m for m in matches if m[2] == 'push'):
-        remotes[match[0]][1] = match[1]
-    if 'origin' not in remotes:
-        raise GitError('Git repo missing remote "origin".', output)
+    if remote not in remotes:
+        raise GitError('Git repo missing remote "{}".'.format(remote), output)
 
     # Clone.
     try:
-        run_command(new_root, ['git', 'clone', remotes['origin'][0], '--depth=1', '--branch', branch, '.'])
+        run_command(new_root, ['git', 'clone', remotes[remote][0], '--depth=1', '--branch', branch, '.'])
     except CalledProcessError as exc:
         raise GitError('Failed to clone from remote repo URL.', exc.output)
 
@@ -336,8 +340,7 @@ def clone(local_root, new_root, branch, rel_dest, exclude):
 
     # Copy all remotes from original repo.
     for name, (fetch, push) in remotes.items():
-        if name != 'origin':
-            run_command(new_root, ['git', 'remote', 'add', name, fetch])
+        run_command(new_root, ['git', 'remote', 'set-url' if name == 'origin' else 'add', name, fetch])
         run_command(new_root, ['git', 'remote', 'set-url', '--push', name, push])
 
     # Done if no exclude.
