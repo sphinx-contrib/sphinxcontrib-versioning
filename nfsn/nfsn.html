@@ -276,8 +276,8 @@ something like &#8220;ssh-rsa AAAAB3N...== Travis CI Deploy Key&#8221;</li>
 as a git remote, have SCVersioning push to NFSN, and let a git hook on NFSN move HTML files to the web root.</p>
 <div class="section" id="using-rsync">
 <h3>Using Rsync<a class="headerlink" href="#using-rsync" title="Permalink to this headline">¶</a></h3>
-<p>This is simpler and costs less (though probably not by much since NFSN is pretty cheap). All you need to do is add this
-rsync line to your .travis.yml file&#8217;s <code class="docutils literal"><span class="pre">after_success</span></code> section. Be sure to replace username_scversioning with your
+<p>This is simpler and costs less (though probably not by much since NFSN is pretty cheap). All you need to do is add these
+lines to your .travis.yml file&#8217;s <code class="docutils literal"><span class="pre">after_success</span></code> section. Be sure to replace username_scversioning with your
 actual username and remove the previous sphinx-versioning line.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">export destination=username_scversioning@ssh.phx.nearlyfreespeech.net:/home/public</span>
 <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning build docs docs/_build/html &amp;&amp; rsync -icrz --delete docs/_build/html $destination</span>
