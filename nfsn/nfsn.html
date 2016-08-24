@@ -215,11 +215,12 @@ the <a class="reference internal" href="settings.html#cmdoption--root-ref"><code
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning build docs docs/_build/html</span>
 </pre></div>
 </div>
-<p>Commit your changes to the CI config file and push. You should see documentation building successfully.</p>
+<p>Commit your changes to the CI config file and push. You should see documentation building successfully, but it should
+fail when it tries to push since we haven&#8217;t given your CI any permission to push to NFSN.</p>
 <div class="section" id="ssh-key">
 <h3>SSH Key<a class="headerlink" href="#ssh-key" title="Permalink to this headline">¶</a></h3>
-<p>Before moving on we need to create an SSH key pair and upload the private key to Travis CI. The public key will be given
-to NFSN in the next section.</p>
+<p>Now we need to create an SSH key pair and upload the private key to Travis CI. The public key will be given to NFSN in
+the next section.</p>
 <p>To avoid leaking the SSH private key (thereby granting write access to the repo) we&#8217;ll be using Travis CI&#8217;s
 <a class="reference external" href="https://docs.travis-ci.com/user/encrypting-files/">Encrypting Files</a> feature. You&#8217;ll need to install the Travis CI
 <a class="reference external" href="https://github.com/travis-ci/travis.rb#installation">ruby client</a> for this section.</p>
