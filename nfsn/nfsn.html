@@ -193,9 +193,9 @@
 using GitHub and Travis CI to actually build the docs and push them to NFSN but any other providers can be substituted.</p>
 <p>We&#8217;ll be covering two methods of having NFSN host your documentation: using <code class="docutils literal"><span class="pre">rsync</span></code> to transfer HTML files to NFSN and
 using a remote git repository hosted on NFSN using <code class="docutils literal"><span class="pre">git</span> <span class="pre">init</span> <span class="pre">--bare</span></code> and having a git hook export HTML files to the
-&#8220;/home/pubic&#8221; directory. Since NFSN&#8217;s pricing structure is usage based the latter method technically costs more sine the
-entire git history of the HTML files&#8217; git branch will be stored on NFSN, whereas in the rsync method only the HTML files
-are stored on NFSN. The cost difference is probably minimal but it&#8217;s something to keep in mind.</p>
+&#8220;/home/pubic&#8221; directory. Since NFSN&#8217;s pricing structure is usage based the latter method technically costs more since
+the entire git history of the HTML files&#8217; git branch will be stored on NFSN, whereas in the rsync method only the HTML
+files are stored on NFSN. The cost difference is probably minimal but it&#8217;s something to keep in mind.</p>
 <p>Before starting be sure to go through the <a class="reference internal" href="tutorial.html#tutorial"><span class="std std-ref">Tutorial</span></a> first to make sure you can build your docs locally. If you&#8217;re
 going with the <code class="docutils literal"><span class="pre">rsync</span></code> route you can stop after the <a class="reference internal" href="tutorial.html#build-all-versions"><span class="std std-ref">Build All Versions</span></a> section. Otherwise you should go through
 the <a class="reference internal" href="tutorial.html#push-all-versions"><span class="std std-ref">Push All Versions</span></a> section as well.</p>
