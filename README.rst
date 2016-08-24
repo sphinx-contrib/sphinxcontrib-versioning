@@ -44,8 +44,8 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-Unreleased
-----------
+2.1.2 - 2016-08-24
+------------------
 
 Fixed
     * Cloning from push remote instead of origin. If HTML files are pushed to another repo other than origin it doesn't
