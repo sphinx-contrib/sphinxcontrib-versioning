@@ -177,14 +177,15 @@
 
   <div class="section" id="nearlyfreespeech-net">
 <span id="nfsn"></span><h1>NearlyFreeSpeech.NET<a class="headerlink" href="#nearlyfreespeech-net" title="Permalink to this headline">¶</a></h1>
-<p>It&#8217;s possible to setup your CI to push HTML files to an <a class="reference external" href="https://www.nearlyfreespeech.net/">NFSN</a> site to host your
-documentation. This guide will use GitHub and Travis CI but any other providers can be substituted. The workflow will
-be:</p>
-<ol class="arabic simple">
-<li>You commit and push a change to GitHub.</li>
-<li>The Travis CI job will run your tests and then run SCVersioning on success.</li>
-<li>SCVersioning will commit to and push the branch <code class="docutils literal"><span class="pre">nfsn-pages</span></code> to ... TODO</li>
-</ol>
+<p>This guide will go over how to host your built documentation on <a class="reference external" href="https://www.nearlyfreespeech.net/">NFSN</a>. We&#8217;ll be
+using GitHub and Travis CI to actually build the docs and push them to NFSN but any other providers can be substituted.</p>
+<p>Since NFSN pricing structure is usage-based, it&#8217;s probably a bad idea to host the entire git history of your built docs
+like the GitHub Pages guide. For this reason this guide will cover two solutions, giving you the choice of hosting just
+the built docs with the help of <code class="docutils literal"><span class="pre">rsync</span></code> or hosting the entire git history (for just the built docs, not the RST file
+sources) using <code class="docutils literal"><span class="pre">git</span> <span class="pre">init</span> <span class="pre">--bare</span></code>.</p>
+<p>Before starting be sure to go through the <a class="reference internal" href="tutorial.html#tutorial"><span class="std std-ref">Tutorial</span></a> first to make sure you can build your docs locally. If you&#8217;re
+going with the <code class="docutils literal"><span class="pre">rsync</span></code> route you can stop after the <span class="xref std std-ref">bush-all-versions</span> section. Otherwise you should go through
+the <a class="reference internal" href="tutorial.html#push-all-versions"><span class="std std-ref">Push All Versions</span></a> section as well.</p>
 </div>
 
 
