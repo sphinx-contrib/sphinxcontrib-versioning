@@ -323,8 +323,9 @@ git remote add nfsn <span class="s2">&quot;username_scversioning@ssh.phx.nearlyf
 git push nfsn nfsn-pages
 </pre></div>
 </div>
-<p>Finally add these lines to your .travis.yml file&#8217;s <code class="docutils literal"><span class="pre">after_success</span></code> section. Be sure to replace username_scversioning
-with your actual username and remove the previous sphinx-versioning line.</p>
+<p>At this point you should see .gitignore and README.rst in your /home/public directory on NFSN. Finally add these lines
+to your .travis.yml file&#8217;s <code class="docutils literal"><span class="pre">after_success</span></code> section. Be sure to replace username_scversioning with your actual username
+and remove the previous sphinx-versioning line.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.email &quot;builds@travis-ci.com&quot;</span>
 <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.name &quot;Travis CI&quot;</span>
 <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git remote add nfsn &quot;username_scversioning@ssh.phx.nearlyfreespeech.net:/home/private/repo&quot;</span>
