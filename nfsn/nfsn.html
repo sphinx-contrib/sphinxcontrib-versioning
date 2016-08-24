@@ -271,11 +271,20 @@ something like &#8220;ssh-rsa AAAAB3N...== Travis CI Deploy Key&#8221;</li>
 </div>
 <div class="section" id="pushing-from-ci-to-nfsn">
 <h2>Pushing From CI to NFSN<a class="headerlink" href="#pushing-from-ci-to-nfsn" title="Permalink to this headline">¶</a></h2>
-<p>This is the moment of truth. You need to decice if you want to just rsync HTML files from Travis CI to NFSN or add NFSN
+<p>This is the moment of truth. You need to decide if you want to just rsync HTML files from Travis CI to NFSN or add NFSN
 as a git remote, have SCVersioning push to NFSN, and let a git hook on NFSN move HTML files to the web root.</p>
 <div class="section" id="using-rsync">
 <h3>Using Rsync<a class="headerlink" href="#using-rsync" title="Permalink to this headline">¶</a></h3>
-<p>This is simpler and costs less (though probably not by much since NFSN is pretty cheap).</p>
+<p>This is simpler and costs less (though probably not by much since NFSN is pretty cheap). All you need to do is add this
+rsync line to your .travis.yml file&#8217;s after_success section. Be sure to replace username_scversioning with your actual
+username.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
+  - <span class="nb">export</span> <span class="nv">destination</span><span class="o">=</span>username_scversioning@ssh.phx.nearlyfreespeech.net:/home/public
+  - sphinx-versioning build docs docs/_build/html <span class="o">&amp;&amp;</span> rsync -icrz --delete docs/_build/html <span class="nv">$destination</span>
+</pre></div>
+</div>
+<p>We&#8217;re adding rsync to the same line as sphinx-versioning because Travis CI runs all commands in after_success even if
+one of them fails. No point in rsyncing if sphinx-versioning fails.</p>
 </div>
 <div class="section" id="using-git-bare-repo">
 <h3>Using Git Bare Repo<a class="headerlink" href="#using-git-bare-repo" title="Permalink to this headline">¶</a></h3>
