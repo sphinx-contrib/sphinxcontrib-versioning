@@ -31,6 +31,8 @@ and dirty you can do the following:
     local changes (committed, staged, unstaged, etc). If you don't push to origin SCVersioning won't see them. This
     eliminates race conditions when multiple CI jobs are building docs at the same time.
 
+.. _build-all-versions:
+
 Build All Versions
 ------------------
 
@@ -57,6 +59,8 @@ section in the sidebar.
 
 If all you want SCVersioning to do is build docs for you for all versions and let you handle pushing them to a web host
 and hosting them yourself then you are done here. Otherwise if you want to use the ``push`` feature then keep reading.
+
+.. _pushing-to-remote-branch:
 
 Pushing to Remote Branch
 ========================

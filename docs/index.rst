@@ -49,6 +49,7 @@ Project Links
     :caption: Web Hosting
 
     github_pages
+    nfsn
 
 .. toctree::
     :maxdepth: 1

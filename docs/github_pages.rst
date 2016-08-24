@@ -120,13 +120,14 @@ travis.yml
 
 The ``travis encrypt-file`` command should have updated your ``.travis.yml`` with the openssl command for you. However
 we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
-section look like this:
+section look like the following. Remember to replace **$encrypted_x_key** and **$encrypted_x_iv** with what you
+currently have.
 
 .. code-block:: yaml
 
     after_success:
       - eval "$(ssh-agent -s)"; touch docs/key; chmod 0600 docs/key
-      - openssl aes-256-cbc -d -K "$encrypted_key" -iv "$encrypted_iv" < docs/key.enc > docs/key
+      - openssl aes-256-cbc -d -K $encrypted_x_key -iv $encrypted_x_iv < docs/key.enc > docs/key
         && ssh-add docs/key  # Use && to prevent ssh-add from prompting during pull requests.
       - git config --global user.email "builds@travis-ci.com"
       - git config --global user.name "Travis CI"
