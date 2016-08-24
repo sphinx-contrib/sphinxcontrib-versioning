@@ -172,27 +172,27 @@ def test_second_remote(tmpdir, local_docs_ghp, run, urls):
     :param run: conftest fixture.
     :param urls: conftest fixture.
     """
-    # Error out because origin2 doesn't exist yet.
+    # Error out because remote2 doesn't exist yet.
     with pytest.raises(CalledProcessError) as exc:
-        run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'origin2'])
+        run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'remote2'])
     assert 'Traceback' not in exc.value.output
     assert 'Failed to push to remote.' in exc.value.output
-    assert "fatal: 'origin2' does not appear to be a git repository" in exc.value.output
+    assert "fatal: 'remote2' does not appear to be a git repository" in exc.value.output
 
-    # Create origin2.
-    origin2 = tmpdir.ensure_dir('origin2')
-    run(origin2, ['git', 'init', '--bare'])
-    run(local_docs_ghp, ['git', 'remote', 'add', 'origin2', origin2])
-    run(local_docs_ghp, ['git', 'push', 'origin2', 'gh-pages'])
+    # Create remote2.
+    remote2 = tmpdir.ensure_dir('remote2')
+    run(remote2, ['git', 'init', '--bare'])
+    run(local_docs_ghp, ['git', 'remote', 'add', 'remote2', remote2])
+    run(local_docs_ghp, ['git', 'push', 'remote2', 'gh-pages'])
 
     # Run again.
-    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'origin2'])
+    output = run(local_docs_ghp, ['sphinx-versioning', 'push', '.', 'gh-pages', '.', '-P', 'remote2'])
     assert 'Traceback' not in output
     assert 'Successfully pushed to remote repository.' in output
 
     # Check files.
-    run(local_docs_ghp, ['git', 'checkout', 'origin2/gh-pages'])
-    run(local_docs_ghp, ['git', 'pull', 'origin2', 'gh-pages'])
+    run(local_docs_ghp, ['git', 'checkout', 'remote2/gh-pages'])
+    run(local_docs_ghp, ['git', 'pull', 'remote2', 'gh-pages'])
     urls(local_docs_ghp.join('contents.html'), ['<li><a href="master/contents.html">master</a></li>'])
     urls(local_docs_ghp.join('master', 'contents.html'), ['<li><a href="contents.html">master</a></li>'])
     run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])

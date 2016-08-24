@@ -52,7 +52,7 @@ Running in CI
 The goal of using GitHub Pages is to have docs automatically update on every new/changed branch/tag. In this example
 we'll be using Travis CI but any CI should work.
 
-Travis won't be able to push any changes to the gh-pages branch without SSH keys. This guide will worry about just
+Travis won't be able to push any changes to the gh-pages branch without SSH keys. This section will worry about just
 getting Travis to run SCVersioning. It should only fail when trying to push to origin.
 
 CI Config File
@@ -122,7 +122,7 @@ The ``travis encrypt-file`` command should have updated your ``.travis.yml`` wit
 we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
 section look like this:
 
-.. code-block:: bash
+.. code-block:: yaml
 
     after_success:
       - eval "$(ssh-agent -s)"; touch docs/key; chmod 0600 docs/key
