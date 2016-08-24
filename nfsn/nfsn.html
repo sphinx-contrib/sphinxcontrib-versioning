@@ -288,10 +288,20 @@ one of them fails. No point in rsyncing if sphinx-versioning fails.</p>
 <div class="section" id="using-git-bare-repo">
 <h3>Using Git Bare Repo<a class="headerlink" href="#using-git-bare-repo" title="Permalink to this headline">¶</a></h3>
 <p>You can take advantage of SCVersioning&#8217;s git push retry logic if you go this route.</p>
-<p>First create the remote repo on NFSN and setup a git hook. SSH into your new site and run these commands:</p>
+<p>First create the remote repo on NFSN. SSH into your new site and run these commands:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir /home/private/repo
 <span class="nb">cd</span> /home/private/repo
 git init --bare
+</pre></div>
+</div>
+<p>Next setup the post-receive git hook. Write the following to /home/private/repo/hooks/post-receive on NFSN:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># !/bin/bash</span>
+<span class="k">while</span> <span class="nb">read</span> oldrev newrev ref<span class="p">;</span> <span class="k">do</span>
+    <span class="nv">branch</span><span class="o">=</span><span class="k">$(</span>git rev-parse --symbolic --abbrev-ref <span class="nv">$ref</span><span class="k">)</span>
+    <span class="nb">export</span> <span class="nv">GIT_WORK_TREE</span><span class="o">=</span><span class="s2">&quot;checkout/</span><span class="nv">$branch</span><span class="s2">&quot;</span>
+    <span class="o">[</span> ! -e <span class="nv">$GIT_WORK_TREE</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> mkdir -p <span class="nv">$GIT_WORK_TREE</span>
+    git checkout -f <span class="nv">$branch</span>
+<span class="k">done</span>
 </pre></div>
 </div>
 </div>
