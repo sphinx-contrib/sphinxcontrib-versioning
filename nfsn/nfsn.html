@@ -111,7 +111,10 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="github_pages.html">GitHub Pages</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">NearlyFreeSpeech.NET</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#running-in-ci">Running in CI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-in-ci">Running in CI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ssh-key">SSH Key</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#create-an-nfsn-site">Create an NFSN Site</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pushing-from-ci-to-nfsn">Pushing From CI to NFSN</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#using-rsync">Using Rsync</a></li>
@@ -213,6 +216,44 @@ the <a class="reference internal" href="settings.html#cmdoption--root-ref"><code
 </pre></div>
 </div>
 <p>Commit your changes to the CI config file and push. You should see documentation building successfully.</p>
+<div class="section" id="ssh-key">
+<h3>SSH Key<a class="headerlink" href="#ssh-key" title="Permalink to this headline">¶</a></h3>
+<p>Before moving on we need to create an SSH key pair and upload the private key to Travis CI. The public key will be given
+to NFSN in the next section.</p>
+<p>To avoid leaking the SSH private key (thereby granting write access to the repo) we&#8217;ll be using Travis CI&#8217;s
+<a class="reference external" href="https://docs.travis-ci.com/user/encrypting-files/">Encrypting Files</a> feature. You&#8217;ll need to install the Travis CI
+<a class="reference external" href="https://github.com/travis-ci/travis.rb#installation">ruby client</a> for this section.</p>
+<p>Create the SSH key pair.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>ssh-keygen -t rsa -b <span class="m">4096</span> -C <span class="s2">&quot;Travis CI Deploy Key&quot;</span> -N <span class="s2">&quot;&quot;</span> -f docs/key
+cat docs/key.pub  <span class="c1"># We&#39;ll be adding this to NFSN&#39;s Add SSH Key page.</span>
+travis encrypt-file docs/key docs/key.enc --add after_success  <span class="c1"># Updates .travis.yml</span>
+rm docs/key docs/key.pub  <span class="c1"># Don&#39;t need these anymore.</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">travis</span> <span class="pre">encrypt-file</span></code> command should have updated your <code class="docutils literal"><span class="pre">.travis.yml</span></code> with the openssl command for you. However
+we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
+section look like this:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
+  - <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>ssh-agent -s<span class="k">)</span><span class="s2">&quot;</span><span class="p">;</span> touch docs/key<span class="p">;</span> chmod <span class="m">0600</span> docs/key
+  - openssl aes-256-cbc -d -K <span class="s2">&quot;</span><span class="nv">$encrypted_key</span><span class="s2">&quot;</span> -iv <span class="s2">&quot;</span><span class="nv">$encrypted_iv</span><span class="s2">&quot;</span> &lt; docs/key.enc &gt; docs/key
+    <span class="o">&amp;&amp;</span> ssh-add docs/key  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
+  - sphinx-versioning build docs docs/_build/html
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Always conditionally run ssh-add only if openssl succeeds like in the example above. Encrypted environment variables
+are not set on Travis CI and probably other CIs during pull requests for security reasons. If you always run ssh-add
+(which appears to be what everyone does) all of your pull requests will have failing tests because:</p>
+<ol class="last arabic simple">
+<li>Travis CI runs all commands in after_success even if one fails.</li>
+<li>openssl appears to copy &#8220;key.enc&#8221; to &#8220;key&#8221; when it fails to decrypt.</li>
+<li>ssh-add will prompt for a passphrase because it thinks the file is encrypted with an SSH passphrase.</li>
+<li>The Travis job will hang, timeout, and fail even if tests pass.</li>
+</ol>
+</div>
+<p>Finally commit both <strong>.travis.yml</strong> and the encrypted <strong>docs/key.enc</strong> file.</p>
+</div>
 </div>
 <div class="section" id="create-an-nfsn-site">
 <h2>Create an NFSN Site<a class="headerlink" href="#create-an-nfsn-site" title="Permalink to this headline">¶</a></h2>
@@ -223,6 +264,8 @@ and disposable site to avoid breaking anything important.</p>
 the new site&#8217;s short name.</li>
 <li>Since this is all just static HTML files you won&#8217;t need PHP/MySQL/etc. Select the &#8220;Static Content&#8221; server type.</li>
 <li>You should be able to visit <cite>http://scversioning.nfshost.com/</cite> and get an HTTP 403 error.</li>
+<li>Go to the <strong>profile</strong> tab and click <strong>Add SSH Key</strong>. The key you&#8217;re pasting will be one long line and will look
+something like &#8220;ssh-rsa AAAAB3N...== Travis CI Deploy Key&#8221;</li>
 <li>SSH into your new site.</li>
 </ol>
 </div>
