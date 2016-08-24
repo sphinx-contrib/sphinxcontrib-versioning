@@ -282,7 +282,7 @@ as a git remote, have SCVersioning push to NFSN, and let a git hook on NFSN move
 lines to your .travis.yml file&#8217;s <code class="docutils literal"><span class="pre">after_success</span></code> section. Be sure to replace username_scversioning with your
 actual username and remove the previous sphinx-versioning line.</p>
 <div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">export destination=username_scversioning@ssh.phx.nearlyfreespeech.net:/home/public</span>
-<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning build docs docs/_build/html &amp;&amp; rsync -icrz --delete docs/_build/html $destination</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning build docs docs/_build/html &amp;&amp; rsync -icrz --delete docs/_build/html/ $destination</span>
 </pre></div>
 </div>
 <p>We&#8217;re adding rsync to the same line as sphinx-versioning because Travis CI runs all commands in after_success even if
