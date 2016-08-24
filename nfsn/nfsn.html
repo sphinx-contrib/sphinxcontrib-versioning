@@ -233,11 +233,11 @@ rm docs/key docs/key.pub  <span class="c1"># Don&#39;t need these anymore.</span
 <p>The <code class="docutils literal"><span class="pre">travis</span> <span class="pre">encrypt-file</span></code> command should have updated your <code class="docutils literal"><span class="pre">.travis.yml</span></code> with the openssl command for you. However
 we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
 section look like this:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
-  - <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>ssh-agent -s<span class="k">)</span><span class="s2">&quot;</span><span class="p">;</span> touch docs/key<span class="p">;</span> chmod <span class="m">0600</span> docs/key
-  - openssl aes-256-cbc -d -K <span class="s2">&quot;</span><span class="nv">$encrypted_key</span><span class="s2">&quot;</span> -iv <span class="s2">&quot;</span><span class="nv">$encrypted_iv</span><span class="s2">&quot;</span> &lt; docs/key.enc &gt; docs/key
-    <span class="o">&amp;&amp;</span> ssh-add docs/key  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
-  - sphinx-versioning build docs docs/_build/html
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">eval &quot;$(ssh-agent -s)&quot;; touch docs/key; chmod 0600 docs/key</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">openssl aes-256-cbc -d -K &quot;$encrypted_key&quot; -iv &quot;$encrypted_iv&quot; &lt; docs/key.enc &gt; docs/key</span>
+    <span class="l l-Scalar l-Scalar-Plain">&amp;&amp; ssh-add docs/key</span>  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning build docs docs/_build/html</span>
 </pre></div>
 </div>
 <div class="admonition warning">
@@ -266,7 +266,6 @@ the new site&#8217;s short name.</li>
 <li>You should be able to visit <cite>http://scversioning.nfshost.com/</cite> and get an HTTP 403 error.</li>
 <li>Go to the <strong>profile</strong> tab and click &#8220;Add SSH Key&#8221;. The key you&#8217;re pasting will be one long line and will look
 something like &#8220;ssh-rsa AAAAB3N...== Travis CI Deploy Key&#8221;</li>
-<li>SSH into your new site.</li>
 </ol>
 </div>
 <div class="section" id="pushing-from-ci-to-nfsn">
@@ -278,9 +277,9 @@ as a git remote, have SCVersioning push to NFSN, and let a git hook on NFSN move
 <p>This is simpler and costs less (though probably not by much since NFSN is pretty cheap). All you need to do is add this
 rsync line to your .travis.yml file&#8217;s after_success section. Be sure to replace username_scversioning with your actual
 username.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
-  - <span class="nb">export</span> <span class="nv">destination</span><span class="o">=</span>username_scversioning@ssh.phx.nearlyfreespeech.net:/home/public
-  - sphinx-versioning build docs docs/_build/html <span class="o">&amp;&amp;</span> rsync -icrz --delete docs/_build/html <span class="nv">$destination</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">export destination=username_scversioning@ssh.phx.nearlyfreespeech.net:/home/public</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning build docs docs/_build/html &amp;&amp; rsync -icrz --delete docs/_build/html $destination</span>
 </pre></div>
 </div>
 <p>We&#8217;re adding rsync to the same line as sphinx-versioning because Travis CI runs all commands in after_success even if
@@ -289,6 +288,12 @@ one of them fails. No point in rsyncing if sphinx-versioning fails.</p>
 <div class="section" id="using-git-bare-repo">
 <h3>Using Git Bare Repo<a class="headerlink" href="#using-git-bare-repo" title="Permalink to this headline">¶</a></h3>
 <p>You can take advantage of SCVersioning&#8217;s git push retry logic if you go this route.</p>
+<p>First create the remote repo on NFSN and setup a git hook. SSH into your new site and run these commands:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>mkdir /home/private/repo
+<span class="nb">cd</span> /home/private/repo
+git init --bare
+</pre></div>
+</div>
 </div>
 </div>
 </div>

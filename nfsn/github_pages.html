@@ -287,15 +287,15 @@ Travis CI Deploy Key&#8221;</p>
 <p>The <code class="docutils literal"><span class="pre">travis</span> <span class="pre">encrypt-file</span></code> command should have updated your <code class="docutils literal"><span class="pre">.travis.yml</span></code> with the openssl command for you. However
 we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
 section look like this:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>after_success:
-  - <span class="nb">eval</span> <span class="s2">&quot;</span><span class="k">$(</span>ssh-agent -s<span class="k">)</span><span class="s2">&quot;</span><span class="p">;</span> touch docs/key<span class="p">;</span> chmod <span class="m">0600</span> docs/key
-  - openssl aes-256-cbc -d -K <span class="s2">&quot;</span><span class="nv">$encrypted_key</span><span class="s2">&quot;</span> -iv <span class="s2">&quot;</span><span class="nv">$encrypted_iv</span><span class="s2">&quot;</span> &lt; docs/key.enc &gt; docs/key
-    <span class="o">&amp;&amp;</span> ssh-add docs/key  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
-  - git config --global user.email <span class="s2">&quot;builds@travis-ci.com&quot;</span>
-  - git config --global user.name <span class="s2">&quot;Travis CI&quot;</span>
-  - git remote set-url --push origin <span class="s2">&quot;git@github.com:</span><span class="nv">$TRAVIS_REPO_SLUG</span><span class="s2">&quot;</span>
-  - <span class="nb">export</span> <span class="si">${</span><span class="p">!TRAVIS*</span><span class="si">}</span>  <span class="c1"># Optional, for commit messages.</span>
-  - sphinx-versioning push docs gh-pages .
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">eval &quot;$(ssh-agent -s)&quot;; touch docs/key; chmod 0600 docs/key</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">openssl aes-256-cbc -d -K &quot;$encrypted_key&quot; -iv &quot;$encrypted_iv&quot; &lt; docs/key.enc &gt; docs/key</span>
+    <span class="l l-Scalar l-Scalar-Plain">&amp;&amp; ssh-add docs/key</span>  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.email &quot;builds@travis-ci.com&quot;</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.name &quot;Travis CI&quot;</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git remote set-url --push origin &quot;git@github.com:$TRAVIS_REPO_SLUG&quot;</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">export ${!TRAVIS*}</span>  <span class="c1"># Optional, for commit messages.</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning push docs gh-pages .</span>
 </pre></div>
 </div>
 <div class="admonition warning">
