@@ -187,9 +187,15 @@
 <div class="section" id="unreleased">
 <h2>Unreleased<a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
+<dt>Added</dt>
+<dd><ul class="first last simple">
+<li>Command line option: <code class="docutils literal"><span class="pre">--push-remote</span></code></li>
+</ul>
+</dd>
 <dt>Fixed</dt>
 <dd><ul class="first last simple">
-<li>Carrying over to cloned repo the git remote push URL if it&#8217;s different from fetch URL.</li>
+<li>Copy all remotes from the original repo to the temporarily cloned repo when pushing built docs to a remote.
+Carries over all remote URLs in case user defines a different URL for push vs fetch.</li>
 </ul>
 </dd>
 </dl>
@@ -348,7 +354,6 @@ to make sphinx-build verbose.</li>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../cli_push/changelog.html">cli_push</a></dd>
             <dd><a href="changelog.html">master</a></dd>
             <dd><a href="../nfsn/changelog.html">nfsn</a></dd>
         </dl>

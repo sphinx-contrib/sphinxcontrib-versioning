@@ -453,16 +453,17 @@ objects:</p>
 <p><code class="docutils literal"><span class="pre">push</span></code> does the same as build and also attempts to push generated HTML files to a remote branch. It will retry up to
 three times in case of race conditions with other processes also trying to push files to the same branch (e.g. multiple
 Jenkins/Travis jobs).</p>
-<p>HTML files are committed to <a class="reference internal" href="#cmdoption-arg-DEST_BRANCH"><code class="xref std std-option docutils literal"><span class="pre">DEST_BRANCH</span></code></a> and pushed to origin.</p>
+<p>HTML files are committed to <a class="reference internal" href="#cmdoption-arg-DEST_BRANCH"><code class="xref std std-option docutils literal"><span class="pre">DEST_BRANCH</span></code></a> and pushed to <a class="reference internal" href="#cmdoption--push-remote"><code class="xref std std-option docutils literal"><span class="pre">--push-remote</span></code></a>.</p>
 <div class="section" id="id5">
 <h3>Positional Arguments<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p>In addition to the <a class="reference internal" href="#common-positional-arguments"><span class="std std-ref">common arguments</span></a>:</p>
 <dl class="option">
 <dt id="cmdoption-arg-DEST_BRANCH">
 <code class="descname">DEST_BRANCH</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-arg-DEST_BRANCH" title="Permalink to this definition">¶</a></dt>
-<dd><p>The branch name where generated docs will be committed to. The branch will then be pushed to origin. If there is a
-race condition with another job pushing to origin the docs will be re-generated and pushed again.</p>
-<p>This must be a branch and not a tag. This also must already exist in origin.</p>
+<dd><p>The branch name where generated docs will be committed to. The branch will then be pushed to the remote specified in
+<a class="reference internal" href="#cmdoption--push-remote"><code class="xref std std-option docutils literal"><span class="pre">--push-remote</span></code></a>. If there is a race condition with another job pushing to the remote the docs will be
+re-generated and pushed again.</p>
+<p>This must be a branch and not a tag. This also must already exist in the remote.</p>
 </dd></dl>
 
 <dl class="option">
@@ -490,6 +491,16 @@ multiple files or directories to be excluded by adding more <code class="docutil
 files in the branch if a branch is deleted from the repo after SCVersioning already created HTML files for it.</p>
 <p>This setting may also be specified in your conf.py file. It must be a tuple of strings:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_grm_exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;README.md&#39;</span><span class="p">,</span> <span class="s1">&#39;.gitignore&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-P">
+<span id="cmdoption--push-remote"></span><span id="cmdoption-arg-scv_push_remote"></span><code class="descname">-P</code><code class="descclassname"> &lt;remote&gt;</code><code class="descclassname">, </code><code class="descname">--push-remote</code><code class="descclassname"> &lt;remote&gt;</code><code class="descclassname">, </code><code class="descname">scv_push_remote</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-P" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push built docs to this remote. Default is <strong>origin</strong>.</p>
+<p>This setting may also be specified in your conf.py file. It must be a string:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">scv_push_remote</span> <span class="o">=</span> <span class="s1">&#39;origin2&#39;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -550,7 +561,6 @@ files in the branch if a branch is deleted from the repo after SCVersioning alre
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../cli_push/settings.html">cli_push</a></dd>
             <dd><a href="settings.html">master</a></dd>
             <dd><a href="../nfsn/settings.html">nfsn</a></dd>
         </dl>
