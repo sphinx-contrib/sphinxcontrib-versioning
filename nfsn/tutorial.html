@@ -234,7 +234,7 @@ and hosting them yourself then you are done here. Otherwise if you want to use t
 </div>
 </div>
 <div class="section" id="pushing-to-remote-branch">
-<h2>Pushing to Remote Branch<a class="headerlink" href="#pushing-to-remote-branch" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2>Pushing to Remote Branch<a class="headerlink" href="#pushing-to-remote-branch" title="Permalink to this headline">¶</a></h2>
 <p>SCVersioning supports pushing generated HTML files of your documentation to a remote branch, handling retries in case of
 race conditions where other parallel jobs try to build docs and push them to the same branch.</p>
 <p>Building on the previous section above let&#8217;s go ahead and push those docs to a branch called <code class="docutils literal"><span class="pre">gh-pages</span></code>. The branch
@@ -251,7 +251,7 @@ git push origin gh-pages
 <p>Since this branch will just host HTML pages you can create an orphaned branch with no history instead of cluttering it
 up with the history of your code changes.</p>
 <div class="section" id="push-all-versions">
-<span id="id3"></span><h3>Push All Versions<a class="headerlink" href="#push-all-versions" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h3>Push All Versions<a class="headerlink" href="#push-all-versions" title="Permalink to this headline">¶</a></h3>
 <p>Now that you have the destination branch in origin go ahead and run SCVersioning:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>sphinx-versioning -r feature_branch push docs gh-pages .
 </pre></div>
