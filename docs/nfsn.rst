@@ -178,3 +178,38 @@ and remove the previous sphinx-versioning line.
 
 After committing you should see Travis CI push HTML files to NFSN and your site should be up and running with your
 documentation.
+
+Robots and 404 Pages
+====================
+
+Since you're using NFSN to host your docs you'll probably want to setup a 404 page as well as a ``robots.txt``. A
+robots.txt is pretty easy: just place it in your **docs** directory (next to conf.py) and add
+``html_extra_path = ['robots.txt']`` to your conf.py.
+
+A 404 page is slightly more involved. First add a 404.rst in your docs directory. Then create a
+**docs/_templates/layout.html** file and add this to it:
+
+.. code-block:: jinja
+
+    {% if pagename == '404' and scv_is_root %}
+        {% set metatags = '<base href="/">\n  ' + metatags %}
+    {% endif %}
+
+.. note::
+
+    The base href thing fixes the relative URLs problem on 404 errors in subdirectories. If users go to
+    `http://scversioning.nfshost.com/unknown/index.html` Apache will serve the /404.html file contents without having
+    browsers change the current directory path. This causes browsers to resolve relative URLs (and CSS files) in
+    404.html to for example `http://scversioning.nfshost.com/unknown/_static/css/theme.css` which itself is a 404.
+    ``<base href="/">`` fixes this so browsers resolve all relative URLs/links/etc to
+    `http://scversioning.nfshost.com/_static/css/theme.css`.
+
+Next you need to tell NFSN to give browsers 404.html on an HTTP 404 error. Add an ``.htaccess`` file in your docs
+directory and put ``ErrorDocument 404 /404.html`` in it.
+
+Finally to tie it all together add this to your **conf.py**:
+
+.. code-block:: python
+
+    templates_path = ['_templates']
+    html_extra_path = ['.htaccess', 'robots.txt']
