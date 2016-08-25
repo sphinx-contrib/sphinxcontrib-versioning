@@ -112,6 +112,11 @@ class EventHandlers(object):
         context['vhasdoc'] = versions.vhasdoc
         context['vpathto'] = versions.vpathto
 
+        # Insert banner into body.
+        if cls.SHOW_BANNER and 'body' in context:
+            parsed = app.builder.templates.render('banner.html', context)
+            context['body'] = parsed + context['body']
+
 
 def setup(app):
     """Called by Sphinx during phase 0 (initialization).

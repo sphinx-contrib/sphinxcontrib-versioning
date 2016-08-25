@@ -149,6 +149,30 @@ def test_versions_override(tmpdir, local_docs):
     assert '<li>BitBucket: feature</li>' in contents
 
 
+def test_layout_override(tmpdir, local_docs):
+    """Verify users can still override layout.html.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
+    """
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
+
+    local_docs.join('conf.py').write(
+        'templates_path = ["_templates"]\n'
+    )
+    local_docs.ensure('_templates', 'layout.html').write(
+        '{% extends "!layout.html" %}\n'
+        '{% block extrahead %}\n'
+        '<!-- Hidden Message -->\n'
+        '{% endblock %}\n'
+    )
+
+    target = tmpdir.ensure_dir('target_master')
+    build(str(local_docs), str(target), versions, 'master', True)
+    contents = target.join('contents.html').read()
+    assert '<!-- Hidden Message -->' in contents
+
+
 def test_subdirs(tmpdir, local_docs, urls):
     """Make sure relative URLs in `versions` works with RST files in subdirectories.
 

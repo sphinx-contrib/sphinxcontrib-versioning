@@ -1,8 +1,0 @@
-{# Import the theme's layout. #}
-{% extends "!layout.html" %}
-
-{# Prepend banner to body. #}
-{%- set body %}
-    {%- if scv_show_banner %}{%- include "banner.html" %}{% endif %}
-    {%- block body %}{% endblock %}  {# Sphinx overrides body block without calling super(). #}
-{% endset %}
