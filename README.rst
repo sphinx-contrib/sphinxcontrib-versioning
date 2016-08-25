@@ -44,6 +44,12 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+2.1.3 - 2016-08-24
+------------------
+
+Fixed
+    * Stopped blocking users from overriding their layout.html. Using another approach to inserting the banner.
+
 2.1.2 - 2016-08-24
 ------------------
 
