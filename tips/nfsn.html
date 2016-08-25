@@ -347,13 +347,22 @@ documentation.</p>
 robots.txt is pretty easy: just place it in your <strong>docs</strong> directory (next to conf.py) and add
 <code class="docutils literal"><span class="pre">html_extra_path</span> <span class="pre">=</span> <span class="pre">['robots.txt']</span></code> to your conf.py.</p>
 <p>A 404 page is slightly more involved. First add a 404.rst in your docs directory. Then create a
-<strong>docs/_templates/layout.html</strong> file and write this to it:</p>
+<strong>docs/_templates/layout.html</strong> file and add this to it:</p>
 <div class="highlight-jinja"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">if</span> <span class="nv">pagename</span> <span class="o">==</span> <span class="s1">&#39;404&#39;</span> <span class="k">and</span> <span class="nv">scv_is_root</span> <span class="cp">%}</span><span class="x"></span>
 <span class="x">    </span><span class="cp">{%</span> <span class="k">set</span> <span class="nv">metatags</span> <span class="o">=</span> <span class="s1">&#39;&lt;base href=&quot;/&quot;&gt;\n  &#39;</span> <span class="o">+</span> <span class="nv">metatags</span> <span class="cp">%}</span><span class="x"></span>
 <span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span><span class="x"></span>
 </pre></div>
 </div>
-<p>Next you need to tell NFSN to give browsers 404.html on an HTTP 404 error. Add a <code class="docutils literal"><span class="pre">.htaccess</span></code> file in your docs
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The base href thing fixes the relative URLs problem on 404 errors in subdirectories. If users go to
+<cite>http://scversioning.nfshost.com/unknown/index.html</cite> Apache will serve the /404.html file contents without having
+browsers change the current directory path. This causes browsers to resolve relative URLs (and CSS files) in
+404.html to for example <cite>http://scversioning.nfshost.com/unknown/_static/css/theme.css</cite> which itself is a 404.
+<code class="docutils literal"><span class="pre">&lt;base</span> <span class="pre">href=&quot;/&quot;&gt;</span></code> fixes this so browsers resolve all relative URLs/links/etc to
+<cite>http://scversioning.nfshost.com/_static/css/theme.css</cite>.</p>
+</div>
+<p>Next you need to tell NFSN to give browsers 404.html on an HTTP 404 error. Add an <code class="docutils literal"><span class="pre">.htaccess</span></code> file in your docs
 directory and put <code class="docutils literal"><span class="pre">ErrorDocument</span> <span class="pre">404</span> <span class="pre">/404.html</span></code> in it.</p>
 <p>Finally to tie it all together add this to your <strong>conf.py</strong>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">templates_path</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_templates&#39;</span><span class="p">]</span>
