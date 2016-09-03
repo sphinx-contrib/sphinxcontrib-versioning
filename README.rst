@@ -44,8 +44,8 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-Unreleased
-----------
+2.1.4 - 2016-09-03
+------------------
 
 Fixed
     * banner.css being overridden by conf.py: https://github.com/Robpol86/sphinxcontrib-versioning/issues/23
