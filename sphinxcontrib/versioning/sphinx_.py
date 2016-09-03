@@ -1,7 +1,5 @@
 """Interface with Sphinx."""
 
-from __future__ import print_function
-
 import logging
 import multiprocessing
 import os
@@ -18,6 +16,7 @@ from sphinxcontrib.versioning.lib import Config, HandledError, TempDir
 from sphinxcontrib.versioning.versions import Versions
 
 SC_VERSIONING_VERSIONS = list()  # Updated after forking.
+STATIC_DIR = os.path.join(os.path.dirname(__file__), '_static')
 
 
 class EventHandlers(object):
@@ -116,6 +115,13 @@ class EventHandlers(object):
         if cls.SHOW_BANNER and 'body' in context:
             parsed = app.builder.templates.render('banner.html', context)
             context['body'] = parsed + context['body']
+            # Handle overridden css_files.
+            css_files = context.setdefault('css_files', list())
+            if '_static/banner.css' not in css_files:
+                css_files.append('_static/banner.css')
+            # Handle overridden html_static_path.
+            if STATIC_DIR not in app.config.html_static_path:
+                app.config.html_static_path.append(STATIC_DIR)
 
 
 def setup(app):
@@ -130,7 +136,7 @@ def setup(app):
     app.add_config_value('sphinxcontrib_versioning_versions', SC_VERSIONING_VERSIONS, 'html')
 
     # Needed for banner.
-    app.config.html_static_path.append(os.path.join(os.path.dirname(__file__), '_static'))
+    app.config.html_static_path.append(STATIC_DIR)
     app.add_stylesheet('banner.css')
 
     # Tell Sphinx which config values can be set by the user.

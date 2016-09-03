@@ -600,6 +600,37 @@ def test_banner(banner, local_docs, run, disable_banner):
            'an old version of Python. The main version is stable')
 
 
+def test_banner_css_override(banner, local_docs, run):
+    """Test the banner CSS being present even if user overrides html_context['css_files'].
+
+    :param banner: conftest fixture.
+    :param local_docs: conftest fixture.
+    :param run: conftest fixture.
+    """
+    local_docs.join('conf.py').write("html_context = {'css_files': ['_static/theme_overrides.css']}\n", mode='a')
+    local_docs.join('conf.py').write("html_static_path = ['_static']\n", mode='a')
+    run(local_docs, ['git', 'commit', '-am', 'Setting override.'])
+    run(local_docs, ['git', 'checkout', '-b', 'other', 'master'])
+    run(local_docs, ['git', 'push', 'origin', 'master', 'other'])
+
+    # Run.
+    destination = local_docs.ensure_dir('..', 'destination')
+    output = run(local_docs, ['sphinx-versioning', 'build', '.', str(destination), '--show-banner'])
+    assert 'Traceback' not in output
+    assert 'Disabling banner.' not in output
+    assert 'Banner main ref is: master' in output
+
+    # Check banner.
+    banner(destination.join('master', 'contents.html'), None)  # No banner in main ref.
+    banner(destination.join('other', 'contents.html'), '../master/contents.html',
+           'the development version of Python. The main version is master')
+
+    # Check CSS.
+    contents = destination.join('other', 'contents.html').read()
+    assert 'rel="stylesheet" href="_static/banner.css"' in contents
+    assert destination.join('other', '_static', 'banner.css').check(file=True)
+
+
 def test_error_bad_path(tmpdir, run):
     """Test handling of bad paths.
 
