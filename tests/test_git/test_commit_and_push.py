@@ -98,6 +98,7 @@ def test_changes(monkeypatch, local, run):
     :param local: conftest fixture.
     :param run: conftest fixture.
     """
+    monkeypatch.setenv('LANG', 'en_US.UTF-8')
     monkeypatch.setenv('TRAVIS_BUILD_ID', '12345')
     monkeypatch.setenv('TRAVIS_BRANCH', 'master')
     old_sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()

@@ -12,8 +12,8 @@ Sphinx extension that allows building versioned docs for self-hosting.
     :target: https://travis-ci.org/Robpol86/sphinxcontrib-versioning
     :alt: Build Status
 
-.. image:: https://img.shields.io/coveralls/Robpol86/sphinxcontrib-versioning/master.svg?style=flat-square&label=Coveralls
-    :target: https://coveralls.io/github/Robpol86/sphinxcontrib-versioning
+.. image:: https://img.shields.io/codecov/c/github/Robpol86/sphinxcontrib-versioning/master.svg?style=flat-square&label=Codecov
+    :target: https://codecov.io/gh/Robpol86/sphinxcontrib-versioning
     :alt: Coverage Status
 
 .. image:: https://img.shields.io/pypi/v/sphinxcontrib-versioning.svg?style=flat-square&label=Latest

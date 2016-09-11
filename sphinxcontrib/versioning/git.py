@@ -6,12 +6,14 @@ import logging
 import os
 import re
 import shutil
+import sys
 from datetime import datetime
 from subprocess import CalledProcessError, PIPE, Popen, STDOUT
 
 from sphinxcontrib.versioning.lib import TempDir
 
-RE_ALL_REMOTES = re.compile(r'([\w./-]+)\t([A-Za-z0-9@:/._-]+) \((fetch|push)\)\n')
+IS_WINDOWS = sys.platform == 'win32'
+RE_ALL_REMOTES = re.compile(r'([\w./-]+)\t([A-Za-z0-9@:/\\._-]+) \((fetch|push)\)\n')
 RE_REMOTE = re.compile(r'^(?P<sha>[0-9a-f]{5,40})\trefs/(?P<kind>heads|tags)/(?P<name>[\w./-]+(?:\^\{})?)$',
                        re.MULTILINE)
 RE_UNIX_TIME = re.compile(r'^\d{10}$', re.MULTILINE)
@@ -118,7 +120,7 @@ def run_command(local_root, command, env_var=True, piped=None):
 
     :param str local_root: Local path to git root directory.
     :param iter command: Command to run.
-    :param bool env_var: Define GIT_DIR environment variable.
+    :param bool env_var: Define GIT_DIR environment variable (on non-Windows).
     :param iter piped: Second command to pipe its stdout to `command`'s stdin.
 
     :return: Command output.
@@ -128,7 +130,7 @@ def run_command(local_root, command, env_var=True, piped=None):
 
     # Setup env.
     env = os.environ.copy()
-    if env_var:
+    if env_var and not IS_WINDOWS:
         env['GIT_DIR'] = os.path.join(local_root, '.git')
     else:
         env.pop('GIT_DIR', None)
@@ -174,6 +176,8 @@ def get_root(directory):
         output = run_command(directory, command, env_var=False)
     except CalledProcessError as exc:
         raise GitError('Failed to find local git repository root in {}.'.format(repr(directory)), exc.output)
+    if IS_WINDOWS:
+        output = output.replace('/', '\\')
     return output.strip()
 
 
@@ -395,7 +399,7 @@ def commit_and_push(local_root, remote, versions):
     for status, name in (l.split('\t', 1) for l in output.splitlines()):
         if status != 'M':
             break  # Only looking for modified files.
-        components = name.split(os.sep)
+        components = name.split('/')
         if '.doctrees' not in components and components[-1] != 'searchindex.js':
             break  # Something other than those two dirs/files has changed.
     else:

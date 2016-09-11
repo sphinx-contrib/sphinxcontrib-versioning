@@ -1,10 +1,11 @@
 """Test function in module."""
 
+from os.path import join
 from subprocess import CalledProcessError
 
 import pytest
 
-from sphinxcontrib.versioning.git import clone, GitError
+from sphinxcontrib.versioning.git import clone, GitError, IS_WINDOWS
 
 
 def test_no_exclude(tmpdir, local_docs, run):
@@ -45,7 +46,7 @@ def test_exclude(tmpdir, local, run):
     # Run.
     exclude = [
         '.travis.yml', 'appveyor.yml',  # Ignored (nonexistent), show warnings.
-        'README', 'two.txt', 'sub/four.txt',  # Only leave these.
+        'README', 'two.txt', join('sub', 'four.txt'),  # Only leave these.
     ]
     new_root = tmpdir.ensure_dir('new_root')
     clone(str(local), str(new_root), 'origin', 'feature', '.', exclude)
@@ -56,7 +57,7 @@ def test_exclude(tmpdir, local, run):
     assert new_root.join('sub', 'four.txt').read() == 'four'
     assert new_root.join('two.txt').read() == 'two'
     paths = sorted(f.relto(new_root) for f in new_root.visit() if new_root.join('.git') not in f.parts())
-    assert paths == ['README', 'sub', 'sub/four.txt', 'two.txt']
+    assert paths == ['README', 'sub', join('sub', 'four.txt'), 'two.txt']
 
     # Verify original repo state.
     run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Verify unchanged.
@@ -88,7 +89,7 @@ def test_exclude_subdir(tmpdir, local, run):
     new_root = tmpdir.ensure_dir('new_root')
     clone(str(local), str(new_root), 'origin', 'master', 'sub', ['three.txt'])
     paths = sorted(f.relto(new_root) for f in new_root.visit() if new_root.join('.git') not in f.parts())
-    assert paths == ['README', 'sub', 'sub/three.txt']
+    assert paths == ['README', 'sub', join('sub', 'three.txt')]
 
     status = run(new_root, ['git', 'status', '--porcelain'])
     assert status == 'D  sub/four.txt\n'
@@ -112,9 +113,9 @@ def test_exclude_patterns(tmpdir, local, run):
     run(local, ['git', 'push', 'origin', 'master'])
 
     new_root = tmpdir.ensure_dir('new_root')
-    clone(str(local), str(new_root), 'origin', 'master', '.', ['*.md', '*/*.md'])
+    clone(str(local), str(new_root), 'origin', 'master', '.', ['*.md', join('*', '*.md')])
     paths = sorted(f.relto(new_root) for f in new_root.visit() if new_root.join('.git') not in f.parts())
-    assert paths == ['one.md', 'six.md', 'sub', 'sub/five.md', 'sub/four.md']
+    assert paths == ['one.md', 'six.md', 'sub', join('sub', 'five.md'), join('sub', 'four.md')]
 
     status = run(new_root, ['git', 'status', '--porcelain'])
     assert status == 'D  README\nD  sub/three.txt\nD  two.txt\n'
@@ -165,8 +166,11 @@ def test_bad_branch_rel_dest_exclude(tmpdir, local, run):
     # Bad remote.
     run(local, ['git', 'remote', 'add', 'origin', local.join('does_not_exist')])
     with pytest.raises(GitError) as exc:
-        clone(str(local), str(tmpdir.ensure_dir('new_root3')), 'origin', 'master', '.', None)
-    assert "repository '{}' does not exist".format(local.join('does_not_exist')) in exc.value.output
+        clone(str(local), str(tmpdir.ensure_dir('new_root4')), 'origin', 'master', '.', None)
+    if IS_WINDOWS:
+        assert "'{}' does not appear to be a git repository".format(local.join('does_not_exist')) in exc.value.output
+    else:
+        assert "repository '{}' does not exist".format(local.join('does_not_exist')) in exc.value.output
 
 
 def test_multiple_remotes(tmpdir, local, remote, run):
