@@ -23,13 +23,13 @@ python:
 sudo: false
 
 # Run.
-install: pip install coveralls tox
+install: pip install tox
 before_script:
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
 script: tox -e ${TOX_ENV:-py${TRAVIS_PYTHON_VERSION//.}}
 after_success:
-  - coveralls
+  - bash <(curl -s https://codecov.io/bash)
 
 # Deploy.
 deploy:
