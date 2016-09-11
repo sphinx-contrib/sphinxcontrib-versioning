@@ -1,21 +1,24 @@
 # Configure.
 language: python
-python: 3.5
+matrix:
+  include:
+    - python: 3.5
+      env: TOX_ENV=lint
+    - python: 3.5
+      env: TOX_ENV=docs
+python:
+  - 3.5
+  - 3.4
+  - 3.3
+  - 2.7
 sudo: false
-env:
-  - TOX_ENV=lint
-  - TOX_ENV=py35
-  - TOX_ENV=py34
-  - TOX_ENV=py33
-  - TOX_ENV=py27
-  - TOX_ENV=docs
 
 # Run.
 install: pip install coveralls tox
 before_script:
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
-script: tox -e $TOX_ENV
+script: tox -e ${TOX_ENV:-py${TRAVIS_PYTHON_VERSION//.}}
 after_success:
   - coveralls
   - eval "$(ssh-agent -s)"; touch docs/key; chmod 0600 docs/key
@@ -42,5 +45,5 @@ deploy:
       kzxiCBVD4dqGxMh318BmwXdurgWZbia2DJWs+QBNs44kiSByQmXWFXo2KamiBZAez+AdBPgA\
       Hs/smp3nE3TI9cHQzzbhDFZftI4dtLf8osNI="
   on:
-    condition: $TOX_ENV = py35
+    condition: $TRAVIS_PYTHON_VERSION = 3.4
     tags: true
