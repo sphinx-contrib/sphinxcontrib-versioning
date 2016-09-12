@@ -1,5 +1,7 @@
 """Test mixing sources of arguments/settings."""
 
+from os.path import join
+
 import pytest
 from click.testing import CliRunner
 
@@ -31,7 +33,7 @@ def test_overflow(local_empty, push, source_cli, source_conf):
     if push:
         args = ['push', 'docs', 'gh-pages', '.']
     else:
-        args = ['build', 'docs', 'docs/_build/html']
+        args = ['build', 'docs', join('docs', '_build', 'html')]
 
     # Setup source(s).
     if source_cli:
@@ -66,9 +68,9 @@ def test_args(push):
         assert dest_branch == 'gh-pages'
         assert rel_dest == '.'
     else:
-        result = CliRunner().invoke(cli, ['build', 'docs', 'docs/_build/html'])
+        result = CliRunner().invoke(cli, ['build', 'docs', join('docs', '_build', 'html')])
         rel_source, destination = result.exception.args[1:]
-        assert destination == 'docs/_build/html'
+        assert destination == join('docs', '_build', 'html')
     assert rel_source == ('docs',)
 
     # Multiple rel_source.
@@ -98,7 +100,7 @@ def test_global_options(monkeypatch, tmpdir, caplog, local_empty, run, push):
     if push:
         args = ['push', 'docs', 'gh-pages', '.']
     else:
-        args = ['build', 'docs', 'docs/_build/html']
+        args = ['build', 'docs', join('docs', '_build', 'html')]
 
     # Defaults.
     result = CliRunner().invoke(cli, args)
@@ -140,7 +142,7 @@ def test_global_options(monkeypatch, tmpdir, caplog, local_empty, run, push):
     config = result.exception.args[0]
     assert config.chdir == str(local_empty)
     assert config.git_root == str(local_empty)
-    assert config.local_conf == 'docs/conf.py'
+    assert config.local_conf == join('docs', 'conf.py')
     assert config.no_colors is True
     assert config.no_local_conf is False
     assert config.verbose == 2
@@ -166,17 +168,17 @@ def test_global_options_local_conf(caplog, local_empty, mode, no_local_conf, pus
     if push:
         args += ['push', 'docs', 'gh-pages', '.']
     else:
-        args += ['build', 'docs', 'docs/_build/html']
+        args += ['build', 'docs', join('docs', '_build', 'html')]
 
     # Run.
     if mode == 'bad filename':
         local_empty.ensure('docs', 'config.py')
-        args = ['-l', 'docs/config.py'] + args
+        args = ['-l', join('docs', 'config.py')] + args
     elif mode == 'rel_source':
         local_empty.ensure('docs', 'conf.py')
     else:
         local_empty.ensure('other', 'conf.py')
-        args = ['-l', 'other/conf.py'] + args
+        args = ['-l', join('other', 'conf.py')] + args
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     records = [(r.levelname, r.message) for r in caplog.records]
@@ -188,12 +190,12 @@ def test_global_options_local_conf(caplog, local_empty, mode, no_local_conf, pus
         return
     if mode == 'bad filename':
         assert config == 1  # SystemExit.
-        assert records[-2] == ('ERROR', 'Path "docs/config.py" must end with conf.py.')
+        assert records[-2] == ('ERROR', 'Path "{}" must end with conf.py.'.format(join('docs', 'config.py')))
     elif mode == 'rel_source':
-        assert config.local_conf == 'docs/conf.py'
+        assert config.local_conf == join('docs', 'conf.py')
         assert config.no_local_conf is False
     else:
-        assert config.local_conf == 'other/conf.py'
+        assert config.local_conf == join('other', 'conf.py')
         assert config.no_local_conf is False
 
 
@@ -211,7 +213,7 @@ def test_sub_command_options(local_empty, push, source_cli, source_conf):
     if push:
         args = ['push', 'docs', 'gh-pages', '.']
     else:
-        args = ['build', 'docs', 'docs/_build/html']
+        args = ['build', 'docs', join('docs', '_build', 'html')]
 
     # Setup source(s).
     if source_cli:
@@ -303,7 +305,7 @@ def test_sub_command_options_other(push):
     if push:
         args = ['push', 'docs', 'gh-pages', '.']
     else:
-        args = ['build', 'docs', 'docs/_build/html']
+        args = ['build', 'docs', join('docs', '_build', 'html')]
 
     # Defined.
     args += ['-p', 'tags', '-s', 'semver', '-s', 'time']

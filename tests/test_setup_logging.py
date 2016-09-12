@@ -8,6 +8,7 @@ from textwrap import dedent
 
 import pytest
 
+from sphinxcontrib.versioning.git import IS_WINDOWS
 from sphinxcontrib.versioning.setup_logging import ColorFormatter, setup_logging
 
 
@@ -83,6 +84,7 @@ def test_arrow(tmpdir, run, verbose):
         assert '\nWithout arrow.' in output
 
 
+@pytest.mark.skipif(str(IS_WINDOWS))
 def test_colors(tmpdir, run):
     """Test colors.
 
