@@ -159,16 +159,15 @@ class ConfigInject(SphinxConfig):
         self.extensions.append('sphinxcontrib.versioning.sphinx_')
 
 
-def _build(argv, versions, current_name, is_root):
+def _build(argv, config, versions, current_name, is_root):
     """Build Sphinx docs via multiprocessing for isolation.
 
     :param tuple argv: Arguments to pass to Sphinx.
+    :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
     :param sphinxcontrib.versioning.versions.Versions versions: Versions class instance.
     :param str current_name: The ref name of the current version being built.
     :param bool is_root: Is this build in the web root?
     """
-    config = Config.from_context()
-
     # Patch.
     application.Config = ConfigInject
     if config.show_banner:
@@ -195,10 +194,11 @@ def _build(argv, versions, current_name, is_root):
         raise SphinxError
 
 
-def _read_config(argv, current_name, queue):
+def _read_config(argv, config, current_name, queue):
     """Read the Sphinx config via multiprocessing for isolation.
 
     :param tuple argv: Arguments to pass to Sphinx.
+    :param sphinxcontrib.versioning.lib.Config config: Runtime configuration.
     :param str current_name: The ref name of the current version being built.
     :param multiprocessing.queues.Queue queue: Communication channel to parent process.
     """
@@ -206,7 +206,7 @@ def _read_config(argv, current_name, queue):
     EventHandlers.ABORT_AFTER_READ = queue
 
     # Run.
-    _build(argv, Versions(list()), current_name, False)
+    _build(argv, config, Versions(list()), current_name, False)
 
 
 def build(source, target, versions, current_name, is_root):
@@ -222,8 +222,10 @@ def build(source, target, versions, current_name, is_root):
     """
     log = logging.getLogger(__name__)
     argv = ('sphinx-build', source, target)
+    config = Config.from_context()
+
     log.debug('Running sphinx-build for %s with args: %s', current_name, str(argv))
-    child = multiprocessing.Process(target=_build, args=(argv, versions, current_name, is_root))
+    child = multiprocessing.Process(target=_build, args=(argv, config, versions, current_name, is_root))
     child.start()
     child.join()  # Block.
     if child.exitcode != 0:
@@ -244,11 +246,12 @@ def read_config(source, current_name):
     """
     log = logging.getLogger(__name__)
     queue = multiprocessing.Queue()
+    config = Config.from_context()
 
     with TempDir() as temp_dir:
         argv = ('sphinx-build', source, temp_dir)
         log.debug('Running sphinx-build for config values with args: %s', str(argv))
-        child = multiprocessing.Process(target=_read_config, args=(argv, current_name, queue))
+        child = multiprocessing.Process(target=_read_config, args=(argv, config, current_name, queue))
         child.start()
         child.join()  # Block.
         if child.exitcode != 0:

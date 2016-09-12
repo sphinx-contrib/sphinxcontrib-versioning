@@ -1,5 +1,7 @@
 """Test function in module."""
 
+from os.path import join
+
 import pytest
 
 from sphinxcontrib.versioning.git import export
@@ -30,9 +32,9 @@ def test_single(tmpdir, local_docs, urls):
         '_sources',
         '_static',
         'master',
-        'master/.doctrees',
-        'master/_sources',
-        'master/_static',
+        join('master', '.doctrees'),
+        join('master', '_sources'),
+        join('master', '_static'),
     ]
     assert actual == expected
 
@@ -76,20 +78,20 @@ def test_multiple(tmpdir, config, local_docs, run, urls, triple, parallel):
         '_sources',
         '_static',
         'master',
-        'master/.doctrees',
-        'master/_sources',
-        'master/_static',
+        join('master', '.doctrees'),
+        join('master', '_sources'),
+        join('master', '_static'),
         'v1.0.0',
-        'v1.0.0/.doctrees',
-        'v1.0.0/_sources',
-        'v1.0.0/_static',
+        join('v1.0.0', '.doctrees'),
+        join('v1.0.0', '_sources'),
+        join('v1.0.0', '_static'),
     ]
     if triple:
         expected.extend([
             'v1.0.1',
-            'v1.0.1/.doctrees',
-            'v1.0.1/_sources',
-            'v1.0.1/_static',
+            join('v1.0.1', '.doctrees'),
+            join('v1.0.1', '_sources'),
+            join('v1.0.1', '_static'),
         ])
     assert actual == expected
 
@@ -165,8 +167,8 @@ def test_banner_branch(tmpdir, banner, config, local_docs, run, show_banner):
     build_all(str(exported_root), str(dst), versions)
     actual = sorted(f.relto(dst) for f in dst.visit(lambda p: p.basename in ('contents.html', 'one.html', 'two.html')))
     expected = [
-        'contents.html', 'master/contents.html', 'master/one.html',
-        'old_build/contents.html', 'old_build/one.html', 'old_build/two.html', 'one.html'
+        'contents.html', join('master', 'contents.html'), join('master', 'one.html'),
+        join('old_build', 'contents.html'), join('old_build', 'one.html'), join('old_build', 'two.html'), 'one.html'
     ]
     assert actual == expected
 
@@ -241,13 +243,18 @@ def test_banner_tag(tmpdir, banner, config, local_docs, run, recent):
     build_all(str(exported_root), str(dst), versions)
     actual = sorted(f.relto(dst)
                     for f in dst.visit(lambda p: p.basename in ('contents.html', 'one.html', 'two.html', 'too.html')))
-    expected = ['contents.html', 'master/contents.html', 'master/one.html', 'master/too.html', 'one.html', 'too.html']
+    expected = [
+        'contents.html',
+        join('master', 'contents.html'), join('master', 'one.html'), join('master', 'too.html'),
+        'one.html',
+        'too.html',
+    ]
     if recent:
-        expected = ['201612/contents.html', '201612/one.html', '201612/too.html'] + expected
-        expected = ['201611/contents.html', '201611/one.html', '201611/two.html'] + expected
+        expected = [join('201612', 'contents.html'), join('201612', 'one.html'), join('201612', 'too.html')] + expected
+        expected = [join('201611', 'contents.html'), join('201611', 'one.html'), join('201611', 'two.html')] + expected
     else:
-        expected += ['v1.0.0/contents.html', 'v1.0.0/one.html', 'v1.0.0/two.html']
-        expected += ['v2.0.0/contents.html', 'v2.0.0/one.html', 'v2.0.0/too.html']
+        expected += [join('v1.0.0', 'contents.html'), join('v1.0.0', 'one.html'), join('v1.0.0', 'two.html')]
+        expected += [join('v2.0.0', 'contents.html'), join('v2.0.0', 'one.html'), join('v2.0.0', 'too.html')]
     assert actual == expected
 
     # Verify master banner.
