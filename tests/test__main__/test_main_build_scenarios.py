@@ -5,6 +5,8 @@ from subprocess import CalledProcessError
 
 import pytest
 
+from sphinxcontrib.versioning.git import IS_WINDOWS
+
 
 def test_sub_page_and_tag(tmpdir, local_docs, run, urls):
     """Test with sub pages and one git tag. Testing from local git repo.
@@ -282,7 +284,7 @@ def test_root_ref(tmpdir, local_docs, run, no_tags):
         else:
             assert 'No git tags with docs found in remote. Falling back to --root-ref value.' not in output
         # Check output.
-        assert 'Root ref is: {}\n'.format(expected) in output
+        assert 'Root ref is: {}'.format(expected) in output
 
 
 @pytest.mark.parametrize('parallel', [False, True])
@@ -295,6 +297,8 @@ def test_add_remove_docs(tmpdir, local_docs, run, urls, parallel):
     :param urls: conftest fixture.
     :param bool parallel: Run sphinx-build with -j option.
     """
+    if parallel and IS_WINDOWS:
+        return pytest.skip('Sphinx parallel feature not available on Windows.')
     run(local_docs, ['git', 'tag', 'v1.0.0'])
 
     # Move once.
@@ -544,8 +548,8 @@ def test_whitelisting(local_docs, run, urls):
     assert 'Traceback' not in output
 
     # Check output.
-    assert 'With docs: ignored included master v1.0 v1.0-dev\n' in output
-    assert 'Passed whitelisting: included master v1.0\n' in output
+    assert 'With docs: ignored included master v1.0 v1.0-dev' in output
+    assert 'Passed whitelisting: included master v1.0' in output
 
     # Check root.
     urls(local_docs.join('html', 'contents.html'), [
@@ -639,12 +643,12 @@ def test_error_bad_path(tmpdir, run):
     """
     with pytest.raises(CalledProcessError) as exc:
         run(tmpdir, ['sphinx-versioning', '-N', '-c', 'unknown', 'build', '.', str(tmpdir)])
-    assert 'Directory "unknown" does not exist.\n' in exc.value.output
+    assert 'Directory "unknown" does not exist.' in exc.value.output
 
     tmpdir.ensure('is_file')
     with pytest.raises(CalledProcessError) as exc:
         run(tmpdir, ['sphinx-versioning', '-N', '-c', 'is_file', 'build', '.', str(tmpdir)])
-    assert 'Directory "is_file" is a file.\n' in exc.value.output
+    assert 'Directory "is_file" is a file.' in exc.value.output
 
     with pytest.raises(CalledProcessError) as exc:
         run(tmpdir, ['sphinx-versioning', '-N', 'build', '.', str(tmpdir)])
@@ -667,7 +671,7 @@ def test_error_no_docs_found(tmpdir, local, run):
     """
     with pytest.raises(CalledProcessError) as exc:
         run(local, ['sphinx-versioning', '-N', '-v', 'build', '.', str(tmpdir)])
-    assert 'No docs found in any remote branch/tag. Nothing to do.\n' in exc.value.output
+    assert 'No docs found in any remote branch/tag. Nothing to do.' in exc.value.output
 
 
 def test_error_bad_root_ref(tmpdir, local_docs, run):
@@ -679,4 +683,4 @@ def test_error_bad_root_ref(tmpdir, local_docs, run):
     """
     with pytest.raises(CalledProcessError) as exc:
         run(local_docs, ['sphinx-versioning', '-N', '-v', 'build', '.', str(tmpdir), '-r', 'unknown'])
-    assert 'Root ref unknown not found in: master\n' in exc.value.output
+    assert 'Root ref unknown not found in: master' in exc.value.output

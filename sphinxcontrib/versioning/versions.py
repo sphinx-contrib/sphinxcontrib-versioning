@@ -1,6 +1,5 @@
 """Collect and sort version strings."""
 
-import posixpath
 import re
 
 RE_SEMVER = re.compile(r'^v?V?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?([\w.+-]*)$')
@@ -239,4 +238,4 @@ class Versions(object):
         components = ['..'] * pagename.count('/')
         components += [other_root_dir] if is_root else ['..', other_root_dir]
         components += [pagename if self.vhasdoc(other_version) else other_remote['master_doc']]
-        return '{}.html'.format(posixpath.join(*components))
+        return '{}.html'.format(__import__('posixpath').join(*components))

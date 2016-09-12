@@ -3,6 +3,7 @@
 import atexit
 import functools
 import logging
+import os
 import shutil
 import tempfile
 import weakref
@@ -163,4 +164,6 @@ class TempDir(object):
 
     def cleanup(self):
         """Recursively delete directory."""
-        shutil.rmtree(self.name)
+        shutil.rmtree(self.name, onerror=lambda *a: os.chmod(a[1], __import__('stat').S_IWRITE) or os.unlink(a[1]))
+        if os.path.exists(self.name):
+            raise IOError(17, "File exists: '{}'".format(self.name))

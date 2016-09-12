@@ -60,11 +60,12 @@ class CheckVersion(Command):
             if getattr(project, var) != expected:
                 raise SystemExit('Mismatch: {0}'.format(var))
         # Check changelog.
-        if not re.compile(r'^%s - \d{4}-\d{2}-\d{2}$' % VERSION, re.MULTILINE).search(readme()):
+        if not re.compile(r'^%s - \d{4}-\d{2}-\d{2}[\r\n]' % VERSION, re.MULTILINE).search(readme()):
             raise SystemExit('Version not found in readme/changelog file.')
         # Check tox.
         if INSTALL_REQUIRES:
-            section = re.compile(r'\ninstall_requires =\n(.+?)\n\w', re.DOTALL).findall(readme('tox.ini'))
+            contents = readme('tox.ini')
+            section = re.compile(r'[\r\n]+install_requires =[\r\n]+(.+?)[\r\n]+\w', re.DOTALL).findall(contents)
             if not section:
                 raise SystemExit('Missing install_requires section in tox.ini.')
             in_tox = re.findall(r'    ([^=]+)==[\w\d.-]+', section[0])

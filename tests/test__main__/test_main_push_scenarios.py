@@ -102,7 +102,7 @@ def test_root_ref(local_docs_ghp, run):
     assert 'Failed to push to remote repository.' not in output
 
     # Check output.
-    assert 'Root ref is: v1.0.0\n' in output
+    assert 'Root ref is: v1.0.0' in output
 
 
 @pytest.mark.parametrize('give_up', [False, True])
@@ -129,7 +129,7 @@ def test_race(tmpdir, local_docs_ghp, remote, run, urls, give_up):
     proc = Popen(command, cwd=str(local_docs_ghp), env=env, stdout=PIPE, stderr=STDOUT)
     for line in iter(proc.stdout.readline, b''):
         output_lines.append(line)
-        if line == b'=> Building docs...\n':
+        if line.strip() == b'=> Building docs...':
             if give_up or not caused:
                 # Cause race condition.
                 local_other.join('README').write('changed', mode='a')
@@ -307,7 +307,7 @@ def test_error_build_failure(local_docs_ghp, run):
     assert "name 'undefined' is not defined" in exc.value.output
     assert 'Building docs...' in exc.value.output
     assert 'sphinx-build failed for branch/tag: master' in exc.value.output
-    assert exc.value.output.endswith('Failure.\n')
+    assert exc.value.output.strip().endswith('Failure.')
 
 
 def test_bad_git_config(local_docs_ghp, run):
