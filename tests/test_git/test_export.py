@@ -1,10 +1,11 @@
 """Test function in module."""
 
+from os.path import join
 from subprocess import CalledProcessError
 
 import pytest
 
-from sphinxcontrib.versioning.git import export, fetch_commits, list_remote
+from sphinxcontrib.versioning.git import export, fetch_commits, IS_WINDOWS, list_remote
 
 
 def test_simple(tmpdir, local, run):
@@ -50,16 +51,16 @@ def test_overwrite(tmpdir, local, run):
     expected = [
         'README',
         'docs',
-        'docs/_templates',
-        'docs/_templates/layout.html',
-        'docs/_templates/other',
-        'docs/_templates/other.html',
-        'docs/_templates/other/other.html',
-        'docs/conf.py',
-        'docs/index.rst',
-        'docs/other',
-        'docs/other.rst',
-        'docs/other/other.py',
+        join('docs', '_templates'),
+        join('docs', '_templates', 'layout.html'),
+        join('docs', '_templates', 'other'),
+        join('docs', '_templates', 'other.html'),
+        join('docs', '_templates', 'other', 'other.html'),
+        join('docs', 'conf.py'),
+        join('docs', 'index.rst'),
+        join('docs', 'other'),
+        join('docs', 'other.rst'),
+        join('docs', 'other', 'other.py'),
     ]
     paths = sorted(f.relto(target) for f in target.visit())
     assert paths == expected
@@ -94,6 +95,7 @@ def test_new_branch_tags(tmpdir, local_light, fail):
     assert target.join('README').read() == 'new'
 
 
+@pytest.mark.skipif(str(IS_WINDOWS))
 def test_symlink(tmpdir, local, run):
     """Test repos with broken symlinks.
 

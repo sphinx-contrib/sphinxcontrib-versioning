@@ -5,12 +5,10 @@ import json
 import logging
 import os
 import re
-import shutil
 import sys
+import tarfile
 from datetime import datetime
 from subprocess import CalledProcessError, PIPE, Popen, STDOUT
-
-from sphinxcontrib.versioning.lib import TempDir
 
 IS_WINDOWS = sys.platform == 'win32'
 RE_ALL_REMOTES = re.compile(r'([\w./-]+)\t([A-Za-z0-9@:/\\._-]+) \((fetch|push)\)\n')
@@ -113,15 +111,15 @@ def chunk(iterator, max_size):
         yield chunked
 
 
-def run_command(local_root, command, env_var=True, piped=None):
-    """Run a command and return the output. Run another command and pipe its output to the primary command.
+def run_command(local_root, command, env_var=True, pipeto=None):
+    """Run a command and return the output.
 
     :raise CalledProcessError: Command exits non-zero.
 
     :param str local_root: Local path to git root directory.
     :param iter command: Command to run.
     :param bool env_var: Define GIT_DIR environment variable (on non-Windows).
-    :param iter piped: Second command to pipe its stdout to `command`'s stdin.
+    :param function pipeto: Pipe `command`'s stdout to this function (only parameter given).
 
     :return: Command output.
     :rtype: str
@@ -135,26 +133,17 @@ def run_command(local_root, command, env_var=True, piped=None):
     else:
         env.pop('GIT_DIR', None)
 
-    # Start commands.
+    # Run command.
     with open(os.devnull) as null:
-        parent = Popen(piped, cwd=local_root, env=env, stdout=PIPE, stderr=PIPE, stdin=null) if piped else None
-        stdin = parent.stdout if piped else null
-        main = Popen(command, cwd=local_root, env=env, stdout=PIPE, stderr=STDOUT, stdin=stdin)
-
-    # Wait for commands and log.
-    common_dict = dict(cwd=local_root, stdin=None)
-    if piped:
-        main.wait()  # Let main command read parent.stdout before parent.communicate() does.
-        parent_output = parent.communicate()[1].decode('utf-8')
-        log.debug(json.dumps(dict(common_dict, command=piped, code=parent.poll(), output=parent_output)))
-    else:
-        parent_output = ''
-    main_output = main.communicate()[0].decode('utf-8')
-    log.debug(json.dumps(dict(common_dict, command=command, code=main.poll(), output=main_output, stdin=piped)))
+        main = Popen(command, cwd=local_root, env=env, stdout=PIPE, stderr=PIPE if pipeto else STDOUT, stdin=null)
+        if pipeto:
+            pipeto(main.stdout)
+            main_output = main.communicate()[1].decode('utf-8')  # Might deadlock if stderr is written to a lot.
+        else:
+            main_output = main.communicate()[0].decode('utf-8')
+    log.debug(json.dumps(dict(cwd=local_root, command=command, code=main.poll(), output=main_output)))
 
     # Verify success.
-    if piped and parent.poll() != 0:
-        raise CalledProcessError(parent.poll(), piped, output=parent_output)
     if main.poll() != 0:
         raise CalledProcessError(main.poll(), command, output=main_output)
 
@@ -283,24 +272,36 @@ def export(local_root, commit, target):
     :param str target: Directory to export to.
     """
     log = logging.getLogger(__name__)
-    git_command = ['git', 'archive', '--format=tar', commit]
+    target = os.path.realpath(target)
 
-    with TempDir() as temp_dir:
-        # Run commands.
-        run_command(local_root, ['tar', '-x', '-C', temp_dir], piped=git_command)
+    # Define extract function.
+    def extract(stdout):
+        """Extract tar archive from "git archive" stdout.
 
-        # Copy to target. Overwrite existing but don't delete anything in target.
-        for s_dirpath, s_filenames in (i[::2] for i in os.walk(temp_dir) if i[2]):
-            t_dirpath = os.path.join(target, os.path.relpath(s_dirpath, temp_dir))
-            if not os.path.exists(t_dirpath):
-                os.makedirs(t_dirpath)
-            for args in ((os.path.join(s_dirpath, f), os.path.join(t_dirpath, f)) for f in s_filenames):
-                try:
-                    shutil.copy(*args)
-                except IOError:
-                    if not os.path.islink(args[0]):
-                        raise
-                    log.debug('Skipping broken symlink: %s', args[0])
+        :param file stdout: Handle to git's stdout pipe.
+        """
+        queued_links = list()
+        try:
+            with tarfile.open(fileobj=stdout, mode='r|') as tar:
+                for info in tar:
+                    log.debug('name: %s; mode: %d; size: %s; type: %s', info.name, info.mode, info.size, info.type)
+                    path = os.path.realpath(os.path.join(target, info.name))
+                    if not path.startswith(target):  # Handle bad paths.
+                        log.warning('Ignoring tar object path %s outside of target directory.', info.name)
+                    elif info.isdir():  # Handle directories.
+                        if not os.path.exists(path):
+                            os.makedirs(path, mode=info.mode)
+                    elif info.issym() or info.islnk():  # Queue links.
+                        queued_links.append(info)
+                    else:  # Handle files.
+                        tar.extract(member=info, path=target)
+                for info in (i for i in queued_links if os.path.exists(os.path.join(target, i.linkname))):
+                    tar.extract(member=info, path=target)
+        except tarfile.TarError as exc:
+            log.debug('Failed to extract output from "git archive" command: %s', str(exc))
+
+    # Run command.
+    run_command(local_root, ['git', 'archive', '--format=tar', commit], pipeto=extract)
 
 
 def clone(local_root, new_root, remote, branch, rel_dest, exclude):
