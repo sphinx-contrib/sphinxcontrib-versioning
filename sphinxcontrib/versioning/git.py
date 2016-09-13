@@ -7,6 +7,7 @@ import os
 import re
 import sys
 import tarfile
+import time
 from datetime import datetime
 from subprocess import CalledProcessError, PIPE, Popen, STDOUT
 
@@ -111,7 +112,7 @@ def chunk(iterator, max_size):
         yield chunked
 
 
-def run_command(local_root, command, env_var=True, pipeto=None):
+def run_command(local_root, command, env_var=True, pipeto=None, retry=0):
     """Run a command and return the output.
 
     :raise CalledProcessError: Command exits non-zero.
@@ -120,6 +121,7 @@ def run_command(local_root, command, env_var=True, pipeto=None):
     :param iter command: Command to run.
     :param bool env_var: Define GIT_DIR environment variable (on non-Windows).
     :param function pipeto: Pipe `command`'s stdout to this function (only parameter given).
+    :param int retry: Retry this many times on CalledProcessError after 0.1 seconds.
 
     :return: Command output.
     :rtype: str
@@ -145,7 +147,10 @@ def run_command(local_root, command, env_var=True, pipeto=None):
 
     # Verify success.
     if main.poll() != 0:
-        raise CalledProcessError(main.poll(), command, output=main_output)
+        if retry < 1:
+            raise CalledProcessError(main.poll(), command, output=main_output)
+        time.sleep(0.1)
+        return run_command(local_root, command, env_var, pipeto, retry - 1)
 
     return main_output
 
@@ -345,8 +350,11 @@ def clone(local_root, new_root, remote, branch, rel_dest, exclude):
 
     # Copy all remotes from original repo.
     for name, (fetch, push) in remotes.items():
-        run_command(new_root, ['git', 'remote', 'set-url' if name == 'origin' else 'add', name, fetch])
-        run_command(new_root, ['git', 'remote', 'set-url', '--push', name, push])
+        try:
+            run_command(new_root, ['git', 'remote', 'set-url' if name == 'origin' else 'add', name, fetch], retry=3)
+            run_command(new_root, ['git', 'remote', 'set-url', '--push', name, push], retry=3)
+        except CalledProcessError as exc:
+            raise GitError('Failed to set git remote URL.', exc.output)
 
     # Done if no exclude.
     if not exclude:

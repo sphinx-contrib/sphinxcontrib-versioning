@@ -29,7 +29,7 @@ def config(monkeypatch):
 @pytest.fixture
 def run():
     """run_command() wrapper returned from a pytest fixture."""
-    return lambda d, c: run_command(str(d), [str(i) for i in c])
+    return lambda d, c, *args, **kwargs: run_command(str(d), [str(i) for i in c], *args, **kwargs)
 
 
 @pytest.fixture

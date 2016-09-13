@@ -332,13 +332,8 @@ def test_bad_git_config(local_docs_ghp, run):
                 # Invalidate lock file.
                 tmp_repo = py.path.local(re.findall(r'"cwd": "([^"]+)"', line.decode('utf-8'))[0])
                 assert tmp_repo.check(dir=True)
-                for _ in range(3):
-                    try:
-                        run(tmp_repo, ['git', 'config', 'user.useConfigOnly', 'true'])
-                        run(tmp_repo, ['git', 'config', 'user.email', '(none)'])
-                    except CalledProcessError:
-                        continue
-                    break
+                run(tmp_repo, ['git', 'config', 'user.useConfigOnly', 'true'], retry=3)
+                run(tmp_repo, ['git', 'config', 'user.email', '(none)'], retry=3)
                 caused = True
     output_lines.append(proc.communicate()[0])
     output = b''.join(output_lines).decode('utf-8')
@@ -348,4 +343,4 @@ def test_bad_git_config(local_docs_ghp, run):
     # Verify.
     assert 'Traceback' not in output
     assert 'Failed to commit locally.' in output
-    assert 'Please tell me who you are.' in output
+    assert 'Please tell me who you are.' in output or 'user.useConfigOnly set but no name given' in output
