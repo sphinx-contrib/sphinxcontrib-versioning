@@ -6,6 +6,7 @@ import pytest
 from click.testing import CliRunner
 
 from sphinxcontrib.versioning.__main__ import cli
+from sphinxcontrib.versioning.git import IS_WINDOWS
 
 
 @pytest.fixture(autouse=True)
@@ -106,7 +107,10 @@ def test_global_options(monkeypatch, tmpdir, caplog, local_empty, run, push):
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.chdir == str(local_empty)
-    assert config.git_root == str(local_empty)
+    if IS_WINDOWS:
+        assert config.git_root.lower() == str(local_empty).lower()
+    else:
+        assert config.git_root == str(local_empty)
     assert config.local_conf is None
     assert config.no_colors is False
     assert config.no_local_conf is False
@@ -121,7 +125,10 @@ def test_global_options(monkeypatch, tmpdir, caplog, local_empty, run, push):
     result = CliRunner().invoke(cli, args)
     config = result.exception.args[0]
     assert config.chdir == str(empty)
-    assert config.git_root == str(repo)
+    if IS_WINDOWS:
+        assert config.git_root.lower() == str(repo).lower()
+    else:
+        assert config.git_root == str(repo)
     assert config.local_conf is None  # Overridden by -L.
     assert config.no_colors is True
     assert config.no_local_conf is True
@@ -141,7 +148,10 @@ def test_global_options(monkeypatch, tmpdir, caplog, local_empty, run, push):
     records = [(r.levelname, r.message) for r in caplog.records]
     config = result.exception.args[0]
     assert config.chdir == str(local_empty)
-    assert config.git_root == str(local_empty)
+    if IS_WINDOWS:
+        assert config.git_root.lower() == str(local_empty).lower()
+    else:
+        assert config.git_root == str(local_empty)
     assert config.local_conf == join('docs', 'conf.py')
     assert config.no_colors is True
     assert config.no_local_conf is False

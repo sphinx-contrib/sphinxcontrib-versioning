@@ -5,8 +5,13 @@ sphinxcontrib-versioning
 Sphinx extension that allows building versioned docs for self-hosting.
 
 * Python 2.7, 3.3, 3.4, and 3.5 supported on Linux and OS X.
+* Python 2.7, 3.3, 3.4, and 3.5 supported on Windows (both 32 and 64 bit versions of Python).
 
 📖 Full documentation: https://robpol86.github.io/sphinxcontrib-versioning
+
+.. image:: https://img.shields.io/appveyor/ci/Robpol86/sphinxcontrib-versioning/master.svg?style=flat-square&label=AppVeyor%20CI
+    :target: https://ci.appveyor.com/project/Robpol86/sphinxcontrib-versioning
+    :alt: Build Status Windows
 
 .. image:: https://img.shields.io/travis/Robpol86/sphinxcontrib-versioning/master.svg?style=flat-square&label=Travis%20CI
     :target: https://travis-ci.org/Robpol86/sphinxcontrib-versioning
@@ -47,8 +52,12 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ----------
 
+Added
+    * Windows support.
+
 Fixed
     * https://github.com/Robpol86/sphinxcontrib-versioning/issues/17
+    * https://github.com/Robpol86/sphinxcontrib-versioning/issues/3
 
 2.1.4 - 2016-09-03
 ------------------

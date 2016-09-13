@@ -656,10 +656,11 @@ def test_error_bad_path(tmpdir, run):
 
     repo = tmpdir.ensure_dir('repo')
     run(repo, ['git', 'init'])
-    empty = tmpdir.ensure_dir('empty')
+    empty = tmpdir.ensure_dir('empty1857')
     with pytest.raises(CalledProcessError) as exc:
         run(repo, ['sphinx-versioning', '-N', '-g', str(empty), 'build', '.', str(tmpdir)])
-    assert 'Failed to find local git repository root in {}.'.format(repr(str(empty))) in exc.value.output
+    assert 'Failed to find local git repository root in' in exc.value.output
+    assert 'empty1857' in exc.value.output
 
 
 def test_error_no_docs_found(tmpdir, local, run):
