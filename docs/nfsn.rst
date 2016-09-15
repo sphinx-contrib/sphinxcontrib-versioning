@@ -4,8 +4,9 @@
 NearlyFreeSpeech.NET
 ====================
 
-This guide will go over how to host your built documentation on `NFSN <https://www.nearlyfreespeech.net/>`_. We'll be
-using GitHub and Travis CI to actually build the docs and push them to NFSN but any other providers can be substituted.
+This guide will go over how to host your built documentation on `NearlyFreeSpeech <https://www.nearlyfreespeech.net/>`_.
+We'll be using GitHub and Travis CI to actually build the docs and push them to NFSN but any other providers can be
+substituted.
 
 We'll be covering two methods of having NFSN host your documentation: using ``rsync`` to transfer HTML files to NFSN and
 using a remote git repository hosted on NFSN using ``git init --bare`` and having a git hook export HTML files to the
