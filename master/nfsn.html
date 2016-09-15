@@ -193,8 +193,9 @@
     <p class="scv-banner scv-sphinx_rtd_theme"><a href="../v2.1.4/nfsn.html"><b>Warning:</b> This document is for the development version of sphinxcontrib-versioning. The latest version is v2.1.4.</a></p>
 <div class="section" id="nearlyfreespeech-net">
 <span id="nfsn"></span><h1>NearlyFreeSpeech.NET<a class="headerlink" href="#nearlyfreespeech-net" title="Permalink to this headline">¶</a></h1>
-<p>This guide will go over how to host your built documentation on <a class="reference external" href="https://www.nearlyfreespeech.net/">NFSN</a>. We&#8217;ll be
-using GitHub and Travis CI to actually build the docs and push them to NFSN but any other providers can be substituted.</p>
+<p>This guide will go over how to host your built documentation on <a class="reference external" href="https://www.nearlyfreespeech.net/">NearlyFreeSpeech</a>.
+We&#8217;ll be using GitHub and Travis CI to actually build the docs and push them to NFSN but any other providers can be
+substituted.</p>
 <p>We&#8217;ll be covering two methods of having NFSN host your documentation: using <code class="docutils literal"><span class="pre">rsync</span></code> to transfer HTML files to NFSN and
 using a remote git repository hosted on NFSN using <code class="docutils literal"><span class="pre">git</span> <span class="pre">init</span> <span class="pre">--bare</span></code> and having a git hook export HTML files to the
 &#8220;/home/pubic&#8221; directory. Since NFSN&#8217;s pricing structure is usage based the latter method technically costs more since
@@ -427,7 +428,6 @@ directory and put <code class="docutils literal"><span class="pre">ErrorDocument
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../windows/nfsn.html">windows</a></dd>
             <dd><a href="nfsn.html">master</a></dd>
         </dl>
     </div>
