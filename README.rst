@@ -49,8 +49,8 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-Unreleased
-----------
+2.2.0 - 2016-09-15
+------------------
 
 Added
     * Windows support.
