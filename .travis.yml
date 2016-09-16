@@ -27,7 +27,7 @@ install: pip install tox
 before_script:
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
-script: tox -e ${TOX_ENV:-py${TRAVIS_PYTHON_VERSION//.}}
+script: tox -e ${TOX_ENV:-py}
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
