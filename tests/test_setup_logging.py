@@ -55,11 +55,10 @@ def test_stdout_stderr(capsys, request, verbose):
 
 
 @pytest.mark.parametrize('verbose', [1, 0])
-def test_arrow(tmpdir, run, verbose):
+def test_arrow(tmpdir, verbose):
     """Test => presence.
 
     :param tmpdir: pytest fixture.
-    :param run: conftest fixture.
     :param int verbose: Verbosity level.
     """
     assert ColorFormatter.SPECIAL_SCOPE == 'sphinxcontrib.versioning'
@@ -76,7 +75,7 @@ def test_arrow(tmpdir, run, verbose):
     """).format(verbose=verbose, included=logger_included, excluded=logger_excluded)
     tmpdir.join('script.py').write(script)
 
-    output = run(tmpdir, [sys.executable, 'script.py'])
+    output = pytest.run(tmpdir, [sys.executable, 'script.py'])
     if verbose:
         assert '=>' not in output
     else:
@@ -85,11 +84,10 @@ def test_arrow(tmpdir, run, verbose):
 
 
 @pytest.mark.skipif(str(IS_WINDOWS))
-def test_colors(tmpdir, run):
+def test_colors(tmpdir):
     """Test colors.
 
     :param tmpdir: pytest fixture.
-    :param run: conftest fixture.
     """
     script = dedent("""\
     import logging
@@ -105,7 +103,7 @@ def test_colors(tmpdir, run):
     """).format(logger=ColorFormatter.SPECIAL_SCOPE + '.sample')
     tmpdir.join('script.py').write(script)
 
-    output = run(tmpdir, [sys.executable, 'script.py'])
+    output = pytest.run(tmpdir, [sys.executable, 'script.py'])
     assert '\033[31m=> Critical\033[39m\n' in output
     assert '\033[31m=> Error\033[39m\n' in output
     assert '\033[33m=> Warning\033[39m\n' in output

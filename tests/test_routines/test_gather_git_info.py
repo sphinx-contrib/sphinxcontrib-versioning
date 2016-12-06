@@ -91,17 +91,16 @@ def test_failed_list(caplog, local_empty):
     assert ('ERROR', 'Git failed to list remote refs.') in records
 
 
-def test_cpe(monkeypatch, tmpdir, caplog, local, run):
+def test_cpe(monkeypatch, tmpdir, caplog, local):
     """Test unexpected git error (network issue, etc).
 
     :param monkeypatch: pytest fixture.
     :param tmpdir: pytest fixture.
     :param caplog: pytest plugin fixture.
     :param local: conftest fixture.
-    :param run: conftest fixture.
     """
     command = ['git', 'status']
-    monkeypatch.setattr('sphinxcontrib.versioning.routines.filter_and_date', lambda *_: run(str(tmpdir), command))
+    monkeypatch.setattr('sphinxcontrib.versioning.routines.filter_and_date', lambda *_: pytest.run(tmpdir, command))
 
     with pytest.raises(HandledError):
         gather_git_info(str(local), ['README'], tuple(), tuple())

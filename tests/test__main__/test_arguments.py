@@ -88,14 +88,13 @@ def test_args(push):
 
 
 @pytest.mark.parametrize('push', [False, True])
-def test_global_options(monkeypatch, tmpdir, caplog, local_empty, run, push):
+def test_global_options(monkeypatch, tmpdir, caplog, local_empty, push):
     """Test options that apply to all sub commands.
 
     :param monkeypatch: pytest fixture.
     :param tmpdir: pytest fixture.
     :param caplog: pytest extension fixture.
     :param local_empty: conftest fixture.
-    :param run: conftest fixture.
     :param bool push: Run push sub command instead of build.
     """
     if push:
@@ -119,7 +118,7 @@ def test_global_options(monkeypatch, tmpdir, caplog, local_empty, run, push):
     # Defined.
     empty = tmpdir.ensure_dir('empty')
     repo = tmpdir.ensure_dir('repo')
-    run(repo, ['git', 'init'])
+    pytest.run(repo, ['git', 'init'])
     local_empty.ensure('conf.py')
     args = ['-L', '-l', 'conf.py', '-c', str(empty), '-g', str(repo), '-N', '-v', '-v'] + args
     result = CliRunner().invoke(cli, args)

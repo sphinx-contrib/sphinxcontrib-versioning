@@ -11,6 +11,31 @@ RE_BANNER = re.compile('>(?:<a href="([^"]+)">)?<b>Warning:</b> This document is
 RE_URLS = re.compile('<li><a href="[^"]+">[^<]+</a></li>')
 
 
+def run(directory, command, *args, **kwargs):
+    """Run command using run_command() function. Supports string and py.path paths.
+
+    :param directory: Root git directory and current working directory.
+    :param iter command: Command to run.
+    :param iter args: Passed to run_command().
+    :param dict kwargs: Passed to run_command().
+
+    :return: run_command() output.
+    :rtype: str
+    """
+    return run_command(str(directory), [str(i) for i in command], *args, **kwargs)
+
+
+def pytest_namespace():
+    """Add objects to the pytest namespace. Can be retrieved by importing pytest and accessing pytest.<name>.
+
+    :return: Namespace dict.
+    :rtype: dict
+    """
+    return dict(
+        run=run,
+    )
+
+
 @pytest.fixture
 def config(monkeypatch):
     """Mock config from Click context.
@@ -27,18 +52,12 @@ def config(monkeypatch):
 
 
 @pytest.fixture
-def run():
-    """run_command() wrapper returned from a pytest fixture."""
-    return lambda d, c, *args, **kwargs: run_command(str(d), [str(i) for i in c], *args, **kwargs)
-
-
-@pytest.fixture
 def banner():
     """Verify banner in HTML file match expected."""
     def match(path, expected_url=None, expected_base=None):
         """Assert equals and return file contents.
 
-        :param py.path path: Path to file to read.
+        :param py.path.local path: Path to file to read.
         :param str expected_url: Expected URL in <a href="" /> link.
         :param str expected_base: Expected base message.
 
@@ -61,7 +80,7 @@ def urls():
     def match(path, expected):
         """Assert equals and return file contents.
 
-        :param py.path path: Path to file to read.
+        :param py.path.local path: Path to file to read.
         :param list expected: Expected matches.
 
         :return: File contents.
@@ -75,11 +94,10 @@ def urls():
 
 
 @pytest.fixture
-def local_empty(tmpdir, run):
+def local_empty(tmpdir):
     """Local git repository with no commits.
 
     :param tmpdir: pytest fixture.
-    :param run: local fixture.
 
     :return: Path to repo root.
     :rtype: py.path
@@ -90,11 +108,10 @@ def local_empty(tmpdir, run):
 
 
 @pytest.fixture
-def remote(tmpdir, run):
+def remote(tmpdir):
     """Remote git repository with nothing pushed to it.
 
     :param tmpdir: pytest fixture.
-    :param run: local fixture.
 
     :return: Path to bare repo root.
     :rtype: py.path
@@ -105,11 +122,10 @@ def remote(tmpdir, run):
 
 
 @pytest.fixture
-def local_commit(local_empty, run):
+def local_commit(local_empty):
     """Local git repository with one commit.
 
     :param local_empty: local fixture.
-    :param run: local fixture.
 
     :return: Path to repo root.
     :rtype: py.path
@@ -121,12 +137,11 @@ def local_commit(local_empty, run):
 
 
 @pytest.fixture
-def local(local_commit, remote, run):
+def local(local_commit, remote):
     """Local git repository with branches, light tags, and annotated tags pushed to remote.
 
     :param local_commit: local fixture.
     :param remote: local fixture.
-    :param run: local fixture.
 
     :return: Path to repo root.
     :rtype: py.path
@@ -141,13 +156,12 @@ def local(local_commit, remote, run):
 
 
 @pytest.fixture
-def local_light(tmpdir, local, remote, run):
+def local_light(tmpdir, local, remote):
     """Light-weight local repository similar to how Travis/AppVeyor clone repos.
 
     :param tmpdir: pytest fixture.
     :param local: local fixture.
     :param remote: local fixture.
-    :param run: local fixture.
 
     :return: Path to repo root.
     :rtype: py.path
@@ -162,13 +176,12 @@ def local_light(tmpdir, local, remote, run):
 
 
 @pytest.fixture
-def outdate_local(tmpdir, local_light, remote, run):
+def outdate_local(tmpdir, local_light, remote):
     """Clone remote to other directory and push changes. Causes `local` fixture to be outdated.
 
     :param tmpdir: pytest fixture.
     :param local_light: local fixture.
     :param remote: local fixture.
-    :param run: local fixture.
 
     :return: Path to repo root.
     :rtype: py.path
@@ -190,11 +203,10 @@ def outdate_local(tmpdir, local_light, remote, run):
 
 
 @pytest.fixture
-def local_docs(local, run):
+def local_docs(local):
     """Local repository with Sphinx doc files. Pushed to remote.
 
     :param local: local fixture.
-    :param run: local fixture.
 
     :return: Path to repo root.
     :rtype: py.path
@@ -242,11 +254,10 @@ def local_docs(local, run):
 
 
 @pytest.fixture
-def local_docs_ghp(local_docs, run):
+def local_docs_ghp(local_docs):
     """Add an orphaned branch to remote.
 
     :param local_docs: local fixture.
-    :param run: local fixture.
     """
     run(local_docs, ['git', 'checkout', '--orphan', 'gh-pages'])
     run(local_docs, ['git', 'rm', '-rf', '.'])

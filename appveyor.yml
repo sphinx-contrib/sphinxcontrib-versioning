@@ -1,5 +1,6 @@
 # Configure.
 environment:
+  PATH: C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
   PYTHON: Python35
   matrix:
     - TOX_ENV: lint
@@ -17,7 +18,6 @@ environment:
       PYTHON: Python27-x64
 
 # Run.
-init: set PATH=C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
 build_script: pip install tox
 test_script: tox -e %TOX_ENV%
 on_success: IF %TOX_ENV% NEQ lint pip install codecov & codecov

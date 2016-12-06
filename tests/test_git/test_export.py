@@ -8,36 +8,34 @@ import pytest
 from sphinxcontrib.versioning.git import export, fetch_commits, IS_WINDOWS, list_remote
 
 
-def test_simple(tmpdir, local, run):
+def test_simple(tmpdir, local):
     """Test with just the README in one commit.
 
     :param tmpdir: pytest fixture.
     :param local: conftest fixture.
-    :param run: conftest fixture.
     """
     target = tmpdir.ensure_dir('target')
-    sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+    sha = pytest.run(local, ['git', 'rev-parse', 'HEAD']).strip()
 
     export(str(local), sha, str(target))
-    run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
+    pytest.run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
     files = [f.relto(target) for f in target.listdir()]
     assert files == ['README']
 
 
-def test_overwrite(tmpdir, local, run):
+def test_overwrite(tmpdir, local):
     """Test overwriting existing files.
 
     :param tmpdir: pytest fixture.
     :param local: conftest fixture.
-    :param run: conftest fixture.
     """
     local.ensure('docs', '_templates', 'layout.html').write('three')
     local.join('docs', 'conf.py').write('one')
     local.join('docs', 'index.rst').write('two')
-    run(local, ['git', 'add', 'docs'])
-    run(local, ['git', 'commit', '-m', 'Added docs dir.'])
-    run(local, ['git', 'push', 'origin', 'master'])
-    sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+    pytest.run(local, ['git', 'add', 'docs'])
+    pytest.run(local, ['git', 'commit', '-m', 'Added docs dir.'])
+    pytest.run(local, ['git', 'push', 'origin', 'master'])
+    sha = pytest.run(local, ['git', 'rev-parse', 'HEAD']).strip()
 
     target = tmpdir.ensure_dir('target')
     target.ensure('docs', '_templates', 'other', 'other.html').write('other')
@@ -46,7 +44,7 @@ def test_overwrite(tmpdir, local, run):
     target.join('docs', 'other.rst').write('other')
 
     export(str(local), sha, str(target))
-    run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])
+    pytest.run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])
 
     expected = [
         'README',
@@ -96,25 +94,24 @@ def test_new_branch_tags(tmpdir, local_light, fail):
 
 
 @pytest.mark.skipif(str(IS_WINDOWS))
-def test_symlink(tmpdir, local, run):
+def test_symlink(tmpdir, local):
     """Test repos with broken symlinks.
 
     :param tmpdir: pytest fixture.
     :param local: conftest fixture.
-    :param run: conftest fixture.
     """
     orphan = tmpdir.ensure('to_be_removed')
     local.join('good_symlink').mksymlinkto('README')
     local.join('broken_symlink').mksymlinkto('to_be_removed')
-    run(local, ['git', 'add', 'good_symlink', 'broken_symlink'])
-    run(local, ['git', 'commit', '-m', 'Added symlinks.'])
-    run(local, ['git', 'push', 'origin', 'master'])
+    pytest.run(local, ['git', 'add', 'good_symlink', 'broken_symlink'])
+    pytest.run(local, ['git', 'commit', '-m', 'Added symlinks.'])
+    pytest.run(local, ['git', 'push', 'origin', 'master'])
     orphan.remove()
 
     target = tmpdir.ensure_dir('target')
-    sha = run(local, ['git', 'rev-parse', 'HEAD']).strip()
+    sha = pytest.run(local, ['git', 'rev-parse', 'HEAD']).strip()
 
     export(str(local), sha, str(target))
-    run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
+    pytest.run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
     files = sorted(f.relto(target) for f in target.listdir())
     assert files == ['README', 'good_symlink']

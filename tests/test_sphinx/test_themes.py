@@ -20,13 +20,12 @@ THEMES = [
 
 
 @pytest.mark.parametrize('theme', THEMES)
-def test_supported(tmpdir, config, local_docs, run, theme):
+def test_supported(tmpdir, config, local_docs, theme):
     """Test with different themes. Verify not much changed between sphinx-build and sphinx-versioning.
 
     :param tmpdir: pytest fixture.
     :param sphinxcontrib.versioning.lib.Config config: conftest fixture.
     :param local_docs: conftest fixture.
-    :param run: conftest fixture.
     :param str theme: Theme name to use.
     """
     config.overflow = ('-D', 'html_theme=' + theme)
@@ -49,7 +48,7 @@ def test_supported(tmpdir, config, local_docs, run, theme):
     ], sort=['semver'])
 
     # Build with normal sphinx-build.
-    run(local_docs, ['sphinx-build', '.', str(target_n), '-D', 'html_theme=' + theme])
+    pytest.run(local_docs, ['sphinx-build', '.', str(target_n), '-D', 'html_theme=' + theme])
     contents_n = target_n.join('contents.html').read()
     assert 'master' not in contents_n
 
