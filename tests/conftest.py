@@ -93,42 +93,42 @@ def urls():
     return match
 
 
-@pytest.fixture
-def local_empty(tmpdir):
+@pytest.fixture(name='local_empty')
+def fx_local_empty(tmpdir):
     """Local git repository with no commits.
 
     :param tmpdir: pytest fixture.
 
     :return: Path to repo root.
-    :rtype: py.path
+    :rtype: py.path.local
     """
     repo = tmpdir.ensure_dir('local')
     run(repo, ['git', 'init'])
     return repo
 
 
-@pytest.fixture
-def remote(tmpdir):
+@pytest.fixture(name='remote')
+def fx_remote(tmpdir):
     """Remote git repository with nothing pushed to it.
 
     :param tmpdir: pytest fixture.
 
     :return: Path to bare repo root.
-    :rtype: py.path
+    :rtype: py.path.local
     """
     repo = tmpdir.ensure_dir('remote')
     run(repo, ['git', 'init', '--bare'])
     return repo
 
 
-@pytest.fixture
-def local_commit(local_empty):
+@pytest.fixture(name='local_commit')
+def fx_local_commit(local_empty):
     """Local git repository with one commit.
 
     :param local_empty: local fixture.
 
     :return: Path to repo root.
-    :rtype: py.path
+    :rtype: py.path.local
     """
     local_empty.join('README').write('Dummy readme file.')
     run(local_empty, ['git', 'add', 'README'])
@@ -136,15 +136,15 @@ def local_commit(local_empty):
     return local_empty
 
 
-@pytest.fixture
-def local(local_commit, remote):
+@pytest.fixture(name='local')
+def fx_local(local_commit, remote):
     """Local git repository with branches, light tags, and annotated tags pushed to remote.
 
     :param local_commit: local fixture.
     :param remote: local fixture.
 
     :return: Path to repo root.
-    :rtype: py.path
+    :rtype: py.path.local
     """
     run(local_commit, ['git', 'tag', 'light_tag'])
     run(local_commit, ['git', 'tag', '--annotate', '-m', 'Tag annotation.', 'annotated_tag'])
@@ -155,8 +155,8 @@ def local(local_commit, remote):
     return local_commit
 
 
-@pytest.fixture
-def local_light(tmpdir, local, remote):
+@pytest.fixture(name='local_light')
+def fx_local_light(tmpdir, local, remote):
     """Light-weight local repository similar to how Travis/AppVeyor clone repos.
 
     :param tmpdir: pytest fixture.
@@ -164,7 +164,7 @@ def local_light(tmpdir, local, remote):
     :param remote: local fixture.
 
     :return: Path to repo root.
-    :rtype: py.path
+    :rtype: py.path.local
     """
     assert local  # Ensures local pushes feature branch before this fixture is called.
     local2 = tmpdir.ensure_dir('local2')
@@ -184,7 +184,7 @@ def outdate_local(tmpdir, local_light, remote):
     :param remote: local fixture.
 
     :return: Path to repo root.
-    :rtype: py.path
+    :rtype: py.path.local
     """
     assert local_light  # Ensures local_light is setup before this fixture pushes to remote.
     local_ahead = tmpdir.ensure_dir('local_ahead')
@@ -202,14 +202,14 @@ def outdate_local(tmpdir, local_light, remote):
     return local_ahead
 
 
-@pytest.fixture
-def local_docs(local):
+@pytest.fixture(name='local_docs')
+def fx_local_docs(local):
     """Local repository with Sphinx doc files. Pushed to remote.
 
     :param local: local fixture.
 
     :return: Path to repo root.
-    :rtype: py.path
+    :rtype: py.path.local
     """
     local.ensure('conf.py')
     local.join('contents.rst').write(
