@@ -112,13 +112,14 @@ def chunk(iterator, max_size):
         yield chunked
 
 
-def run_command(local_root, command, env_var=True, pipeto=None, retry=0):
+def run_command(local_root, command, env_var=True, pipeto=None, retry=0, environ=None):
     """Run a command and return the output.
 
     :raise CalledProcessError: Command exits non-zero.
 
     :param str local_root: Local path to git root directory.
     :param iter command: Command to run.
+    :param dict environ: Environment variables to set/override in the command.
     :param bool env_var: Define GIT_DIR environment variable (on non-Windows).
     :param function pipeto: Pipe `command`'s stdout to this function (only parameter given).
     :param int retry: Retry this many times on CalledProcessError after 0.1 seconds.
@@ -130,6 +131,8 @@ def run_command(local_root, command, env_var=True, pipeto=None, retry=0):
 
     # Setup env.
     env = os.environ.copy()
+    if environ:
+        env.update(environ)
     if env_var and not IS_WINDOWS:
         env['GIT_DIR'] = os.path.join(local_root, '.git')
     else:
@@ -270,6 +273,8 @@ def fetch_commits(local_root, remotes):
 def export(local_root, commit, target):
     """Export git commit to directory. "Extracts" all files at the commit to the target directory.
 
+    Set mtime of RST files to last commit date.
+
     :raise CalledProcessError: Unhandled git command failure.
 
     :param str local_root: Local path to git root directory.
@@ -278,6 +283,7 @@ def export(local_root, commit, target):
     """
     log = logging.getLogger(__name__)
     target = os.path.realpath(target)
+    mtimes = list()
 
     # Define extract function.
     def extract(stdout):
@@ -300,6 +306,8 @@ def export(local_root, commit, target):
                         queued_links.append(info)
                     else:  # Handle files.
                         tar.extract(member=info, path=target)
+                        if os.path.splitext(info.name)[1].lower() == '.rst':
+                            mtimes.append(info.name)
                 for info in (i for i in queued_links if os.path.exists(os.path.join(target, i.linkname))):
                     tar.extract(member=info, path=target)
         except tarfile.TarError as exc:
@@ -307,6 +315,11 @@ def export(local_root, commit, target):
 
     # Run command.
     run_command(local_root, ['git', 'archive', '--format=tar', commit], pipeto=extract)
+
+    # Set mtime.
+    for file_path in mtimes:
+        last_committed = int(run_command(local_root, ['git', 'log', '-n1', '--format=%at', commit, '--', file_path]))
+        os.utime(os.path.join(target, file_path), (last_committed, last_committed))
 
 
 def clone(local_root, new_root, remote, branch, rel_dest, exclude):

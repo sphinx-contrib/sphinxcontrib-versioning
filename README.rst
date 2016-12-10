@@ -49,6 +49,15 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+Unreleased
+----------
+
+Added
+    * Time value of ``html_last_updated_fmt`` will be the last git commit (authored) date.
+
+Fixed
+    * https://github.com/Robpol86/sphinxcontrib-versioning/issues/26
+
 2.2.0 - 2016-09-15
 ------------------
 

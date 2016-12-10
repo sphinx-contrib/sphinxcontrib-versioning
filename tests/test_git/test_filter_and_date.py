@@ -6,8 +6,6 @@ import pytest
 
 from sphinxcontrib.versioning.git import filter_and_date, GitError, list_remote
 
-BEFORE = int(time.time())
-
 
 def test_one_commit(local):
     """Test with one commit.
@@ -24,7 +22,7 @@ def test_one_commit(local):
     # Test with existing conf_rel_path.
     dates = filter_and_date(str(local), ['README'], [sha])
     assert list(dates) == [sha]
-    assert dates[sha][0] >= BEFORE
+    assert dates[sha][0] >= pytest.ROOT_TS
     assert dates[sha][0] < time.time()
     assert dates[sha][1] == 'README'
 

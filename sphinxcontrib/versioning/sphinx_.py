@@ -1,15 +1,17 @@
 """Interface with Sphinx."""
 
+import datetime
 import logging
 import multiprocessing
 import os
 import sys
 
-from sphinx import application, build_main
+from sphinx import application, build_main, locale
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import Config as SphinxConfig
 from sphinx.errors import SphinxError
 from sphinx.jinja2glue import SphinxFileSystemLoader
+from sphinx.util.i18n import format_date
 
 from sphinxcontrib.versioning import __version__
 from sphinxcontrib.versioning.lib import Config, HandledError, TempDir
@@ -83,7 +85,7 @@ class EventHandlers(object):
         :param dict context: Jinja2 HTML context.
         :param docutils.nodes.document doctree: Tree of docutils nodes.
         """
-        assert pagename or templatename or doctree  # Unused, for linting.
+        assert templatename or doctree  # Unused, for linting.
         cls.VERSIONS.context = context
         versions = cls.VERSIONS
         this_remote = versions[cls.CURRENT_VERSION]
@@ -122,6 +124,14 @@ class EventHandlers(object):
             # Handle overridden html_static_path.
             if STATIC_DIR not in app.config.html_static_path:
                 app.config.html_static_path.append(STATIC_DIR)
+
+        # Reset last_updated with file's mtime (will be last git commit authored date).
+        if app.config.html_last_updated_fmt is not None:
+            file_path = app.env.doc2path(pagename)
+            if os.path.isfile(file_path):
+                lufmt = app.config.html_last_updated_fmt or getattr(locale, '_')('%b %d, %Y')
+                mtime = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+                context['last_updated'] = format_date(lufmt, mtime, language=app.config.language, warn=app.warn)
 
 
 def setup(app):

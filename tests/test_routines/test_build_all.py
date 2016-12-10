@@ -1,5 +1,6 @@
 """Test function in module."""
 
+import re
 from os.path import join
 
 import pytest
@@ -8,6 +9,8 @@ from sphinxcontrib.versioning.git import export
 from sphinxcontrib.versioning.lib import HandledError
 from sphinxcontrib.versioning.routines import build_all, gather_git_info
 from sphinxcontrib.versioning.versions import Versions
+
+RE_LAST_UPDATED = re.compile(r'Last updated[^\n]+\n')
 
 
 def test_single(tmpdir, local_docs, urls):
@@ -271,6 +274,51 @@ def test_banner_tag(tmpdir, banner, config, local_docs, recent):
         'an old version of Python. The latest version is {}'.format(new)
     )
     banner(dst.join(old, 'two.html'), '', 'an old version of Python')
+
+
+def test_last_updated(tmpdir, local_docs):
+    """Test last updated timestamp derived from git authored time.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
+    """
+    local_docs.join('conf.py').write(
+        'html_last_updated_fmt = "%c"\n'
+        'html_theme="sphinx_rtd_theme"\n'
+    )
+    local_docs.join('two.rst').write('Changed\n', mode='a')
+    pytest.run(local_docs, ['git', 'commit', '-am', 'Changed two.'], environ=pytest.author_committer_dates(10))
+    pytest.run(local_docs, ['git', 'checkout', '-b', 'other', 'master'])
+    local_docs.join('three.rst').write('Changed\n', mode='a')
+    pytest.run(local_docs, ['git', 'commit', '-am', 'Changed three.'], environ=pytest.author_committer_dates(11))
+    pytest.run(local_docs, ['git', 'push', 'origin', 'master', 'other'])
+
+    versions = Versions(gather_git_info(str(local_docs), ['conf.py'], tuple(), tuple()))
+
+    # Export.
+    exported_root = tmpdir.ensure_dir('exported_root')
+    export(str(local_docs), versions['master']['sha'], str(exported_root.join(versions['master']['sha'])))
+    export(str(local_docs), versions['other']['sha'], str(exported_root.join(versions['other']['sha'])))
+
+    # Run.
+    destination = tmpdir.ensure_dir('destination')
+    build_all(str(exported_root), str(destination), versions)
+
+    # Verify master.
+    one = RE_LAST_UPDATED.findall(destination.join('master', 'one.html').read())
+    two = RE_LAST_UPDATED.findall(destination.join('master', 'two.html').read())
+    three = RE_LAST_UPDATED.findall(destination.join('master', 'three.html').read())
+    assert one == ['Last updated on Dec 5, 2016, 3:20:05 AM.\n']
+    assert two == ['Last updated on Dec 5, 2016, 3:27:05 AM.\n']
+    assert three == ['Last updated on Dec 5, 2016, 3:20:05 AM.\n']
+
+    # Verify other.
+    one = RE_LAST_UPDATED.findall(destination.join('other', 'one.html').read())
+    two = RE_LAST_UPDATED.findall(destination.join('other', 'two.html').read())
+    three = RE_LAST_UPDATED.findall(destination.join('other', 'three.html').read())
+    assert one == ['Last updated on Dec 5, 2016, 3:20:05 AM.\n']
+    assert two == ['Last updated on Dec 5, 2016, 3:27:05 AM.\n']
+    assert three == ['Last updated on Dec 5, 2016, 3:28:05 AM.\n']
 
 
 @pytest.mark.parametrize('parallel', [False, True])

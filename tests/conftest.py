@@ -1,6 +1,8 @@
 """pytest fixtures for this directory."""
 
+import datetime
 import re
+import time
 
 import pytest
 
@@ -9,6 +11,24 @@ from sphinxcontrib.versioning.lib import Config
 
 RE_BANNER = re.compile('>(?:<a href="([^"]+)">)?<b>Warning:</b> This document is for ([^<]+).(?:</a>)?</p>')
 RE_URLS = re.compile('<li><a href="[^"]+">[^<]+</a></li>')
+ROOT_TS = int(time.mktime((2016, 12, 5, 3, 17, 5, 0, 0, 0)))
+
+
+def author_committer_dates(offset):
+    """Return ISO time for GIT_AUTHOR_DATE and GIT_COMMITTER_DATE environment variables.
+
+    Always starts on December 05 2016 03:17:05 AM local time. Committer date always 2 seconds after author date.
+
+    :param int offset: Minutes to offset both timestamps.
+
+    :return: GIT_AUTHOR_DATE and GIT_COMMITTER_DATE timestamps, can be merged into os.environ.
+    :rtype: dict
+    """
+    dt = datetime.datetime.fromtimestamp(ROOT_TS) + datetime.timedelta(minutes=offset)
+    env = dict(GIT_AUTHOR_DATE=str(dt))
+    dt += datetime.timedelta(seconds=2)
+    env['GIT_COMMITTER_DATE'] = str(dt)
+    return env
 
 
 def run(directory, command, *args, **kwargs):
@@ -32,6 +52,8 @@ def pytest_namespace():
     :rtype: dict
     """
     return dict(
+        author_committer_dates=author_committer_dates,
+        ROOT_TS=ROOT_TS,
         run=run,
     )
 
@@ -132,7 +154,7 @@ def fx_local_commit(local_empty):
     """
     local_empty.join('README').write('Dummy readme file.')
     run(local_empty, ['git', 'add', 'README'])
-    run(local_empty, ['git', 'commit', '-m', 'Initial commit.'])
+    run(local_empty, ['git', 'commit', '-m', 'Initial commit.'], environ=author_committer_dates(0))
     return local_empty
 
 
@@ -191,12 +213,12 @@ def outdate_local(tmpdir, local_light, remote):
     run(local_ahead, ['git', 'clone', remote, '.'])
     run(local_ahead, ['git', 'checkout', '-b', 'un_pushed_branch'])
     local_ahead.join('README').write('changed')
-    run(local_ahead, ['git', 'commit', '-am', 'Changed new branch'])
+    run(local_ahead, ['git', 'commit', '-am', 'Changed new branch'], environ=author_committer_dates(1))
     run(local_ahead, ['git', 'tag', 'nb_tag'])
     run(local_ahead, ['git', 'checkout', '--orphan', 'orphaned_branch'])
     local_ahead.join('README').write('new')
     run(local_ahead, ['git', 'add', 'README'])
-    run(local_ahead, ['git', 'commit', '-m', 'Added new README'])
+    run(local_ahead, ['git', 'commit', '-m', 'Added new README'], environ=author_committer_dates(2))
     run(local_ahead, ['git', 'tag', '--annotate', '-m', 'Tag annotation.', 'ob_at'])
     run(local_ahead, ['git', 'push', 'origin', 'nb_tag', 'orphaned_branch', 'ob_at'])
     return local_ahead
@@ -248,7 +270,7 @@ def fx_local_docs(local):
         'Sub page documentation 3.\n'
     )
     run(local, ['git', 'add', 'conf.py', 'contents.rst', 'one.rst', 'two.rst', 'three.rst'])
-    run(local, ['git', 'commit', '-m', 'Adding docs.'])
+    run(local, ['git', 'commit', '-m', 'Adding docs.'], environ=author_committer_dates(3))
     run(local, ['git', 'push', 'origin', 'master'])
     return local
 
@@ -263,7 +285,7 @@ def local_docs_ghp(local_docs):
     run(local_docs, ['git', 'rm', '-rf', '.'])
     local_docs.join('README').write('Orphaned branch for HTML docs.')
     run(local_docs, ['git', 'add', 'README'])
-    run(local_docs, ['git', 'commit', '-m', 'Initial Commit'])
+    run(local_docs, ['git', 'commit', '-m', 'Initial Commit'], environ=author_committer_dates(4))
     run(local_docs, ['git', 'push', 'origin', 'gh-pages'])
     run(local_docs, ['git', 'checkout', 'master'])
     return local_docs

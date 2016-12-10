@@ -1,5 +1,7 @@
 """Test function in module."""
 
+import time
+from datetime import datetime
 from os.path import join
 from subprocess import CalledProcessError
 
@@ -115,3 +117,51 @@ def test_symlink(tmpdir, local):
     pytest.run(local, ['git', 'diff-index', '--quiet', 'HEAD', '--'])  # Exit 0 if nothing changed.
     files = sorted(f.relto(target) for f in target.listdir())
     assert files == ['README', 'good_symlink']
+
+
+def test_timezones(tmpdir, local):
+    """Test mtime on RST files with different git commit timezones.
+
+    :param tmpdir: pytest fixture.
+    :param local: conftest fixture.
+    """
+    files_dates = [
+        ('local.rst', ''),
+        ('UTC.rst', ' +0000'),
+        ('PDT.rst', ' -0700'),
+        ('PST.rst', ' -0800'),
+    ]
+
+    # Commit files.
+    for name, offset in files_dates:
+        local.ensure(name)
+        pytest.run(local, ['git', 'add', name])
+        env = pytest.author_committer_dates(0)
+        env['GIT_AUTHOR_DATE'] += offset
+        env['GIT_COMMITTER_DATE'] += offset
+        pytest.run(local, ['git', 'commit', '-m', 'Added ' + name], environ=env)
+
+    # Run.
+    target = tmpdir.ensure_dir('target')
+    sha = pytest.run(local, ['git', 'rev-parse', 'HEAD']).strip()
+    export(str(local), sha, str(target))
+
+    # Validate.
+    actual = {i[0]: str(datetime.fromtimestamp(target.join(i[0]).mtime())) for i in files_dates}
+    if -time.timezone == -28800:
+        expected = {
+            'local.rst': '2016-12-05 03:17:05',
+            'UTC.rst': '2016-12-04 19:17:05',
+            'PDT.rst': '2016-12-05 02:17:05',
+            'PST.rst': '2016-12-05 03:17:05',
+        }
+    elif -time.timezone == 0:
+        expected = {
+            'local.rst': '2016-12-05 03:17:05',
+            'UTC.rst': '2016-12-05 03:17:05',
+            'PDT.rst': '2016-12-05 10:17:05',
+            'PST.rst': '2016-12-05 11:17:05',
+        }
+    else:
+        return pytest.skip('Need to add expected for {} timezone.'.format(-time.timezone))
+    assert actual == expected
