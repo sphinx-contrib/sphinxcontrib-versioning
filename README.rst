@@ -56,7 +56,9 @@ Added
     * Time value of ``html_last_updated_fmt`` will be the last git commit (authored) date.
 
 Fixed
+    * Unhandled KeyError exception when banner main ref fails pre-build.
     * https://github.com/Robpol86/sphinxcontrib-versioning/issues/26
+    * https://github.com/Robpol86/sphinxcontrib-versioning/issues/27
 
 2.2.0 - 2016-09-15
 ------------------

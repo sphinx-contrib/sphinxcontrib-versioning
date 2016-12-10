@@ -302,6 +302,10 @@ def build(config, rel_source, destination, **options):
     # Pre-build.
     log.info("Pre-running Sphinx to collect versions' master_doc and other info.")
     exported_root = pre_build(config.git_root, versions)
+    if config.banner_main_ref and config.banner_main_ref not in [r['name'] for r in versions.remotes]:
+        log.warning('Banner main ref %s failed during pre-run. Disabling banner.', config.banner_main_ref)
+        config.update(dict(banner_greatest_tag=False, banner_main_ref=None, banner_recent_tag=False, show_banner=False),
+                      overwrite=True)
 
     # Build.
     build_all(exported_root, destination, versions)
