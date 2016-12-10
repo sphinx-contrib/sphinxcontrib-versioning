@@ -671,3 +671,26 @@ def test_error_bad_root_ref(tmpdir, local_docs):
     with pytest.raises(CalledProcessError) as exc:
         pytest.run(local_docs, ['sphinx-versioning', '-N', '-v', 'build', '.', str(tmpdir), '-r', 'unknown'])
     assert 'Root ref unknown not found in: master' in exc.value.output
+
+
+def test_bad_banner(banner, local_docs):
+    """Test bad banner main ref.
+
+    :param banner: conftest fixture.
+    :param local_docs: conftest fixture.
+    """
+    pytest.run(local_docs, ['git', 'checkout', '-b', 'stable', 'master'])
+    local_docs.join('conf.py').write('bad\n', mode='a')
+    pytest.run(local_docs, ['git', 'commit', '-am', 'Breaking stable.'])
+    pytest.run(local_docs, ['git', 'push', 'origin', 'stable'])
+
+    # Run.
+    destination = local_docs.ensure_dir('..', 'destination')
+    args = ['--show-banner', '--banner-main-ref', 'stable']
+    output = pytest.run(local_docs, ['sphinx-versioning', 'build', '.', str(destination)] + args)
+    assert 'KeyError' not in output
+
+    # Check no banner.
+    assert 'Disabling banner.' in output
+    assert 'Banner main ref is' not in output
+    banner(destination.join('contents.html'), None)
