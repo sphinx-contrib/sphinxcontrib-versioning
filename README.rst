@@ -49,8 +49,8 @@ Changelog
 
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-Unreleased
-----------
+2.2.1 - 2016-12-10
+------------------
 
 Added
     * Time value of ``html_last_updated_fmt`` will be the last git commit (authored) date.
