@@ -22,7 +22,7 @@
     </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; sphinxcontrib-versioning</title>
+  <title>Banner Message &mdash; sphinxcontrib-versioning</title>
   
 
   
@@ -54,8 +54,8 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="sphinxcontrib-versioning" href="index.html"/>
-        <link rel="next" title="Tutorial" href="tutorial.html"/>
-        <link rel="prev" title="SCVersioning 2.2.0" href="index.html"/> 
+        <link rel="next" title="Settings" href="settings.html"/>
+        <link rel="prev" title="Tutorial" href="tutorial.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -107,14 +107,9 @@
             
                 <p class="caption"><span class="caption-text">General</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pip-install">Pip Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#latest-from-github">Latest from GitHub</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#clone-and-install">Clone and Install</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="banner.html">Banner Message</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Banner Message</a></li>
 <li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="context.html">HTML Context API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="themes.html">Supported Themes</a></li>
@@ -161,12 +156,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Installation</li>
+    <li>Banner Message</li>
     <li class="wy-breadcrumbs-aside">
       
           
           
-            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/travis_docsv_fail/docs/install.rst" class="fa fa-github"> Edit on GitHub</a>
+            <a href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/issue_29_park/docs/banner.rst" class="fa fa-github"> Edit on GitHub</a>
           
         
       
@@ -177,33 +172,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation">
-<span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>Getting started is pretty simple. The first step is to install the library.</p>
-<div class="section" id="pip-install">
-<h2>Pip Install<a class="headerlink" href="#pip-install" title="Permalink to this headline">¶</a></h2>
-<p>The easiest way to get SCVersioning is to use <a class="reference external" href="https://pip.pypa.io">pip</a>. Simply run this command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install sphinxcontrib-versioning
-</pre></div>
+  <div class="section" id="banner-message">
+<span id="banner"></span><h1>Banner Message<a class="headerlink" href="#banner-message" title="Permalink to this headline">¶</a></h1>
+<p>Banner messages can be displayed at the top of every document informing users that they are currently viewing either old
+or the development version of the project&#8217;s documentation, with the exception of the <a class="reference internal" href="settings.html#cmdoption--banner-main-ref"><code class="xref std std-option docutils literal"><span class="pre">--banner-main-ref</span></code></a>. This
+feature is inspired by banner on the <a class="reference external" href="http://jinja.pocoo.org/docs/dev/">Jinja2 documentation</a>.</p>
+<p>The banner feature is disabled by default. It can be enabled with the <a class="reference internal" href="settings.html#cmdoption--show-banner"><code class="xref std std-option docutils literal"><span class="pre">--show-banner</span></code></a> setting.</p>
+<div class="figure" id="id1">
+<a class="reference external image-reference" href="_images/sphinx_rtd_theme_banner_dev.png"><img alt="_images/sphinx_rtd_theme_banner_dev.png" src="_images/sphinx_rtd_theme_banner_dev.png" /></a>
+<p class="caption"><span class="caption-text">The message displayed when users are viewing docs from a branch and the <a class="reference internal" href="settings.html#cmdoption--banner-main-ref"><code class="xref std std-option docutils literal"><span class="pre">--banner-main-ref</span></code></a> is a tag. The
+entire banner is a link that sends users to the latest version of the current page if it exists there.</span></p>
 </div>
+<div class="figure" id="id2">
+<a class="reference external image-reference" href="_images/sphinx_rtd_theme_banner_old.png"><img alt="_images/sphinx_rtd_theme_banner_old.png" src="_images/sphinx_rtd_theme_banner_old.png" /></a>
+<p class="caption"><span class="caption-text">The message displayed when users are viewing docs from a tag and the <a class="reference internal" href="settings.html#cmdoption--banner-main-ref"><code class="xref std std-option docutils literal"><span class="pre">--banner-main-ref</span></code></a> is a tag. Like the
+message above this one links users to the latest version of the current page.</span></p>
 </div>
-<div class="section" id="latest-from-github">
-<h2>Latest from GitHub<a class="headerlink" href="#latest-from-github" title="Permalink to this headline">¶</a></h2>
-<p>You can also elect to install the latest bleeding-edge version by using pip to install directly from the GitHub
-repository.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>pip install git+https://github.com/Robpol86/sphinxcontrib-versioning.git
-</pre></div>
-</div>
-</div>
-<div class="section" id="clone-and-install">
-<h2>Clone and Install<a class="headerlink" href="#clone-and-install" title="Permalink to this headline">¶</a></h2>
-<p>Lastly you can also just clone the repo and install from it. Usually you only need to do this if you plan on
-<a class="reference external" href="https://github.com/Robpol86/sphinxcontrib-versioning/blob/master/CONTRIBUTING.md">contributing</a> to the project.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>git clone git@github.com:Robpol86/sphinxcontrib-versioning.git
-<span class="nb">cd</span> sphinxcontrib-versioning
-python setup.py install
-</pre></div>
-</div>
+<div class="figure" id="id3">
+<a class="reference external image-reference" href="_images/sphinx_rtd_theme_banner_nourl.png"><img alt="_images/sphinx_rtd_theme_banner_nourl.png" src="_images/sphinx_rtd_theme_banner_nourl.png" /></a>
+<p class="caption"><span class="caption-text">An example of a banner message from a page that does not exist in the <a class="reference internal" href="settings.html#cmdoption--banner-main-ref"><code class="xref std std-option docutils literal"><span class="pre">--banner-main-ref</span></code></a> version. Since
+there is no page to link to this is just text informing the user that they&#8217;re viewing the development version of the
+docs.</span></p>
 </div>
 </div>
 
@@ -214,10 +203,10 @@ python setup.py install
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="settings.html" class="btn btn-neutral float-right" title="Settings" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="SCVersioning 2.2.0" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial.html" class="btn btn-neutral" title="Tutorial" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -227,7 +216,7 @@ python setup.py install
   <div role="contentinfo">
     <p>
         &copy; Copyright 2016, @Robpol86.
-      Last updated on Aug 15, 2016, 7:20:29 AM.
+      Last updated on Aug 22, 2016, 9:20:09 PM.
 
     </p>
   </div>
@@ -245,26 +234,26 @@ python setup.py install
 <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
         <span class="fa fa-book"> Other Versions</span>
-        v: travis_docsv_fail
+        v: issue_29_park
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
         <dl>
             <dt>Tags</dt>
-            <dd><a href="../v2.1.4/install.html">v2.1.4</a></dd>
-            <dd><a href="../v2.1.3/install.html">v2.1.3</a></dd>
-            <dd><a href="../v2.1.2/install.html">v2.1.2</a></dd>
-            <dd><a href="../v2.1.1/install.html">v2.1.1</a></dd>
-            <dd><a href="../v2.1.0/install.html">v2.1.0</a></dd>
-            <dd><a href="../v2.0.0/install.html">v2.0.0</a></dd>
-            <dd><a href="../v1.1.0/install.html">v1.1.0</a></dd>
-            <dd><a href="../v1.0.1/install.html">v1.0.1</a></dd>
-            <dd><a href="../v1.0.0/install.html">v1.0.0</a></dd>
+            <dd><a href="../v2.1.4/banner.html">v2.1.4</a></dd>
+            <dd><a href="../v2.1.3/banner.html">v2.1.3</a></dd>
+            <dd><a href="../v2.1.2/banner.html">v2.1.2</a></dd>
+            <dd><a href="../v2.1.1/banner.html">v2.1.1</a></dd>
+            <dd><a href="../v2.1.0/banner.html">v2.1.0</a></dd>
+            <dd><a href="../v2.0.0/index.html">v2.0.0</a></dd>
+            <dd><a href="../v1.1.0/index.html">v1.1.0</a></dd>
+            <dd><a href="../v1.0.1/index.html">v1.0.1</a></dd>
+            <dd><a href="../v1.0.0/index.html">v1.0.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="install.html">travis_docsv_fail</a></dd>
-            <dd><a href="../master/install.html">master</a></dd>
+            <dd><a href="banner.html">issue_29_park</a></dd>
+            <dd><a href="../master/banner.html">master</a></dd>
         </dl>
     </div>
 </div>
