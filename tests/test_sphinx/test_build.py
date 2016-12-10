@@ -210,3 +210,25 @@ def test_subdirs(tmpdir, local_docs, urls):
             '<li><a href="{}master/{}sub.html">master</a></li>'.format('../' * i, 'subdir/' * i),
             '<li><a href="{}feature/{}sub.html">feature</a></li>'.format('../' * i, 'subdir/' * i),
         ])
+
+
+def test_import_setup(tmpdir, local_docs, urls):
+    """Test handling of conf.py files that import from setup.py.
+
+    :param tmpdir: pytest fixture.
+    :param local_docs: conftest fixture.
+    :param urls: conftest fixture.
+    """
+    versions = Versions([('', 'master', 'heads', 1, 'conf.py')])
+
+    local_docs.join('setup.py').write('PROJECT_NAME = "myProject"\n')
+    local_docs.join('conf.py').write(
+        'from setup import PROJECT_NAME\n'
+        'assert PROJECT_NAME == "myProject"\n'
+    )
+
+    target = tmpdir.ensure_dir('target')
+    build(str(local_docs), str(target), versions, 'master', True)
+
+    expected = ['<li><a href="master/contents.html">master</a></li>']
+    urls(target.join('contents.html'), expected)
