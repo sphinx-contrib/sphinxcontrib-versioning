@@ -691,6 +691,6 @@ def test_bad_banner(banner, local_docs):
     assert 'KeyError' not in output
 
     # Check no banner.
-    assert 'Disabling banner.' in output
-    assert 'Banner main ref is' not in output
+    assert 'Banner main ref is: stable' in output
+    assert 'Banner main ref stable failed during pre-run.' in output
     banner(destination.join('contents.html'), None)

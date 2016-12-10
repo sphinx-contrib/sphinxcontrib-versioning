@@ -57,6 +57,7 @@ Added
 
 Fixed
     * https://github.com/Robpol86/sphinxcontrib-versioning/issues/26
+    * https://github.com/Robpol86/sphinxcontrib-versioning/issues/27
 
 2.2.0 - 2016-09-15
 ------------------
