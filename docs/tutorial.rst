@@ -41,7 +41,7 @@ SCVersioning:
 
 .. code-block:: bash
 
-    sphinx-versioning build -r feature_branch build docs docs/_build/html
+    sphinx-versioning build -r feature_branch docs docs/_build/html
     open docs/_build/html/index.html
 
 More information about all of the options can be found at :ref:`settings` or by running with ``--help`` but just for
@@ -93,7 +93,7 @@ Now that you have the destination branch in origin go ahead and run SCVersioning
 
 .. code-block:: bash
 
-    sphinx-versioning push -r feature_branch push docs gh-pages .
+    sphinx-versioning push -r feature_branch docs gh-pages .
 
 Again you can find more information about all of the options at :ref:`settings` or by running with ``--help`` but just
 for convenience:
