@@ -243,9 +243,9 @@ getting Travis to run SCVersioning. It should only fail when trying to push to o
 <div class="section" id="ci-config-file">
 <h3>CI Config File<a class="headerlink" href="#ci-config-file" title="Permalink to this headline">¶</a></h3>
 <p>Edit your CI configuration file (e.g. <a class="reference external" href="https://docs.travis-ci.com/user/customizing-the-build/">.travis.yml</a>) with:</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">install</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">install</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">pip install sphinxcontrib-versioning</span>
-<span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
+<span class="nt">after_success</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.email &quot;builds@travis-ci.com&quot;</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">git config --global user.name &quot;Travis CI&quot;</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sphinx-versioning push docs gh-pages .</span>
@@ -294,7 +294,7 @@ Travis CI Deploy Key&#8221;</p>
 we still need to make one more change to the file before committing it. Update .travis.yml to make the after_success
 section look like the following. Remember to replace <strong>$encrypted_x_key</strong> and <strong>$encrypted_x_iv</strong> with what you
 currently have.</p>
-<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nt">after_success</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">eval &quot;$(ssh-agent -s)&quot;; touch docs/key; chmod 0600 docs/key</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">openssl aes-256-cbc -d -K $encrypted_x_key -iv $encrypted_x_iv &lt; docs/key.enc &gt; docs/key</span>
     <span class="l l-Scalar l-Scalar-Plain">&amp;&amp; ssh-add docs/key</span>  <span class="c1"># Use &amp;&amp; to prevent ssh-add from prompting during pull requests.</span>
@@ -342,7 +342,7 @@ automatically for you.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, @Robpol86.
+        &copy; Copyright 2019, @Robpol86.
       Last updated on Aug 24, 2016, 11:27:24 PM.
 
     </p>
