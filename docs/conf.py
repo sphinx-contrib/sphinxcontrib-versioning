@@ -33,11 +33,6 @@ html_theme = 'sphinx_rtd_theme'
 html_title = project
 
 
-# google analytics
-extensions.append('sphinxcontrib.googleanalytics')
-googleanalytics_id = 'UA-82627369-1'
-
-
 # SCVersioning.
 scv_banner_greatest_tag = True
 scv_grm_exclude = ('.gitignore', '.nojekyll', 'README.rst')
