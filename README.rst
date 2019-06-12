@@ -9,6 +9,10 @@ Sphinx extension that allows building versioned docs for self-hosting.
 
 📖 Full documentation: https://robpol86.github.io/sphinxcontrib-versioning
 
+.. image:: https://readthedocs.org/projects/sphinxcontrib-versioning/badge/?version=latest
+:target: https://sphinxcontrib-versioning.readthedocs.io/en/latest/?badge=latest
+:alt: Documentation Status
+
 .. image:: https://img.shields.io/appveyor/ci/Robpol86/sphinxcontrib-versioning/master.svg?style=flat-square&label=AppVeyor%20CI
     :target: https://ci.appveyor.com/project/Robpol86/sphinxcontrib-versioning
     :alt: Build Status Windows
