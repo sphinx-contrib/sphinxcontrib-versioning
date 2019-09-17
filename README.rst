@@ -18,7 +18,7 @@ Sphinx extension that allows building versioned docs for self-hosting.
     :alt: Build Status Windows
 
 .. image:: https://img.shields.io/travis/sphinx-contrib/sphinxcontrib-versioning/master.svg?style=flat-square&label=Travis%20CI
-    :target: https://travis-ci.org/sphinx-contrib/sphinxcontrib-versioning.svg?branch=master
+    :target: https://travis-ci.org/sphinx-contrib/sphinxcontrib-versioning
     :alt: Build Status
 
 .. image:: https://img.shields.io/codecov/c/github/sphinx-contrib/sphinxcontrib-versioning/master.svg?style=flat-square&label=Codecov
