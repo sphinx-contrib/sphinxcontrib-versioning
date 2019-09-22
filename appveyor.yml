@@ -4,8 +4,14 @@ environment:
   PYTHON: Python35
   matrix:
     - TOX_ENV: lint
+    - TOX_ENV: py37
+    - TOX_ENV: py36
     - TOX_ENV: py35
     - TOX_ENV: py27
+    - TOX_ENV: py
+      PYTHON: Python37-x64
+    - TOX_ENV: py
+      PYTHON: Python36-x64
     - TOX_ENV: py
       PYTHON: Python35-x64
     - TOX_ENV: py
