@@ -235,7 +235,7 @@ def test_second_remote(tmpdir, local_docs_ghp, urls, remove):
     if remove:
         with pytest.raises(CalledProcessError) as exc:
             pytest.run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
-        assert "origin/gh-pages' did not match any file(s) known to git." in exc.value.output
+        assert "origin/gh-pages' did not match any file(s) known to git" in exc.value.output
     else:
         pytest.run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
         pytest.run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
@@ -261,7 +261,7 @@ def test_second_remote(tmpdir, local_docs_ghp, urls, remove):
     if remove:
         with pytest.raises(CalledProcessError) as exc:
             pytest.run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
-        assert "origin/gh-pages' did not match any file(s) known to git." in exc.value.output
+        assert "origin/gh-pages' did not match any file(s) known to git" in exc.value.output
     else:
         pytest.run(local_docs_ghp, ['git', 'checkout', 'origin/gh-pages'])
         pytest.run(local_docs_ghp, ['git', 'pull', 'origin', 'gh-pages'])
