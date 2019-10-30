@@ -3,7 +3,6 @@ environment:
   PATH: C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
   PYTHON: Python35
   matrix:
-    - TOX_ENV: lint
     - TOX_ENV: py37
     - TOX_ENV: py36
     - TOX_ENV: py35
