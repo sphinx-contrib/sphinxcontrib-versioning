@@ -17,9 +17,9 @@ matrix:
         - export ${!TRAVIS*}
         - tox -e docsV
 python:
+  - 3.7
+  - 3.6
   - 3.5
-  - 3.4
-  - 3.3
   - 2.7
 sudo: false
 
@@ -49,5 +49,5 @@ deploy:
       kzxiCBVD4dqGxMh318BmwXdurgWZbia2DJWs+QBNs44kiSByQmXWFXo2KamiBZAez+AdBPgA\
       Hs/smp3nE3TI9cHQzzbhDFZftI4dtLf8osNI="
   on:
-    condition: $TRAVIS_PYTHON_VERSION = 3.4
+    condition: $TRAVIS_PYTHON_VERSION = 3.5
     tags: true

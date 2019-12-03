@@ -45,17 +45,15 @@ def run(directory, command, *args, **kwargs):
     return run_command(str(directory), [str(i) for i in command], *args, **kwargs)
 
 
-def pytest_namespace():
+def pytest_configure():
     """Add objects to the pytest namespace. Can be retrieved by importing pytest and accessing pytest.<name>.
 
     :return: Namespace dict.
     :rtype: dict
     """
-    return dict(
-        author_committer_dates=author_committer_dates,
-        ROOT_TS=ROOT_TS,
-        run=run,
-    )
+    pytest.author_committer_dates = author_committer_dates
+    pytest.ROOT_TS = ROOT_TS
+    pytest.run = run
 
 
 @pytest.fixture
